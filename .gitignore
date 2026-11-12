@@ -1,0 +1,75 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.next/
+out/
+dist/
+*.local
+coverage/
+
+# Turbo
+.turbo
+
+# TypeScript incremental build cache (causes merge conflicts)
+*.tsbuildinfo
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+#dev env
+.env
+.env*.local
+.claude
+# Keep the shared larp skill tracked; other Claude configuration is personal.
+!.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/larp
+
+# Keep Codex configuration personal.
+.codex
+.agent
+demo
+keys
+
+# Personal learning notes (never committed)
+LEARNING_ROADMAP.md
+  
+# Local Netlify folder
+.netlify
+.vercel
+
+#supabase
+/supabase/.temp
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.python-version
+
+AGENTS.md
+
+# Bread v0 public repo (own git history; lives here only because of sandbox write scope)
+
+# Breeze internal build
+# Generated Breeze API reference material: not needed to build or run the app.
+outputs/
+*.tsbuildinfo
+.vercel

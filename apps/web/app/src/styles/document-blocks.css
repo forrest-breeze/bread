@@ -1,0 +1,132 @@
+/* Tab and card groups in documents. Loaded by every surface that renders
+ * document bodies: the public portal, in-app readers and the editor. */
+
+/* Document section tabs share the portal palette in both color schemes. */
+:is(.portal-docs-prose, .bread-editor) [data-document-tabs] {
+  margin-block: 1.5em;
+}
+:is(.portal-docs-prose, .bread-editor) [data-document-tabs] > [role="tablist"] {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--portal-border, currentColor);
+}
+:is(.portal-docs-prose, .bread-editor) [data-document-tabs] > [role="tablist"] > button {
+  flex-shrink: 0;
+  padding: .65rem 0;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: .7;
+}
+:is(.portal-docs-prose, .bread-editor) [data-document-tabs] > [role="tablist"] > button[aria-selected="true"] {
+  color: var(--portal-accent, currentColor);
+  border-bottom-color: currentColor;
+  opacity: 1;
+}
+:is(.portal-docs-prose, .bread-editor) [data-document-tabs] > [role="tablist"] > button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+:is(.portal-docs-prose, .bread-editor) [data-document-tab] { padding-top: .75rem; }
+:is(.portal-docs-prose, .bread-editor) [data-document-tab][hidden] { display: none; }
+@media print {
+  :is(.portal-docs-prose, .bread-editor) [data-document-tab][hidden] { display: block; }
+  :is(.portal-docs-prose, .bread-editor) [data-tab-label][hidden] { display: block; }
+  :is(.portal-docs-prose, .bread-editor) [data-document-tabs] > [role="tablist"] { display: none; }
+}
+
+/* Document card groups: a responsive grid of linked summaries. The title link
+ * stretches over the whole card; links inside the body stay clickable. */
+:is(.portal-docs-prose, .bread-editor) [data-document-cards] {
+  /* --cols is the most columns a row may hold, picked from the card count so
+   * rows come out even (4 → 2 × 2, not 3 + 1). Narrow containers still drop
+   * to fewer columns because each column keeps a 14rem minimum. */
+  --cols: 3;
+  --gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(min(100%, 14rem), calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols))), 1fr)
+  );
+  gap: var(--gap);
+  margin-block: 1.5em;
+}
+/* Card count. Published HTML has the cards as direct children; in the editor
+ * they sit one wrapper deeper (see the editor rules below). */
+:is(.portal-docs-prose, .bread-editor) [data-document-cards]:is(
+  :has(> :only-child:not([data-node-view-content-react])),
+  :has(> [data-node-view-content-react] > :only-child)
+) { --cols: 1; }
+:is(.portal-docs-prose, .bread-editor) [data-document-cards]:is(
+  :has(> :nth-child(2):last-child),
+  :has(> [data-node-view-content-react] > :nth-child(2):last-child),
+  :has(> :nth-child(4):last-child),
+  :has(> [data-node-view-content-react] > :nth-child(4):last-child)
+) { --cols: 2; }
+/* In the editor, Tiptap wraps the card node views in extra elements. Make them
+ * transparent so each card is a grid item and the cards lay out exactly as
+ * they publish, filling the available width. */
+.bread-editor [data-document-cards] > [data-node-view-content-react] { display: contents; }
+.bread-editor [data-document-cards] .react-renderer.node-documentCard { display: flex; min-width: 0; }
+.bread-editor [data-document-cards] .react-renderer.node-documentCard > [data-document-card] { flex: 1 1 auto; min-width: 0; }
+:is(.portal-docs-prose, .bread-editor) [data-document-card] {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.1rem 1.25rem;
+  /* One flat, muted accent color: the accent mixed solidly into the page
+   * background (no gradient, no transparency). Falls back to --primary
+   * outside a portal. */
+  --card-accent: var(--portal-accent, var(--primary, currentColor));
+  --card-surface: var(--portal-bg, var(--background, Canvas));
+  border: 1px solid color-mix(in oklab, var(--card-accent) 22%, var(--card-surface));
+  border-radius: .75rem;
+  background: color-mix(in oklab, var(--card-accent) 10%, var(--card-surface));
+  transition: border-color .15s ease, background-color .15s ease;
+}
+:is(.portal-docs-prose, .bread-editor) [data-document-card] > [data-card-title] {
+  margin: 0 0 .35rem;
+  font-weight: 600;
+}
+:is(.portal-docs-prose, .bread-editor) [data-document-card] > [data-card-title] > a {
+  color: inherit;
+  text-decoration: none;
+}
+:is(.portal-docs-prose, .bread-editor:not([contenteditable="true"])) [data-document-card] > [data-card-title] > a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+:is(.portal-docs-prose, .bread-editor:not([contenteditable="true"])) [data-document-card][data-card-href]:hover {
+  border-color: color-mix(in oklab, var(--card-accent) 60%, transparent);
+}
+:is(.portal-docs-prose, .bread-editor:not([contenteditable="true"])) [data-document-card] > [data-card-title] > a:focus-visible {
+  outline: none;
+}
+:is(.portal-docs-prose, .bread-editor:not([contenteditable="true"])) [data-document-card]:has(> [data-card-title] > a:focus-visible) {
+  outline: 2px solid var(--portal-accent, currentColor);
+  outline-offset: 2px;
+}
+:is(.portal-docs-prose, .bread-editor) [data-card-body] {
+  font-size: .925em;
+  opacity: .85;
+}
+:is(.portal-docs-prose, .bread-editor) [data-card-body] > :first-child { margin-top: 0; }
+:is(.portal-docs-prose, .bread-editor) [data-card-body] > :last-child { margin-bottom: 0; }
+:is(.portal-docs-prose, .bread-editor:not([contenteditable="true"])) [data-card-body] a {
+  position: relative;
+  z-index: 1;
+}
+:is(.portal-docs-prose, .bread-editor) [data-card-glyph] {
+  display: block;
+  margin-bottom: .6rem;
+  font-size: 1.5rem;
+  line-height: 1;
+}

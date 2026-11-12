@@ -1,0 +1,245 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://api.breeze.cash",
+      "description": "Breeze API"
+    }
+  ],
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Balances"
+    }
+  ],
+  "paths": {
+    "/v1/balances/payin": {
+      "get": {
+        "operationId": "getPayinBalance",
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Get pay-in balance",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Pay-in balance",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "SUCCEEDED"
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/GetPayinBalanceResponse"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "illustrative": {
+                    "summary": "Illustrative balance; not a live response",
+                    "value": {
+                      "status": "SUCCEEDED",
+                      "data": {
+                        "asOf": 1794398400000,
+                        "totalBalanceMinor": 10000,
+                        "currency": "USD",
+                        "ready": {
+                          "settlementDate": 1794484800000,
+                          "amountMinor": 5000,
+                          "percent": 50
+                        },
+                        "scheduled": {
+                          "amountMinor": 3000,
+                          "percent": 30
+                        },
+                        "pending": {
+                          "amountMinor": 2000,
+                          "percent": 20
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "description": "Pay-in funds not yet settled to you, and how they split across upcoming settlements.\n\nReads one pay-in account: `accountType` when given, otherwise your main pay-in account (`payIn` for most merchants, `cryptoPayIn` for merchants set up for crypto pay-ins). It is not a total across accounts.\n\n- `totalBalanceMinor`: net pay-ins not yet settled to you. Negative when refunds or chargebacks exceed unsettled funds. For IC++ pricing, a refund is deducted once it has settled.\n\n- `ready.amountMinor` = amount of the next upcoming settlement; `ready.settlementDate` is when it is expected to be paid.\n\n- `scheduled.amountMinor` = sum of the upcoming settlements after the next one.\n\n- `pending.amountMinor` = `totalBalanceMinor` − `ready.amountMinor` − `scheduled.amountMinor` (funds not yet allocated to a settlement; negative in a deficit).\n\n- `percent` = slice amount ÷ `totalBalanceMinor` × 100; 0 when there is no positive balance.\n\nAmounts are in minor units of `currency`. Balances are cached for up to a minute; `asOf` is when this one was computed.",
+        "x-required-permissions": [
+          "settlements.read"
+        ],
+        "parameters": [
+          {
+            "name": "accountType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Pay-in account to read. Defaults to your main pay-in account: `payIn` (fiat) for most merchants, `cryptoPayIn` for merchants set up for crypto pay-ins. Not a total across accounts.",
+              "enum": [
+                "payIn",
+                "cryptoPayIn"
+              ]
+            },
+            "description": "Pay-in account to read. Defaults to your main pay-in account: `payIn` (fiat) for most merchants, `cryptoPayIn` for merchants set up for crypto pay-ins. Not a total across accounts."
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GetPayinBalanceResponse": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "asOf": {
+            "type": "number",
+            "description": "When the balance was computed (unix ms); balances are cached for up to a minute."
+          },
+          "totalBalanceMinor": {
+            "type": "number",
+            "description": "Signed: negative when the merchant is in deficit."
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR"
+            ]
+          },
+          "ready": {
+            "type": "object",
+            "properties": {
+              "settlementDate": {
+                "type": "number"
+              },
+              "amountMinor": {
+                "type": "number"
+              },
+              "percent": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "amountMinor",
+              "percent"
+            ],
+            "description": "Amount ready in the next upcoming settlement; `settlementDate` is its expected transfer time (unix ms)."
+          },
+          "scheduled": {
+            "type": "object",
+            "properties": {
+              "amountMinor": {
+                "type": "number"
+              },
+              "percent": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "amountMinor",
+              "percent"
+            ],
+            "description": "Amount across settlements scheduled after the next one."
+          },
+          "pending": {
+            "type": "object",
+            "properties": {
+              "amountMinor": {
+                "type": "number"
+              },
+              "percent": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "amountMinor",
+              "percent"
+            ],
+            "description": "Balance not yet allocated to a settlement: total − ready − scheduled, so negative in a deficit."
+          }
+        },
+        "required": [
+          "asOf",
+          "totalBalanceMinor",
+          "currency",
+          "ready",
+          "scheduled",
+          "pending"
+        ],
+        "description": "`GET /v1/dashboard/payin-balance`",
+        "definitions": {}
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "FAILED"
+            ]
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "errorCode",
+          "errorMessage"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "API key as username, empty password"
+      }
+    }
+  },
+  "info": {
+    "title": "Breeze pay-in balance",
+    "version": "unversioned",
+    "description": "Extracted from the imported Breeze reference. Upstream did not supply info.version."
+  }
+}
+

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "cd ../../.. && npm ci && bash scripts/install-native-bindings.sh",
+  "buildCommand": "cd ../../.. && npx turbo run build --filter=@bread/app",
+  "headers": [
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+    }
+  ]
+}

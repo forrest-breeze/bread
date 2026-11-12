@@ -1,0 +1,51 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      // Turborepo runs tasks in strict env mode, so anything not declared here
+      // is stripped from the build environment. These deploy-context vars decide
+      // whether the app emits absolute /_next asset URLs (see
+      // apps/web/app/next.config.mjs); without them a production build silently
+      // ships root-relative assets and proxied sub-folder portals stop hydrating.
+      "env": [
+        "CONTEXT",
+        "NETLIFY",
+        "URL",
+        "VERCEL",
+        "VERCEL_ENV",
+        "BREAD_PORTAL_ASSET_ORIGIN"
+      ],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
+    },
+    "dev": {
+      // Workspace packages are consumed from dist/, so they must be compiled
+      // before any app's dev server boots — otherwise next.config.mjs imports of
+      // @bread/core fail with ERR_MODULE_NOT_FOUND on a fresh/cleaned checkout.
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "test:coverage:repo": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

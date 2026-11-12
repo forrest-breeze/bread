@@ -1,0 +1,54 @@
+# Heartbeat for the knowledge-base app's media reaper: POSTs the production
+# /api/cron/media-gc route (apps/web/app) with the shared CRON_SECRET. No
+# checkout or build — it only calls the deployed app.
+#
+# Conventions for every workflow in this directory: .github/workflows/README.md
+name: "Cron: KB media GC"
+
+on:
+  schedule:
+    # Daily at 06:15 UTC. Offset off :00 — GitHub's scheduler is congested on
+    # the hour and routinely drops round-time cron events — and offset off the
+    # KB ingest cron (06:07) so the two daily jobs don't contend. This is only a
+    # heartbeat: the reaper is idempotent and conservative (it only deletes
+    # media past a grace period that no live document or capture references), so
+    # a missed or doubled tick is harmless.
+    - cron: '15 6 * * *'
+  workflow_dispatch: # Allows manual trigger from the GitHub UI
+
+concurrency:
+  # Never cancel a mid-flight GC; serialize overlapping ticks instead. The
+  # route's maxDuration is well under the daily cadence, so runs don't pile up.
+  group: media-gc-cron
+  cancel-in-progress: false
+
+jobs:
+  trigger-media-gc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /api/cron/media-gc
+        env:
+          # Set both as repo secrets. CRON_SECRET must match the value in the
+          # app's prod env; BREAD_APP_URL is the prod base URL (e.g.
+          # https://app.example.com) — keeping it a secret makes a host migration
+          # a one-field edit.
+          BREAD_APP_URL: ${{ secrets.BREAD_APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BREAD_APP_URL}" ] || [ -z "${CRON_SECRET}" ]; then
+            echo "::error::BREAD_APP_URL and CRON_SECRET repo secrets must be set"
+            exit 1
+          fi
+          echo "POST ${BREAD_APP_URL}/api/cron/media-gc"
+          http_code=$(curl -sS --max-time 300 \
+            -o /tmp/media-gc-response.json -w '%{http_code}' \
+            -X POST "${BREAD_APP_URL}/api/cron/media-gc" \
+            -H "Authorization: Bearer ${CRON_SECRET}")
+          echo "HTTP ${http_code}"
+          cat /tmp/media-gc-response.json 2>/dev/null || true
+          echo
+          if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 300 ]; then
+            echo "::error::media-gc returned HTTP ${http_code}"
+            exit 1
+          fi

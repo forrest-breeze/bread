@@ -1,0 +1,44 @@
+# Composite action: shared setup for jobs that run the npm/Turbo workspaces
+# (apps/*, apps/web/{app,site}, packages/*).
+#
+# Centralizes Node.js install, Turbo cache restore, dependency install, and
+# Linux native-binding install so every job stays in sync without duplicating
+# setup blocks.
+#
+# Inputs:
+#   node-version: Node.js major version to install (default: "22").
+#
+# Assumes the repository is already checked out — call actions/checkout@v4
+# before this action in your job.
+name: Setup npm workspaces
+description: Install Node.js, restore the Turbo cache, and install workspace dependencies.
+
+inputs:
+  node-version:
+    description: Node.js version to install.
+    required: false
+    default: "22"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+
+    - name: Cache Turbo
+      uses: actions/cache@v4
+      with:
+        path: .turbo
+        key: ${{ runner.os }}-turbo-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-turbo-
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Install native bindings for Linux
+      shell: bash
+      run: ./scripts/install-native-bindings.sh

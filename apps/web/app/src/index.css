@@ -1,0 +1,1067 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* ── Landing page typography presets ──────────────────────────────────
+   Single source of truth for section-level font sizes.
+   Use these variables instead of hardcoding rem values so every
+   section stays in sync across breakpoints.
+   ──────────────────────────────────────────────────────────────────── */
+
+:root {
+  --text-display: clamp(3rem, 8vw, 5.5rem);
+  --text-h1: 3.25rem;
+  --text-h2: 2.2rem;
+  --text-lead: 1.25rem;
+  --text-body-lg: 1rem;
+  --text-body: 1rem;
+  --text-label: 0.875rem;
+  --text-label-sm: 0.7rem;
+  --text-caption: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --text-display: clamp(2.5rem, 11vw, 5.5rem);
+    --text-h1: 1.875rem;
+    --text-h2: 1.5rem;
+    --text-lead: 1rem;
+    --text-body-lg: 0.8rem;
+    --text-body: 0.8rem;
+    --text-label: 0.75rem;
+    --text-label-sm: 0.65rem;
+    --text-caption: 0.65rem;
+  }
+}
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --primary-green: #1f1f1d;
+  --primary-green-hover: #111110;
+  --muted-green: #8E9C78;
+  --accent-green: #DFECC6;
+  --logo-color: #000000;
+  --text-black: #000000;
+  --text-gray: #6F6F6F;
+  --bg-color: #F4F5F0;
+  --background: oklch(0.98 0.002 90);
+  --foreground: oklch(0.16 0.005 80);
+  --card: oklch(0.995 0.002 90);
+  --card-foreground: oklch(0.16 0.005 80);
+  --popover: oklch(0.995 0.002 90);
+  --popover-foreground: oklch(0.16 0.005 80);
+  --primary: oklch(0.18 0.004 90);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.96 0.004 100);
+  --secondary-foreground: oklch(0.25 0.008 100);
+  --muted: oklch(0.96 0.004 100);
+  --muted-foreground: oklch(0.50 0.005 100);
+  --accent: oklch(0.955 0.008 140);
+  --accent-foreground: oklch(0.25 0.008 100);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.912 0.004 100);
+  --input: oklch(0.912 0.004 100);
+  --ring: oklch(0.46 0.006 90);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.975 0.003 100);
+  --sidebar-foreground: oklch(0.16 0.005 80);
+  --sidebar-primary: oklch(0.18 0.004 90);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.955 0.008 140);
+  --sidebar-accent-foreground: oklch(0.25 0.008 100);
+  --sidebar-border: oklch(0.912 0.004 100);
+  --sidebar-ring: oklch(0.46 0.006 90);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --logo-color: #E2F0D9;
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Force light-theme tokens on a subtree even inside a `.dark` ancestor.
+   Used by the portal editor's preview so its light/dark toggle is independent
+   of the app shell's theme — mirrors the `:root` color tokens above. */
+.light {
+  --background: oklch(0.98 0.002 90);
+  --foreground: oklch(0.16 0.005 80);
+  --card: oklch(0.995 0.002 90);
+  --card-foreground: oklch(0.16 0.005 80);
+  --popover: oklch(0.995 0.002 90);
+  --popover-foreground: oklch(0.16 0.005 80);
+  --primary: oklch(0.18 0.004 90);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.96 0.004 100);
+  --secondary-foreground: oklch(0.25 0.008 100);
+  --muted: oklch(0.96 0.004 100);
+  --muted-foreground: oklch(0.50 0.005 100);
+  --accent: oklch(0.955 0.008 140);
+  --accent-foreground: oklch(0.25 0.008 100);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.912 0.004 100);
+  --input: oklch(0.912 0.004 100);
+  --ring: oklch(0.46 0.006 90);
+  --sidebar: oklch(0.975 0.003 100);
+  --sidebar-foreground: oklch(0.16 0.005 80);
+  --sidebar-primary: oklch(0.18 0.004 90);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.955 0.008 140);
+  --sidebar-accent-foreground: oklch(0.25 0.008 100);
+  --sidebar-border: oklch(0.912 0.004 100);
+  --sidebar-ring: oklch(0.46 0.006 90);
+}
+
+/* Marketing-only styles */
+.btn-primary {
+  font-family: var(--font-serif);
+  background: linear-gradient(
+    135deg,
+    rgba(47, 85, 32, 0.9) 0%,
+    rgba(47, 85, 32, 0.75) 50%,
+    rgba(47, 85, 32, 0.9) 100%
+  );
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.02em;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(47, 85, 32, 0.95) 0%,
+    rgba(47, 85, 32, 0.85) 50%,
+    rgba(47, 85, 32, 0.95) 100%
+  );
+  box-shadow:
+    0 4px 16px rgba(47, 85, 32, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+a.btn-primary {
+  text-decoration: none;
+}
+
+.section-label {
+  font-size: var(--text-label);
+  color: var(--primary-green);
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: var(--text-h1);
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+  color: #000;
+  font-weight: 400;
+}
+
+.section-subtitle {
+  font-size: var(--text-body) !important;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Hide the scrollbar while keeping the element scrollable (wheel/trackpad/keys
+   still work). Used by the portal editor panes so the chrome stays clean. */
+@utility scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge/IE */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/WebKit */
+  }
+}
+
+/* Minimal, auto-hiding scrollbar for the portal docs rail. The thumb is
+   transparent until PortalSidebarRail sets [data-scrolling] during a scroll,
+   then disappears again shortly after scrolling stops. */
+.portal-rail-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  scrollbar-gutter: auto;
+}
+.portal-rail-scroll[data-scrolling] {
+  scrollbar-color: color-mix(in oklab, var(--foreground) 22%, transparent) transparent;
+}
+.portal-rail-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.portal-rail-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.portal-rail-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+}
+.portal-rail-scroll[data-scrolling]::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground) 22%, transparent);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    position: relative;
+    min-height: 100vh;
+    isolation: isolate;
+  }
+
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    inset: auto;
+    width: 40rem;
+    height: 40rem;
+    border-radius: 999px;
+    pointer-events: none;
+    filter: blur(80px);
+    opacity: 0.1;
+    z-index: -1;
+  }
+
+  body::before {
+    top: -10rem;
+    right: -10rem;
+    background: radial-gradient(circle at center, var(--primary-green), transparent 70%);
+    animation: drift 28s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  }
+
+  body::after {
+    bottom: -15rem;
+    left: -15rem;
+    background: radial-gradient(circle at center, var(--muted-green), transparent 70%);
+    animation: drift 36s cubic-bezier(0.37, 0, 0.63, 1) infinite reverse;
+  }
+
+  @keyframes drift {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(30px, 60px, 0) scale(1.1); }
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  /*
+   * Loading placeholders stay invisible for their first 200ms after mounting
+   * and only fade in if loading is still going. Fast loads never flash a
+   * skeleton; slow ones still get feedback. The delay restarts on every
+   * mount, so it applies to each navigation, not just the first page load.
+   * The pulse starts once the reveal finishes (it is listed last, so it owns
+   * opacity from then on).
+   */
+  .delayed-reveal {
+    animation: delayed-reveal 150ms ease-out 200ms both;
+  }
+  .skeleton-pulse {
+    animation:
+      delayed-reveal 150ms ease-out 200ms both,
+      skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 350ms infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .delayed-reveal,
+    .skeleton-pulse {
+      animation: delayed-reveal 1ms linear 200ms both;
+    }
+  }
+  @keyframes delayed-reveal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes skeleton-pulse {
+    50% { opacity: 0.5; }
+  }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Indeterminate sliding bar shown while switching workspaces. */
+  .workspace-switch-indeterminate {
+    transform-origin: 0% 50%;
+    animation: workspace-switch-slide 1.1s ease-in-out infinite;
+  }
+
+  .loading-bar-indeterminate {
+    transform-origin: 0% 50%;
+    animation: workspace-switch-slide 1.1s ease-in-out infinite;
+  }
+
+  @keyframes workspace-switch-slide {
+    0% { transform: translateX(-100%) scaleX(0.4); }
+    50% { transform: translateX(10%) scaleX(0.5); }
+    100% { transform: translateX(100%) scaleX(0.4); }
+  }
+
+  /* Font utility classes used by landing page components */
+  .text-serif { font-family: var(--font-serif); }
+  .text-sans { font-family: var(--font-sans); }
+  .text-mono { font-family: var(--font-mono); }
+  .logo-font { font-family: var(--font-serif); font-weight: 500; color: var(--logo-color); letter-spacing: -0.04em; }
+
+
+  /* Landing page wrapper — unified background so sections
+     using transparent or var(--bg-color) all match */
+  .app-wrapper {
+    background-color: var(--bg-color);
+  }
+
+@media (max-width: 768px) {
+    .container { padding: 0 1.25rem; }
+    .section-title { margin-bottom: 0.25rem; }
+    .section-label { margin-bottom: 0.5rem; }
+  }
+}
+
+/* ── Tiptap / ProseMirror Editor ──────────────────────────────────── */
+/* .bread-editor IS the .ProseMirror element (same div), so all child
+   selectors go directly off .bread-editor — no .ProseMirror nesting. */
+
+.bread-editor {
+  min-height: 60vh;
+  outline: none;
+}
+
+/* Inline change highlighting (proposal review): added text is tinted green,
+   removed text is shown struck-through red at the spot it was deleted, so a
+   proposal's edits read like tracked changes while editing in place. */
+.bread-editor .diff-added {
+  background-color: rgba(16, 185, 129, 0.25);
+  box-shadow: 0 -1px 0 rgba(16, 185, 129, 0.5) inset;
+  border-radius: 0.2rem;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0.05rem 0.1rem;
+}
+
+.bread-editor .diff-deleted {
+  color: rgb(220, 38, 38);
+  background-color: rgba(239, 68, 68, 0.12);
+  text-decoration: line-through;
+  border-radius: 0.2rem;
+  padding: 0.05rem 0.1rem;
+  margin-right: 0.15rem;
+  white-space: pre-wrap;
+  user-select: none;
+}
+
+/* Placeholder */
+.bread-editor [data-placeholder]::before {
+  color: var(--muted-foreground);
+  opacity: 0.4;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Inside the portal builder's preview frame a document is always editable in
+   place, so editable regions carry Notion-style cues: a faint wash on the
+   hovered block and the text cursor, alongside the grey placeholder text. */
+[data-preview-editor] .bread-editor[contenteditable="true"] {
+  cursor: text;
+}
+
+[data-preview-editor] .bread-editor[contenteditable="true"] > * {
+  border-radius: 0.25rem;
+  transition: background-color 120ms ease;
+}
+
+[data-preview-editor] .bread-editor[contenteditable="true"] > *:not(pre):not(.mermaid-diagram-wrapper):hover {
+  background-color: color-mix(in oklab, var(--muted) 55%, transparent);
+  box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--muted) 55%, transparent);
+}
+
+[data-preview-editor] .bread-editor[contenteditable="true"] [data-placeholder]::before {
+  opacity: 0.55;
+}
+
+/* ── Typography ── */
+
+.bread-editor p {
+  margin: 0.5rem 0;
+  line-height: 1.7;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  opacity: 0.9;
+}
+
+.bread-editor h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 1.5rem 0 0.5rem;
+  line-height: 1.3;
+}
+
+.bread-editor h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 1.25rem 0 0.375rem;
+  line-height: 1.35;
+}
+
+.bread-editor h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 1rem 0 0.25rem;
+  line-height: 1.4;
+}
+
+/* First child has no top margin */
+.bread-editor > :first-child {
+  margin-top: 0;
+}
+
+/* ── Lists ── */
+
+.bread-editor ul,
+.bread-editor ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.bread-editor ul {
+  list-style-type: disc;
+}
+
+.bread-editor ol {
+  list-style-type: decimal;
+}
+
+.bread-editor li {
+  margin: 0.125rem 0;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.bread-editor li p {
+  margin: 0;
+}
+
+/* ── Task lists ── */
+
+.bread-editor ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.bread-editor ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.bread-editor ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  user-select: none;
+  margin-top: 0.2rem;
+}
+
+.bread-editor ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+.bread-editor ul[data-type="taskList"] input[type="checkbox"] {
+  cursor: pointer;
+  width: 0.875rem;
+  height: 0.875rem;
+  accent-color: var(--primary);
+  border-radius: 2px;
+}
+
+/* ── Inline code ── */
+
+.bread-editor code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+/* ── Code blocks ── */
+
+.bread-editor pre {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  margin: 0.75rem 0;
+  overflow-x: auto;
+  background: oklch(0.16 0 0);
+  color: oklch(0.9 0 0);
+  border: 1px solid var(--border);
+}
+
+.bread-editor pre code {
+  color: inherit;
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  border-radius: 0;
+}
+
+/* ── Blockquote ── */
+
+.bread-editor blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: var(--muted-foreground);
+}
+
+.bread-editor blockquote p {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+
+/* ── Links ── */
+
+.bread-editor a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.bread-editor a:hover {
+  opacity: 0.8;
+}
+
+/* ── Horizontal rule ── */
+
+.bread-editor hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+/* ── S3-backed media ── */
+
+.bread-editor img,
+.bread-editor video {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 0.625rem;
+  border: 1px solid var(--border);
+  background: var(--muted);
+}
+
+.bread-editor video {
+  width: 100%;
+  min-height: 12rem;
+  max-height: 70vh;
+  background: #000;
+}
+
+.bread-editor img.ProseMirror-selectednode,
+.bread-editor video.ProseMirror-selectednode {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* ── Marks ── */
+
+.bread-editor mark {
+  background-color: oklch(0.9 0.08 90);
+  padding: 0.05em 0.15em;
+  border-radius: 2px;
+}
+
+/* ── Tables ── */
+
+.bread-editor table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  font-size: 0.875em;
+  display: block;
+  overflow-x: auto;
+}
+
+.bread-editor th,
+.bread-editor td {
+  position: relative;
+  min-width: 4rem;
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.bread-editor th > p,
+.bread-editor td > p {
+  margin: 0;
+}
+
+.bread-editor th {
+  background: var(--muted);
+  font-weight: 600;
+}
+
+.bread-editor tbody tr:nth-child(even) {
+  background: color-mix(in oklch, var(--muted) 40%, transparent);
+}
+
+/* Editing affordances (Tiptap table nodes). The editor view wraps each
+   <table> in .tableWrapper; stored HTML on the read-only surfaces has the
+   bare <table>, which keeps the display:block + overflow-x rule above. */
+.bread-editor .tableWrapper {
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.bread-editor .tableWrapper table {
+  display: table;
+  margin: 0;
+  table-layout: fixed;
+}
+
+.bread-editor .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: color-mix(in oklch, var(--primary) 12%, transparent);
+  pointer-events: none;
+}
+
+/* ── Math nodes ── */
+
+.math-block-wrapper {
+  margin: 0.75rem 0;
+}
+
+.math-block-render {
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  background: var(--muted);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s;
+  overflow-x: auto;
+}
+
+.math-block-render:hover {
+  border-color: var(--border);
+}
+
+.math-block-editor {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--muted);
+  border: 1px solid var(--primary);
+}
+
+.math-block-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  margin-bottom: 0.375rem;
+}
+
+.math-block-input {
+  display: block;
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  outline: none;
+}
+
+.math-block-input:focus {
+  border-color: var(--primary);
+}
+
+.math-block-preview {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.math-inline-wrapper {
+  display: inline;
+}
+
+.math-inline-render {
+  cursor: pointer;
+  padding: 0.1em 0.2em;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+
+.math-inline-render:hover {
+  background: var(--muted);
+}
+
+.math-inline-input {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--muted);
+  border: 1px solid var(--primary);
+  color: var(--foreground);
+  outline: none;
+}
+
+.math-empty {
+  color: var(--muted-foreground);
+  opacity: 0.5;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.math-error {
+  color: var(--destructive);
+}
+
+/* ── Mermaid diagram nodes ── */
+
+.mermaid-diagram-wrapper {
+  margin: 0.75rem 0;
+  border-radius: 0.5rem;
+}
+
+.mermaid-diagram-wrapper.is-selected {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.mermaid-block-render {
+  min-height: 5rem;
+  padding: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  background: var(--muted);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.mermaid-block-render:hover {
+  border-color: var(--border);
+}
+
+.mermaid-block-editor {
+  padding: 0.75rem;
+  border: 1px solid var(--primary);
+  border-radius: 0.5rem;
+  background: var(--muted);
+}
+
+.mermaid-block-label {
+  margin-bottom: 0.375rem;
+  color: var(--muted-foreground);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mermaid-block-input {
+  display: block;
+  width: 100%;
+  min-height: 7rem;
+  max-height: 24rem;
+  padding: 0.5rem 0.75rem;
+  overflow: auto;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  outline: none;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.mermaid-block-input:focus {
+  border-color: var(--primary);
+}
+
+.mermaid-block-preview {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: center;
+  overflow-x: auto;
+}
+
+.mermaid-block-editor .mermaid-block-preview {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background: var(--background);
+}
+
+.mermaid-status,
+.mermaid-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.mermaid-empty {
+  opacity: 0.65;
+  font-style: italic;
+}
+
+.mermaid-error .mermaid-status {
+  color: var(--destructive);
+}
+
+.mermaid-svg,
+.mermaid-static-render {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.mermaid-svg > svg,
+.mermaid-static-render > svg {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Diagrams fade in rather than popping; cached ones are effectively instant. */
+.mermaid-svg > svg,
+.mermaid-static-render > svg {
+  animation: delayed-reveal 180ms ease-out both;
+}
+
+/* Editor-only: a status line that appears only if rendering takes over 1s. */
+.mermaid-status-slow {
+  animation: delayed-reveal 150ms ease-out 1s both;
+}
+
+.mermaid-static-render {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--muted);
+}
+
+.mermaid-static-render > pre[data-mermaid-fallback] {
+  margin: 0;
+}
+
+/*
+ * Read-only views ship the diagram source as a <pre> fallback, which the
+ * client swaps for an SVG. Until then, hide the (dark) code block behind a
+ * quiet, empty box of the same style the diagram will sit in — no loading
+ * text or spinner — and fade the diagram in when it is ready. Scoped to containers that run
+ * mountMermaidInElement ([data-mermaid-host]); it sets
+ * data-mermaid-failed to bring the source back when rendering fails.
+ */
+[data-mermaid-host] [data-type="mermaid-diagram"]:not([data-mermaid-failed]):has(> pre[data-mermaid-fallback]) {
+  display: flex;
+  min-height: 5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: var(--muted);
+}
+[data-mermaid-host] [data-type="mermaid-diagram"]:not([data-mermaid-failed]) > pre[data-mermaid-fallback] {
+  display: none;
+}
+/* Bare imported ```mermaid fences (no wrapper div). */
+[data-mermaid-host] pre:not([data-mermaid-failed]):has(> code.language-mermaid) {
+  display: flex;
+  min-height: 5rem;
+  align-items: center;
+  justify-content: center;
+  border-color: transparent !important;
+  background: var(--muted) !important;
+}
+[data-mermaid-host] pre:not([data-mermaid-failed]):has(> code.language-mermaid) > code {
+  display: none;
+}
+
+/* ── Dark mode overrides ── */
+
+.dark .bread-editor pre {
+  background: oklch(0.12 0 0);
+  border-color: oklch(1 0 0 / 8%);
+}
+
+.dark .bread-editor mark {
+  background-color: oklch(0.4 0.08 60);
+  color: oklch(0.95 0.03 90);
+}
+
+/* ── React Flow controls (workflow canvas) theme ── */
+
+.react-flow__controls {
+  box-shadow: none !important;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  overflow: hidden;
+  background: var(--background);
+}
+
+.react-flow__controls-button {
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  width: 24px;
+  height: 24px;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor;
+  max-width: 12px;
+  max-height: 12px;
+}
+
+.react-flow__attribution {
+  background: transparent !important;
+  color: var(--muted-foreground);
+}
+
+/* ── Tippy.js override (slash command popup) ── */
+
+.tippy-box {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.tippy-content {
+  padding: 0 !important;
+}
+
+.tippy-arrow {
+  display: none !important;
+}

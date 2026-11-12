@@ -1,0 +1,526 @@
+/*
+ * Docs-grade reading styles for the PUBLIC knowledge-base portal only.
+ *
+ * Scoped entirely under `.portal-docs-prose` so it is fully isolated from the
+ * in-app editor (`.bread-editor` in index.css) — the two never share a rule.
+ * This is the roomier documentation scale: ~16px body, 1.75 line-height, clear
+ * heading hierarchy, and styled lists/quotes/tables. The reading measure is set
+ * by the article container, not here. Code blocks are server-highlighted by
+ * Shiki (public-kb-render.ts); the `.shiki` rules here only theme the container
+ * + switch the dual light/dark palette that Shiki emits as `--shiki-light` /
+ * `--shiki-dark` CSS variables.
+ *
+ * Imported once from the portal layout (app/(public)/p/[slug]/layout.tsx).
+ */
+
+.portal-docs-prose {
+  color: var(--foreground);
+  font-size: 1rem;
+  line-height: 1.75;
+  /* No measure cap here on purpose: the article container owns the reading
+     width (see PublicKbDocument). A `ch` cap layered under a narrower pixel
+     container just fights it — whichever is smaller wins, so two files had to
+     agree to widen the column. */
+  max-width: none;
+}
+
+.portal-docs-prose > :first-child {
+  margin-top: 0;
+}
+.portal-docs-prose > :last-child {
+  margin-bottom: 0;
+}
+
+/* ── Paragraphs ── */
+
+.portal-docs-prose p {
+  margin: 1.1em 0;
+}
+
+/* ── Headings ── */
+
+.portal-docs-prose h1,
+.portal-docs-prose h2,
+.portal-docs-prose h3,
+.portal-docs-prose h4 {
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+  /* Clear the sticky header, which is taller when the portal has page navigation. */
+  scroll-margin-top: calc(var(--portal-header-height, 4.5rem) + 1.5rem);
+  color: var(--foreground);
+}
+
+.portal-docs-prose h1 {
+  font-size: 2rem;
+  margin: 0 0 1rem;
+}
+.portal-docs-prose h2 {
+  font-size: 1.375rem;
+  margin: 2.25rem 0 0.75rem;
+}
+.portal-docs-prose h3 {
+  font-size: 1.2rem;
+  margin: 1.85rem 0 0.6rem;
+}
+.portal-docs-prose h4 {
+  font-size: 1.02rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+/* ── Lists ── */
+
+.portal-docs-prose ul,
+.portal-docs-prose ol {
+  margin: 1.1em 0;
+  padding-left: 1.6em;
+}
+.portal-docs-prose ul {
+  list-style: disc;
+}
+.portal-docs-prose ol {
+  list-style: decimal;
+}
+.portal-docs-prose li {
+  margin: 0.4em 0;
+}
+.portal-docs-prose li::marker {
+  color: var(--muted-foreground);
+}
+.portal-docs-prose li > ul,
+.portal-docs-prose li > ol {
+  margin: 0.35em 0;
+}
+
+/* ── Inline code ── */
+
+.portal-docs-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  padding: 0.15em 0.4em;
+  border-radius: 5px;
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+/* ── Links ── */
+
+.portal-docs-prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  font-weight: 500;
+}
+.portal-docs-prose a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ── Blockquote ── */
+
+.portal-docs-prose blockquote {
+  margin: 1.4em 0;
+  padding: 0.25em 0 0.25em 1.15em;
+  border-left: 3px solid color-mix(in oklab, var(--primary) 55%, var(--border));
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.portal-docs-prose blockquote p {
+  margin: 0.5em 0;
+}
+
+/* ── Horizontal rule ── */
+
+.portal-docs-prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.25rem 0;
+}
+
+/* ── Tables ── */
+
+.portal-docs-prose table {
+  width: 100%;
+  margin: 1.4em 0;
+  border-collapse: collapse;
+  font-size: 0.925em;
+  display: block;
+  overflow-x: auto;
+}
+.portal-docs-prose th,
+.portal-docs-prose td {
+  border: 1px solid var(--border);
+  padding: 0.5em 0.75em;
+  text-align: left;
+  vertical-align: top;
+}
+.portal-docs-prose th {
+  background: var(--muted);
+  font-weight: 600;
+}
+
+/* ── Images ── */
+
+.portal-docs-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.4em 0;
+}
+
+.portal-docs-prose video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: 75vh;
+  margin: 1.4em 0;
+  border-radius: 0.5rem;
+  background: #000;
+}
+
+/* ── Tight variant (used inside callouts) ── */
+
+.portal-docs-prose--tight {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+.portal-docs-prose--tight p {
+  margin: 0.5em 0;
+}
+.portal-docs-prose--tight > :first-child {
+  margin-top: 0;
+}
+.portal-docs-prose--tight > :last-child {
+  margin-bottom: 0;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * Shiki code blocks
+ *
+ * `defaultColor: false` means Shiki writes BOTH `--shiki-light` and
+ * `--shiki-dark` on every span and on `.shiki`; we resolve the right one per
+ * color scheme. One HTML payload, no client highlighting JS.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+.portal-docs-prose pre,
+.portal-docs-prose .shiki {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 1.4em 0;
+  padding: 1rem 1.05rem;
+  border-radius: 0.75rem;
+  border: 1px solid #2a2a35;
+  background: #1c1c26;
+  box-shadow: 0 12px 30px -22px rgba(15, 23, 42, 0.6);
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+/* Developer-doc code stays dark in both portal appearances. */
+.portal-docs-prose .shiki,
+.portal-docs-prose .shiki span {
+  color: var(--shiki-dark);
+  background-color: #1c1c26;
+}
+
+/* Dark scheme: swap to Shiki's dark palette + background. */
+.dark .portal-docs-prose .shiki,
+.dark .portal-docs-prose .shiki span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+/* Spans must stay transparent so only the <pre> paints the background. */
+.portal-docs-prose .shiki span {
+  background-color: transparent;
+}
+
+/* Plain (non-Shiki) <pre> fallback when highlighting was skipped. */
+.portal-docs-prose pre:not(.shiki) {
+  background: #1c1c26;
+  color: #d6d6e4;
+}
+
+.portal-docs-prose pre code {
+  display: grid;
+  gap: 0;
+  font-size: inherit;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+}
+
+.portal-docs-prose .shiki .line {
+  display: block;
+  min-height: 1.6em;
+}
+
+/* Hide trailing empty rows in already-rendered or cached Shiki markup. */
+.portal-docs-prose .shiki .line:empty:not(:has(~ .line:not(:empty))) {
+  display: none;
+}
+
+/* ── Copy button (CodeCopyButtons client island) ── */
+
+.portal-code-block {
+  padding-top: 2.1rem;
+}
+
+.portal-code-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.2rem 0.55rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #a7a7b8;
+  background: #282833;
+  border: 1px solid #383845;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.portal-code-block:hover .portal-code-copy,
+.portal-code-copy:focus-visible {
+  opacity: 1;
+}
+
+.portal-code-copy:hover {
+  color: #ffffff;
+  border-color: #525263;
+}
+
+/* ── Language tag (server-rendered `data-language`, public-kb-render.ts) ──
+ * Sits in the block's top-left corner, opposite the Copy button. Pure CSS, so
+ * it renders before hydration and in no-JS views. */
+
+.portal-docs-prose pre[data-language] {
+  padding-top: 2.1rem;
+}
+
+.portal-docs-prose pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.6rem;
+  left: 1.05rem;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: #8b8b9e;
+  pointer-events: none;
+}
+
+/* ── Language picker (data-code-group, enhance-code-groups.ts) ──
+ * The dropdown takes the tag's place; the visible block keeps its own chrome. */
+
+.portal-docs-prose .portal-code-group {
+  position: relative;
+  margin: 1.4em 0;
+}
+
+.portal-docs-prose .portal-code-group > pre {
+  margin: 0;
+  padding-top: 2.6rem;
+}
+
+.portal-docs-prose .portal-code-group > pre[hidden] {
+  display: none;
+}
+
+.portal-docs-prose .portal-code-group > pre[data-language]::before {
+  content: none;
+}
+
+.portal-code-group-bar {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.6rem;
+  z-index: 1;
+}
+
+.portal-code-group-select {
+  appearance: none;
+  padding: 0.15rem 1.4rem 0.15rem 0.45rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: #c9c9d6;
+  background-color: #282833;
+  /* Chevron drawn with gradients: no url() so it can't trip CSP/sanitizers. */
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    right 0.65rem center,
+    right 0.42rem center;
+  background-size: 0.23rem 0.23rem;
+  background-repeat: no-repeat;
+  border: 1px solid #383845;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+
+.portal-code-group-select:hover {
+  color: #ffffff;
+  border-color: #525263;
+}
+
+.portal-code-group-select:focus-visible {
+  outline: 2px solid var(--portal-accent, #3b82f6);
+  outline-offset: 1px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Translation hand-off.
+ *
+ * The portal is server-rendered in English and translated in the browser by
+ * mutating text nodes, so a navigation would otherwise paint English and swap
+ * it a beat later. While a first translation pass is in flight for content that
+ * is not cached yet, the relevant surface is held back. Initial loads and
+ * language changes hide all chrome; page navigation hides only the new body so
+ * the already translated header stays usable. PortalTranslationProvider keeps
+ * the hold through the complete request and always clears it on success,
+ * failure, or timeout, so source text never appears mid-translation.
+ * ------------------------------------------------------------------------- */
+[data-portal-root] > * {
+  transition: opacity 0.12s ease-out;
+}
+
+[data-portal-root][data-portal-translating="content"] > main,
+[data-portal-root][data-portal-translating="all"] > * {
+  opacity: 0;
+}
+
+[data-portal-root][data-portal-translating]::after {
+  content: "";
+  position: fixed;
+  z-index: 40;
+  left: calc(50% - 0.625rem);
+  top: calc(50% - 0.625rem);
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 9999px;
+  opacity: 0.4;
+  pointer-events: none;
+  animation: portal-translation-spin 0.7s linear infinite;
+}
+
+@keyframes portal-translation-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-portal-root] > * {
+    transition: none;
+  }
+
+  [data-portal-root][data-portal-translating]::after {
+    animation: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * Theme customization
+ *
+ * Driven by portalThemeCssVars + portalThemeDataAttributes (lib/portal/
+ * theme-vars.ts). Each rule only applies when its data attribute is present,
+ * so an uncustomized portal renders exactly as before.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* Dark-mode accent. --portal-accent is set inline on the root, which a rule
+ * cannot override on the same element, so it is re-pointed on descendants. */
+[data-portal-root][data-portal-accent-dark].dark * {
+  --portal-accent: var(--portal-accent-dark);
+}
+
+/* Page background per mode. Re-pointing --background keeps every surface that
+ * paints bg-background (header, cards' page gutters) in step. */
+[data-portal-root][data-portal-bg-light]:not(.dark),
+[data-portal-root][data-portal-bg-light]:not(.dark) * {
+  --background: var(--portal-bg-light);
+}
+[data-portal-root][data-portal-bg-dark].dark,
+[data-portal-root][data-portal-bg-dark].dark * {
+  --background: var(--portal-bg-dark);
+}
+
+/* Background decorations, faded out below the fold so long pages stay calm. */
+[data-portal-root][data-portal-decoration="gradient"] {
+  background-image: radial-gradient(
+    70rem 34rem at 50% -12rem,
+    color-mix(in srgb, var(--portal-accent) 16%, transparent),
+    transparent 70%
+  );
+  background-repeat: no-repeat;
+}
+/* Grid: drawn by a pseudo-element so its fade-out mask never touches content. */
+[data-portal-root][data-portal-decoration="grid"] {
+  position: relative;
+  isolation: isolate;
+}
+[data-portal-root][data-portal-decoration="grid"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 36rem;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, currentColor 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, currentColor 7%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black, transparent);
+}
+
+/* Custom fonts. */
+[data-portal-root][data-portal-font-body] {
+  font-family: var(--portal-font-body), ui-sans-serif, system-ui, sans-serif;
+}
+/* The header wordmark is part of the brand, so it follows the heading font. */
+[data-portal-root][data-portal-font-heading] :is(h1, h2, h3, h4, h5, h6, [data-portal-brand-text]) {
+  font-family: var(--portal-font-heading), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Code blocks that follow the portal's light/dark mode. */
+[data-portal-root][data-portal-code="system"]:not(.dark) .portal-docs-prose pre,
+[data-portal-root][data-portal-code="system"]:not(.dark) .portal-docs-prose .shiki {
+  border-color: var(--border);
+  background: var(--shiki-light-bg, #f6f8fa);
+  box-shadow: none;
+}
+[data-portal-root][data-portal-code="system"]:not(.dark) .portal-docs-prose .shiki {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg, #f6f8fa);
+}
+[data-portal-root][data-portal-code="system"]:not(.dark) .portal-docs-prose .shiki span {
+  color: var(--shiki-light);
+  background-color: transparent;
+}
+[data-portal-root][data-portal-code="system"]:not(.dark) .portal-docs-prose pre:not(.shiki) {
+  color: var(--foreground);
+}
+[data-portal-root][data-portal-code="system"]:not(.dark) .portal-docs-prose pre[data-language]::before {
+  color: var(--muted-foreground);
+}
+[data-portal-root][data-portal-code="system"]:not(.dark) .portal-code-group-select {
+  color: var(--foreground);
+  background-color: var(--background);
+  border-color: var(--border);
+}

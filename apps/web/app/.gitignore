@@ -1,0 +1,14 @@
+.env.local
+.env.sentry-build-plugin
+.next
+next-env.d.ts
+
+# Build / test outputs
+dist/
+out/
+build/
+coverage/
+*.tsbuildinfo
+
+# Vercel
+.vercel

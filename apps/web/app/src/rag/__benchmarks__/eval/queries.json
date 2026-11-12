@@ -1,0 +1,245 @@
+[
+  {
+    "id": "lex-01",
+    "category": "lexical",
+    "query": "auth-gateway runbook",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-02",
+    "category": "lexical",
+    "query": "POSTGRES_SSLMODE environment variable",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-03",
+    "category": "lexical",
+    "query": "GITHUB_APP_PRIVATE_KEY PEM format",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-04",
+    "category": "lexical",
+    "query": "forrestcai owner Netlify deploy",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-05",
+    "category": "lexical",
+    "query": "pg_bouncer pool_mode transaction",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-06",
+    "category": "lexical",
+    "query": "RLS policy workspace_members",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-07",
+    "category": "lexical",
+    "query": "BREAD_CLI_API_KEY Netlify env",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-08",
+    "category": "lexical",
+    "query": "Gemini gemini-embedding-001 768 dimensions",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-09",
+    "category": "lexical",
+    "query": "match_document_section_chunks RPC signature",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "lex-10",
+    "category": "lexical",
+    "query": "ingest_proposals status committed",
+    "relevant_chunk_ids": []
+  },
+
+  {
+    "id": "sem-01",
+    "category": "semantic",
+    "query": "how do we deploy the authentication service to production?",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-02",
+    "category": "semantic",
+    "query": "what do we do when the database connection pool is exhausted?",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-03",
+    "category": "semantic",
+    "query": "rolling back a bad release",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-04",
+    "category": "semantic",
+    "query": "onboarding flow for a new engineer",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-05",
+    "category": "semantic",
+    "query": "reset a user's credentials",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-06",
+    "category": "semantic",
+    "query": "how does our billing system handle overages?",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-07",
+    "category": "semantic",
+    "query": "approach to multi-region failover",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-08",
+    "category": "semantic",
+    "query": "why did we choose Supabase over RDS?",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-09",
+    "category": "semantic",
+    "query": "strategy for handling stale data in caches",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "sem-10",
+    "category": "semantic",
+    "query": "keeping the knowledge base up-to-date automatically",
+    "relevant_chunk_ids": []
+  },
+
+  {
+    "id": "amb-01",
+    "category": "ambiguous",
+    "query": "embedding regeneration",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-02",
+    "category": "ambiguous",
+    "query": "capture sweep",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-03",
+    "category": "ambiguous",
+    "query": "document links",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-04",
+    "category": "ambiguous",
+    "query": "workspace scoping",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-05",
+    "category": "ambiguous",
+    "query": "feature flag",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-06",
+    "category": "ambiguous",
+    "query": "rate limit",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-07",
+    "category": "ambiguous",
+    "query": "ingest pipeline",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-08",
+    "category": "ambiguous",
+    "query": "authentication",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-09",
+    "category": "ambiguous",
+    "query": "review queue",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "amb-10",
+    "category": "ambiguous",
+    "query": "section hierarchy",
+    "relevant_chunk_ids": []
+  },
+
+  {
+    "id": "head-01",
+    "category": "heading",
+    "query": "Capture Buffer + Librarian Sweep",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-02",
+    "category": "heading",
+    "query": "Hybrid Retrieval with RRF",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-03",
+    "category": "heading",
+    "query": "How GraphRAG compares to vector RAG",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-04",
+    "category": "heading",
+    "query": "MCP server architecture",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-05",
+    "category": "heading",
+    "query": "Slack integration production plan",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-06",
+    "category": "heading",
+    "query": "GitHub integration production plan",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-07",
+    "category": "heading",
+    "query": "Workflow graph and runs schema",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-08",
+    "category": "heading",
+    "query": "Topic pages synthesis",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-09",
+    "category": "heading",
+    "query": "Post-Storage Optimizations",
+    "relevant_chunk_ids": []
+  },
+  {
+    "id": "head-10",
+    "category": "heading",
+    "query": "Autonomous Capture Pivot Refactor Plan",
+    "relevant_chunk_ids": []
+  }
+]

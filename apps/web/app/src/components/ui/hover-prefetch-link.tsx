@@ -1,0 +1,97 @@
+"use client"
+
+import React from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import type { ComponentPropsWithoutRef } from "react"
+import { useHoverIntent } from "@/hooks/use-hover-intent"
+
+type NextLinkProps = ComponentPropsWithoutRef<typeof Link>
+
+interface HoverPrefetchLinkProps extends NextLinkProps {
+  /**
+   * Milliseconds of hover before triggering a prefetch. Defaults to 80.
+   */
+  intentDelayMs?: number
+  /**
+   * Set to true to suppress hover-intent prefetch for this link. The link
+   * still renders and works normally — only the prefetch-on-hover is
+   * disabled. Useful as an escape hatch when a specific link should not
+   * kick off a background fetch.
+   */
+  disableHoverPrefetch?: boolean
+  /**
+   * By default `prefetch={false}` is forwarded to `<Link>` so that
+   * Next.js does not prefetch on viewport entry (we handle prefetch on
+   * hover instead). Set this to `true` to re-enable viewport-based
+   * prefetch in addition to hover-intent prefetch.
+   */
+  keepViewportPrefetch?: boolean
+}
+
+/**
+ * A drop-in replacement for Next.js `<Link>` that prefetches the destination
+ * route when the user hovers with intent (i.e. after a short pause), rather
+ * than waiting until the route enters the viewport.
+ *
+ * Usage is identical to `<Link>` with two optional extra props:
+ *   - `intentDelayMs` — hover dwell time before prefetch fires (default 80ms)
+ *   - `disableHoverPrefetch` — opt-out on a per-link basis
+ *   - `keepViewportPrefetch` — re-enable Next's built-in viewport prefetch
+ */
+export function HoverPrefetchLink({
+  href,
+  intentDelayMs = 80,
+  disableHoverPrefetch = false,
+  keepViewportPrefetch = false,
+  onMouseEnter: externalMouseEnter,
+  onMouseLeave: externalMouseLeave,
+  children,
+  className,
+  ...rest
+}: HoverPrefetchLinkProps): React.ReactElement {
+  const router = useRouter()
+
+  const hrefString = typeof href === "string" ? href : href.pathname ?? ""
+
+  const { onMouseEnter: hoverEnter, onMouseLeave: hoverLeave } =
+    useHoverIntent({
+      delayMs: intentDelayMs,
+      onIntent: () => {
+        if (!disableHoverPrefetch) {
+          router.prefetch(hrefString)
+        }
+      },
+    })
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!disableHoverPrefetch) {
+      hoverEnter()
+    }
+    if (typeof externalMouseEnter === "function") {
+      externalMouseEnter(e)
+    }
+  }
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!disableHoverPrefetch) {
+      hoverLeave()
+    }
+    if (typeof externalMouseLeave === "function") {
+      externalMouseLeave(e)
+    }
+  }
+
+  return (
+    <Link
+      href={href}
+      prefetch={keepViewportPrefetch ? undefined : false}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+      {...rest}
+    >
+      {children}
+    </Link>
+  )
+}

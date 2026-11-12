@@ -1,0 +1,52 @@
+# Heartbeat for the app's scheduled GitHub docs sync: POSTs the production
+# /api/cron/ingest-all route (apps/web/app) with the shared CRON_SECRET. No
+# checkout or build — it only calls the deployed app.
+#
+# Conventions for every workflow in this directory: .github/workflows/README.md
+name: "Cron: KB ingest-all"
+
+on:
+  schedule:
+    # Hourly at :07. Offset off :00 — GitHub's scheduler is congested on the
+    # hour and routinely drops round-time cron events. The cron is a fallback
+    # for missed GitHub push webhooks; the sync is plan-gated server-side.
+    - cron: '7 * * * *'
+  workflow_dispatch: # Allows manual trigger from the GitHub UI
+
+concurrency:
+  # Never cancel a mid-flight ingest; serialize overlapping ticks instead. The
+  # route's 5-min maxDuration is well under the hourly cadence, so runs don't
+  # pile up in practice.
+  group: ingest-cron
+  cancel-in-progress: false
+
+jobs:
+  trigger-ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /api/cron/ingest-all
+        env:
+          # Set both as repo secrets. CRON_SECRET must match the value in the
+          # app's prod env; BREAD_APP_URL is the prod base URL (e.g.
+          # https://app.example.com) — keeping it a secret makes a host migration
+          # a one-field edit.
+          BREAD_APP_URL: ${{ secrets.BREAD_APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BREAD_APP_URL}" ] || [ -z "${CRON_SECRET}" ]; then
+            echo "::error::BREAD_APP_URL and CRON_SECRET repo secrets must be set"
+            exit 1
+          fi
+          echo "POST ${BREAD_APP_URL}/api/cron/ingest-all"
+          http_code=$(curl -sS --max-time 300 \
+            -o /tmp/ingest-response.json -w '%{http_code}' \
+            -X POST "${BREAD_APP_URL}/api/cron/ingest-all" \
+            -H "Authorization: Bearer ${CRON_SECRET}")
+          echo "HTTP ${http_code}"
+          cat /tmp/ingest-response.json 2>/dev/null || true
+          echo
+          if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 300 ]; then
+            echo "::error::ingest-all returned HTTP ${http_code}"
+            exit 1
+          fi
