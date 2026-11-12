@@ -30,7 +30,6 @@ const workspace: PublicWorkspace = {
   slug: "acme",
   iconUrl: null,
   isPublic: true,
-  primaryProjectSlug: null,
   portalChromeScope: "workspace",
   branding: {
     name: "Acme Docs",
@@ -63,46 +62,48 @@ function release(
 }
 
 describe("PortalChangelogView", () => {
-  it("keeps feed links inside the changelog page on a proxy mount", () => {
+  // The view is an async server component (it awaits the cached body
+  // render), so resolve it to an element before static rendering.
+  it("keeps feed links inside the changelog page on a proxy mount", async () => {
     const html = renderToStaticMarkup(
-      <PortalChangelogView
-        workspace={workspace}
-        base="acme/developers"
-        hrefBase="/docs"
-        page={page}
-        publishedLayout={null}
-        taxonomy={taxonomy}
-        documents={[
+      await PortalChangelogView({
+        workspace,
+        base: "acme/developers",
+        hrefBase: "/docs",
+        page,
+        publishedLayout: null,
+        taxonomy,
+        documents: [
           release("release-one", "Release one", "2026-08-01T00:00:00Z"),
-        ]}
-        canRemoveBreadBranding
-        preview
-      />,
+        ],
+        canRemoveBreadBranding: true,
+        preview: true,
+      }),
     )
 
     expect(html).toContain('href="/docs/page/changelog/release-one"')
     expect(html).not.toContain('href="/docs/doc/release-one"')
   })
 
-  it("renders a page-local release reader with feed and neighbor links", () => {
+  it("renders a page-local release reader with feed and neighbor links", async () => {
     const documents = [
       release("newer", "Newer release", "2026-08-03T00:00:00Z"),
       release("current", "Current release", "2026-08-02T00:00:00Z"),
       release("older", "Older release", "2026-08-01T00:00:00Z"),
     ]
     const html = renderToStaticMarkup(
-      <PortalChangelogView
-        workspace={workspace}
-        base="acme/developers"
-        hrefBase="/docs"
-        page={page}
-        publishedLayout={null}
-        taxonomy={taxonomy}
-        documents={documents}
-        activeDocument={{ ...documents[1]!, content: "## Faster previews" }}
-        canRemoveBreadBranding
-        preview
-      />,
+      await PortalChangelogView({
+        workspace,
+        base: "acme/developers",
+        hrefBase: "/docs",
+        page,
+        publishedLayout: null,
+        taxonomy,
+        documents,
+        activeDocument: { ...documents[1]!, content: "## Faster previews" },
+        canRemoveBreadBranding: true,
+        preview: true,
+      }),
     )
 
     expect(html).toContain('href="/docs/page/changelog"')

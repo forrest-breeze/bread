@@ -106,6 +106,7 @@ export function PortalEditorFrameSidebar({
   layout,
   appearance,
   activeDocumentId,
+  onHoverDocument,
   onOpenDocument,
   onOpenPage,
 }: {
@@ -113,6 +114,8 @@ export function PortalEditorFrameSidebar({
   appearance: PreviewAppearance
   /** The document open in the editor; its rail entry is highlighted. */
   activeDocumentId?: string
+  /** A document link (public slug or id) is under the pointer: warm it. */
+  onHoverDocument?: (ref: string) => void
 } & FrameNavigation): React.ReactElement | null {
   if (!layout.sidebar) return null
   return (
@@ -120,6 +123,20 @@ export function PortalEditorFrameSidebar({
       aria-label="Portal navigation"
       data-testid="portal-editor-frame-sidebar"
       onClickCapture={interceptPortalLinks({ onOpenDocument, onOpenPage })}
+      onMouseOver={
+        onHoverDocument
+          ? (event) => {
+              const anchor = (event.target as Element).closest?.("a[href]")
+              const ref = anchor
+                ? portalDocRefFromHref(
+                    anchor.getAttribute("href") ?? "",
+                    window.location.origin,
+                  )
+                : null
+              if (ref) onHoverDocument(ref)
+            }
+          : undefined
+      }
       className={cn(
         "hidden w-64 shrink-0 overflow-y-auto border-r border-border bg-background px-4 py-6 text-foreground md:block",
         appearance,
@@ -130,6 +147,7 @@ export function PortalEditorFrameSidebar({
         block={layout.sidebar}
         variant="docs"
         activeDocumentId={activeDocumentId}
+        prefetch={false}
       />
     </nav>
   )

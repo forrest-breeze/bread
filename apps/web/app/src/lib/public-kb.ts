@@ -11,7 +11,6 @@ import {
   getKbCustomDomain,
   getKbFooter,
   getKbHeader,
-  getKbPrimaryProject,
   getPortalAddressMode,
   getPortalAddressScope,
   getPortalChromeScope,
@@ -141,12 +140,6 @@ export interface PublicWorkspace {
   portalAddressScope?: PortalAddressScope
   /** Active workspace-level hosting method. */
   portalAddressMode?: PortalAddressMode
-  /**
-   * Configured primary portal project slug — where the workspace root
-   * (`/p/<slug>`) redirects when no project is published at the root itself.
-   * Null when unset; resolution then falls back to the legacy "docs" project.
-   */
-  primaryProjectSlug: string | null
   /**
    * The workspace's own landing page / website (normalized absolute http(s)
    * URL), captured during onboarding. When present, generated portal templates
@@ -296,7 +289,6 @@ async function loadWorkspaceBySlug(
     customDomain: getKbCustomDomain(settings),
     portalAddressScope: getPortalAddressScope(settings),
     portalAddressMode: getPortalAddressMode(settings),
-    primaryProjectSlug: getKbPrimaryProject(settings),
     websiteUrl: getLandingPageUrl(settings),
     footer: getKbFooter(settings),
     header: getKbHeader(settings),
@@ -330,7 +322,6 @@ async function loadWorkspaceById(
     customDomain: getKbCustomDomain(settings),
     portalAddressScope: getPortalAddressScope(settings),
     portalAddressMode: getPortalAddressMode(settings),
-    primaryProjectSlug: getKbPrimaryProject(settings),
     websiteUrl: getLandingPageUrl(settings),
     footer: getKbFooter(settings),
     header: getKbHeader(settings),

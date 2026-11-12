@@ -5,6 +5,7 @@ import { Monitor, Smartphone } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { LoadingBar } from "@/components/ui/loading-bar"
 import { PreviewMeshBackground } from "@/components/portal-builder/preview-mesh-background"
 import {
   createPortalPreviewThemeMessage,
@@ -311,6 +312,16 @@ export function PortalLivePreview({
   // loader right away rather than leaving stale content up until the save.
   const previewLoading =
     !editing && (dirty || loadedFrameKey !== committedFrame.key)
+  // The frame element survives reloads (it is keyed by device only), and the
+  // browser keeps painting the previous render until the next one is ready. So
+  // once this frame has painted anything, a reload needs no skeleton: the
+  // header, nav rail and page stay on screen and only a thin progress bar
+  // shows that a fresh render is on its way. The full skeleton is kept for the
+  // one case with nothing to show yet: the frame's first load.
+  const framePainted =
+    loadedFrameKey !== null && loadedFrameKey.startsWith(`${device}|`)
+  const showSkeleton = previewLoading && !framePainted
+  const showReloadBar = previewLoading && framePainted
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
   // Latest-ref so the message listener isn't re-registered on every editor
@@ -520,14 +531,21 @@ export function PortalLivePreview({
             // getBoundingClientRect stay correct for its floating menus.
             style={{ width: scaledWidth, height: scaledHeight }}
           >
-            {previewLoading && (
+            {showSkeleton && (
               <PortalPreviewSkeleton
                 appearance={appearance}
                 device={device}
                 surface={surface}
               />
             )}
-            {/* Re-mount on device/save so the server route re-renders. The theme
+            {showReloadBar && (
+              <LoadingBar
+                label="Updating portal preview"
+                className="delayed-reveal pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 rounded-none bg-transparent"
+              />
+            )}
+            {/* A save or page change gives the frame a new src, so the server
+                route re-renders; a device change re-mounts it. The theme
                 swap is applied imperatively (see applyPreviewTheme) so toggling
                 light/dark never reloads. Same-origin, no embedding restrictions. */}
             {editing ? (
@@ -552,7 +570,10 @@ export function PortalLivePreview({
             ) : (
               <iframe
                 ref={iframeRef}
-                key={committedFrame.key}
+                // Keyed by device only: a new src navigates this same frame
+                // instead of remounting it, which is what lets the previous
+                // render stay visible during a reload.
+                key={device}
                 title="Portal preview"
                 src={committedFrame.src}
                 onLoad={handleFrameLoad}

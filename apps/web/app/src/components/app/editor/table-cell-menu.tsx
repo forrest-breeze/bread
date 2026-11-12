@@ -157,13 +157,15 @@ export function TableCellMenu({
   }, [editor, wrapperRef]);
 
   useEffect(() => {
-    measure();
+    // Initial measure runs after layout so it reads settled DOM geometry.
+    const frame = requestAnimationFrame(measure);
     editor.on("selectionUpdate", measure);
     editor.on("update", measure);
     window.addEventListener("resize", measure);
     // Tables scroll horizontally inside their own wrapper.
     document.addEventListener("scroll", measure, true);
     return () => {
+      cancelAnimationFrame(frame);
       editor.off("selectionUpdate", measure);
       editor.off("update", measure);
       window.removeEventListener("resize", measure);
@@ -196,7 +198,9 @@ export function TableCellMenu({
   // clipping in the page layout (sidebars, scroll panes) can't cut it off.
   // It right-aligns under the chevron and is clamped into the viewport.
   useLayoutEffect(() => {
-    if (!open) return setMenuPos(null);
+    // A stale menuPos from a previous open is replaced by place() below
+    // before paint, so it never needs clearing on close.
+    if (!open) return;
     const place = () => {
       const button = buttonRef.current;
       const menu = menuRef.current;
@@ -213,10 +217,6 @@ export function TableCellMenu({
       }
       setMenuPos({ top, left });
     };
-    const themed = editor.view.dom.closest(".dark, .light");
-    setTheme(
-      themed ? (themed.classList.contains("dark") ? "dark" : "light") : null,
-    );
     place();
     // Re-place once the menu has rendered and its real size is known.
     const frame = requestAnimationFrame(place);
@@ -251,7 +251,19 @@ export function TableCellMenu({
         aria-expanded={open}
         title="Table options"
         onMouseDown={(event) => event.preventDefault()}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          // The portaled menu sits outside the editor's themed subtree, so
+          // copy its theme class at open time.
+          const themed = editor.view.dom.closest(".dark, .light");
+          setTheme(
+            themed
+              ? themed.classList.contains("dark")
+                ? "dark"
+                : "light"
+              : null,
+          );
+          setOpen((value) => !value);
+        }}
         className={cn(
           "flex size-5 items-center justify-center rounded border border-border bg-popover text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-foreground",
           open && "bg-accent text-foreground",

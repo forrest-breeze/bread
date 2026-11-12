@@ -164,6 +164,43 @@ describe("DocumentsSubNav loading state", () => {
     ).toBeInTheDocument()
   })
 
+  it("keeps a document's folder open after clicking away from that document", () => {
+    window.localStorage.clear()
+    const folder = (id: string, display: string, parent: string | null) => ({
+      id,
+      name: id,
+      display_name: display,
+      kind: "user",
+      parent_folder_id: parent,
+      visibility: "workspace",
+      required_role: null,
+      document_count: 1,
+      sort_order: null,
+      icon: null,
+      last_seen_at: "2026-07-08T00:00:00.000Z",
+      created_at: "2026-07-08T00:00:00.000Z",
+      updated_at: "2026-07-08T00:00:00.000Z",
+    })
+    hoisted.documentsLoading = false
+    hoisted.foldersLoading = false
+    hoisted.foldersData = [folder("guides", "Guides", null), folder("payments", "Payments", "guides")]
+    hoisted.documentsData = [
+      { id: "11111111-1111-4111-8111-111111111111", title: "Refunds", source: "Manual", folder_id: "payments", updated_at: "2026-07-08T00:00:00.000Z" },
+      { id: "22222222-2222-4222-8222-222222222222", title: "Welcome", source: "Manual", folder_id: null, updated_at: "2026-07-08T00:00:00.000Z" },
+    ]
+
+    // Open a doc that lives two folders deep.
+    hoisted.pathname = "/knowledge/11111111-1111-4111-8111-111111111111"
+    const { rerender } = render(<DocumentsSubNav />)
+    expect(screen.getByText("Refunds")).toBeInTheDocument()
+
+    // Click away to a document outside those folders: they stay open.
+    hoisted.pathname = "/knowledge/22222222-2222-4222-8222-222222222222"
+    rerender(<DocumentsSubNav />)
+    expect(screen.getByText("Payments")).toBeInTheDocument()
+    expect(screen.getByText("Refunds")).toBeInTheDocument()
+  })
+
   it("keeps the knowledge controls outside the scrolling document tree", () => {
     const { container } = render(<DocumentsSubNav />)
 

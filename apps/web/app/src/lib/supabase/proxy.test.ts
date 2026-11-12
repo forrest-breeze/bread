@@ -41,13 +41,14 @@ describe("session middleware during outages", () => {
     getClaims.mockResolvedValue({ data: null, error: new AuthError("unavailable", 503) });
     expect((await updateSession(request("/login"))).status).toBe(200);
   });
-  it("fails closed for portals on an auth outage (they are Breeze-only now)", async () => {
+  it("lets portals through on an auth outage (they gate on their own visibility)", async () => {
     getClaims.mockResolvedValue({ data: null, error: new AuthError("unavailable", 503) });
-    expect((await updateSession(request("/p/docs"))).status).toBe(503);
+    expect((await updateSession(request("/p/docs"))).status).toBe(200);
   });
-  it("sends signed-out visitors away from portals and 401s signed-out API calls", async () => {
-    expect((await updateSession(request("/p/docs", false))).status).toBe(307);
-    expect((await updateSession(request("/api/public/search", false))).status).toBe(401);
+  it("lets signed-out visitors reach portals but keeps the app behind login", async () => {
+    expect((await updateSession(request("/p/docs", false))).status).toBe(200);
+    expect((await updateSession(request("/api/public/search", false))).status).toBe(200);
+    expect((await updateSession(request("/dashboard", false))).status).toBe(307);
     expect((await updateSession(request("/api/documents", false))).status).toBe(401);
   });
   it("lets machine endpoints through to their own secret/signature checks", async () => {

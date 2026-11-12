@@ -140,7 +140,7 @@ describe("PortalLivePreview", () => {
     expect(skeleton.querySelectorAll("main > div > div > div")).toHaveLength(4)
   })
 
-  it("shows a skeleton until the iframe loads and restores it for a reload", () => {
+  it("shows a skeleton for the first load only, then reloads behind the previous render", () => {
     const { rerender } = render(<PortalLivePreview {...baseProps} />)
 
     expect(
@@ -153,7 +153,31 @@ describe("PortalLivePreview", () => {
       screen.queryByRole("status", { name: "Loading portal preview" }),
     ).not.toBeInTheDocument()
 
+    const frame = screen.getByTitle("Portal preview")
     rerender(<PortalLivePreview {...baseProps} reloadKey={1} />)
+
+    // Same frame element, new src: the previous render stays on screen (no
+    // skeleton over the header and nav rail), with a progress bar instead.
+    expect(screen.getByTitle("Portal preview")).toBe(frame)
+    expect(frame.getAttribute("src")).toContain("v=1")
+    expect(
+      screen.queryByRole("status", { name: "Loading portal preview" }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole("progressbar", { name: "Updating portal preview" }),
+    ).toBeInTheDocument()
+
+    fireEvent.load(frame)
+    expect(
+      screen.queryByRole("progressbar", { name: "Updating portal preview" }),
+    ).not.toBeInTheDocument()
+  })
+
+  it("shows the skeleton again when the device changes", () => {
+    const { rerender } = render(<PortalLivePreview {...baseProps} />)
+    fireEvent.load(screen.getByTitle("Portal preview"))
+
+    rerender(<PortalLivePreview {...baseProps} device="mobile" />)
 
     expect(
       screen.getByRole("status", { name: "Loading portal preview" }),
@@ -205,7 +229,7 @@ describe("PortalLivePreview", () => {
     rerender(<PortalLivePreview {...baseProps} pageSlug="guides" />)
 
     expect(
-      screen.getByRole("status", { name: "Loading portal preview" }),
+      screen.getByRole("progressbar", { name: "Updating portal preview" }),
     ).toBeInTheDocument()
     expect(screen.getByTitle("Portal preview").getAttribute("src")).toContain(
       "page=guides",

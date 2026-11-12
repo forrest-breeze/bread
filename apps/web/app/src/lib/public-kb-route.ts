@@ -137,11 +137,7 @@ export const requirePortal = cache(async function requirePortal(
 
   const project = named
     ? await resolvePublishedProjectByWorkspace(workspace.id, named)
-    : await resolveDefaultPublishedProjectByWorkspace(
-        workspace.id,
-        workspace.slug,
-        workspace.primaryProjectSlug,
-      )
+    : await resolveDefaultPublishedProjectByWorkspace(workspace.id, workspace.slug)
 
   if (named && !project) {
     notFound()

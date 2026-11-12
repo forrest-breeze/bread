@@ -137,10 +137,18 @@ export async function PATCH(
       message.includes("name is required") ||
       message.includes("already taken") ||
       message.includes("reserved") ||
+      message.includes("workspace root") ||
       message.includes("invalid project slug")
         ? 400
         : 500
-    return NextResponse.json({ error: "Failed to update project" }, { status })
+    return NextResponse.json(
+      {
+        error: message.includes("workspace root")
+          ? "The portal lives at the workspace root; its path can't change."
+          : "Failed to update project",
+      },
+      { status },
+    )
   }
 }
 

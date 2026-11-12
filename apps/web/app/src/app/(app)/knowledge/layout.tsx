@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { GithubHostedDocsSyncGate } from "@/components/app/github-hosted-docs-sync-gate"
 import { KnowledgeShell } from "@/components/app/knowledge-shell"
+import { KnowledgeDocumentOutlet } from "@/components/app/knowledge-document-outlet"
 
 export const metadata: Metadata = {
   title: { default: "Knowledge", template: "%s · Knowledge" },
@@ -13,7 +14,9 @@ export default function KnowledgeLayout({
 }) {
   return (
     <GithubHostedDocsSyncGate>
-      <KnowledgeShell>{children}</KnowledgeShell>
+      <KnowledgeShell>
+        <KnowledgeDocumentOutlet>{children}</KnowledgeDocumentOutlet>
+      </KnowledgeShell>
     </GithubHostedDocsSyncGate>
   )
 }

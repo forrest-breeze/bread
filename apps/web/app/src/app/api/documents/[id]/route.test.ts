@@ -119,6 +119,7 @@ describe("documents/[id] — param validation", () => {
         deleted_at: null,
         created_at: "",
         updated_at: "",
+        workspace_id: "ws-1",
       },
       error: null,
     })
@@ -140,7 +141,40 @@ describe("documents/[id] — param validation", () => {
 
     expect(res.status).toBe(200)
     expect(body.source_metadata.repository_document_id).toBe("raw-document-1")
+    // The row's workspace is checked server-side and never returned.
+    expect(body).not.toHaveProperty("workspace_id")
     expect(repositoryFileBuilder.eq).toHaveBeenCalledWith("path", "docs/product/setup.mdx")
+  })
+
+  it("GET reports a document from another workspace as not found", async () => {
+    mockAuthed()
+    mockFrom.mockImplementation(() =>
+      makeBuilder({
+        data: {
+          id: VALID_UUID,
+          title: "Other team's doc",
+          content: "secret",
+          source: "docs",
+          status: "Published",
+          author: "someone",
+          source_metadata: null,
+          folder_id: null,
+          deleted_at: null,
+          created_at: "",
+          updated_at: "",
+          workspace_id: "ws-other",
+        },
+        error: null,
+      }),
+    )
+
+    const res = await GET(
+      new Request(`https://app.example.dev/api/documents/${VALID_UUID}`),
+      paramsOf(VALID_UUID),
+    )
+
+    expect(res.status).toBe(404)
+    expect(JSON.stringify(await res.json())).not.toContain("secret")
   })
 
   it("PATCH rejects non-uuid id with 400", async () => {

@@ -7,11 +7,32 @@ import { preload, useSWRConfig } from "swr"
 import { createClient } from "@/lib/supabase/client"
 import { useDocuments, useFolders, useWorkspace } from "@/hooks/swr"
 import { useHasHydrated } from "@/hooks/use-has-hydrated"
+import { canPreload, runWhenIdle } from "@/lib/preload"
+import {
+  canOpenKnowledgeDocumentInPlace,
+  knowledgeDocumentIdFromPath,
+  openKnowledgeDocumentInPlace,
+} from "@/lib/knowledge-route"
 
 async function documentFetcher(url: string): Promise<unknown> {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Fetch failed: ${res.status}`)
   return res.json()
+}
+
+/** Docs warmed when the tree first loads, and per folder a user opens. */
+const INITIAL_PRELOAD_COUNT = 3
+const FOLDER_PRELOAD_COUNT = 4
+/** Cap per pass, e.g. when several stored-open folders restore at once. */
+const MAX_PRELOADS_PER_PASS = 8
+
+/** Warm the SWR cache for documents the user is likely to open next. */
+function preloadDocuments(docs: ReadonlyArray<{ id: string }>): void {
+  for (const doc of docs) {
+    void Promise.resolve(
+      preload(`/api/documents/${doc.id}`, documentFetcher),
+    ).catch(() => {})
+  }
 }
 import {
   type DocumentNavSortMode,
@@ -1137,7 +1158,12 @@ export function DocumentsSubNav({
 }: DocumentsSubNavProps = {}): React.ReactElement {
   const router = useRouter()
   const params = useParams()
-  const selectedId = (params?.id as string) ?? null
+  const pathname = usePathname()
+  // Documents open in place (history.pushState, no navigation), which updates
+  // the pathname but not the router's params, so read the open document from
+  // the URL first.
+  const selectedId =
+    knowledgeDocumentIdFromPath(pathname) ?? (params?.id as string) ?? null
 
   const [internalQuery, setInternalQuery] = useState("")
   const [builderSearchOpen, setBuilderSearchOpen] = useState(false)
@@ -1169,7 +1195,6 @@ export function DocumentsSubNav({
   const [multiSelectedIds, setMultiSelectedIds] = useState<Set<string>>(() => new Set())
   const lastSelectedIdRef = useRef<string | null>(null)
   const focusIdRef = useRef<string | null>(null)
-  const pathname = usePathname()
   const query = searchQuery ?? internalQuery
   const useBuilderChrome = chrome === "builder"
   // Builder chrome always receives a controlled mode from the portal builder;
@@ -1568,6 +1593,76 @@ export function DocumentsSubNav({
   }, [filteredDocs, foldersLoading, knownFolderIds])
 
   const rootDocs = useMemo(() => docsByFolder.get(null) ?? [], [docsByFolder])
+
+  // Keep the open document's folders open after you click away from it. A
+  // folder renders open while it holds the selected doc; without this it
+  // snapped shut as soon as another doc (or folder) was selected. Recording the
+  // selected doc's folder and its ancestors in the remembered open set makes
+  // that auto-expansion stick, exactly as if the user had expanded them. The
+  // user can still collapse them by hand.
+  useEffect(() => {
+    if (!selectedId) return
+    const doc = docs.find((d) => d.id === selectedId)
+    if (!doc?.folder_id) return
+    const parentById = new Map(folders.map((f) => [f.id, f.parent_folder_id]))
+    const chain: string[] = []
+    const seen = new Set<string>()
+    let folderId: string | null = doc.folder_id
+    while (folderId && !seen.has(folderId)) {
+      seen.add(folderId)
+      chain.push(folderId)
+      folderId = parentById.get(folderId) ?? null
+    }
+    // Syncs the persisted open-folder set (localStorage) with navigation; a
+    // no-op update when the chain is already open, so it can't cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setOpenFolderIds((current) => {
+      if (chain.every((id) => current.has(id))) return current
+      const next = new Set(current)
+      for (const id of chain) next.add(id)
+      setStoredOpenFolderIds(next)
+      return next
+    })
+  }, [selectedId, docs, folders])
+
+  // Preloading. Opening a document is a client-side URL change (see
+  // lib/knowledge-route.ts), so the only things it can wait on are the
+  // editor's JavaScript (the largest chunk in the app) and the document
+  // itself. Fetch both ahead
+  // of the click, when the browser is idle, so opening a doc is immediate:
+  //   - once, when the tree has loaded: the editor code and the first few docs;
+  //   - whenever a folder is opened: that folder's first few docs.
+  const didInitialPreloadRef = useRef(false)
+  useEffect(() => {
+    if (didInitialPreloadRef.current || filteredDocs.length === 0) return
+    if (!canPreload()) return
+    const firstDocs = (rootDocs.length > 0 ? rootDocs : filteredDocs).slice(
+      0,
+      INITIAL_PRELOAD_COUNT,
+    )
+    // If the list changes before the browser goes idle, the cleanup cancels
+    // this pass and the next run retries with the current docs.
+    return runWhenIdle(() => {
+      didInitialPreloadRef.current = true
+      void import("@/components/app/document-editor").catch(() => {})
+      preloadDocuments(firstDocs)
+    })
+  }, [filteredDocs, rootDocs])
+
+  const previousOpenFolderIdsRef = useRef<Set<string> | null>(null)
+  useEffect(() => {
+    const previous = previousOpenFolderIdsRef.current
+    previousOpenFolderIdsRef.current = openFolderIds
+    if (!previous || !canPreload()) return
+    const opened = [...openFolderIds].filter((id) => !previous.has(id))
+    if (opened.length === 0) return
+    const docs = opened
+      .flatMap((id) => (docsByFolder.get(id) ?? []).slice(0, FOLDER_PRELOAD_COUNT))
+      .slice(0, MAX_PRELOADS_PER_PASS)
+    // Not cancelled on cleanup: the "previous" snapshot above has already
+    // advanced, so a cancelled pass would never be retried.
+    runWhenIdle(() => preloadDocuments(docs))
+  }, [openFolderIds, docsByFolder])
   const visibleRootDocs = useMemo(() => {
     if (structuralRootFolderIds.size === 0) return rootDocs
 
@@ -1734,11 +1829,28 @@ export function DocumentsSubNav({
       setMultiSelectedIds(new Set())
       lastSelectedIdRef.current = id
       focusIdRef.current = id
+      // Inside Knowledge the editor renders from the URL, so opening a
+      // document is an instant client-side URL change. Elsewhere (the legacy
+      // kb route, or the tree shown outside Knowledge) navigate normally.
+      if (
+        routeRoot === "knowledge" &&
+        canOpenKnowledgeDocumentInPlace(pathname, id)
+      ) {
+        openKnowledgeDocumentInPlace(id)
+        return
+      }
       router.push(
         documentHref(routeRoot, id, scopedProjectSlug, portalPageSlug),
       )
     },
-    [applyModifierClick, portalPageSlug, routeRoot, router, scopedProjectSlug],
+    [
+      applyModifierClick,
+      pathname,
+      portalPageSlug,
+      routeRoot,
+      router,
+      scopedProjectSlug,
+    ],
   )
 
   const handleOpenFolder = useCallback(

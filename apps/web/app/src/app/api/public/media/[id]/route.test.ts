@@ -1,13 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-// Breeze internal tool: portal surfaces require a Breeze user. Default to an
-// allowed caller; individual tests override to check the refusal.
-const breezeGate = vi.hoisted(() => ({
-  breezeOnlyResponse: vi.fn(async (): Promise<Response | null> => null),
-  requireBreezeViewer: vi.fn(async () => ({ id: "u1", email: "u1@breeze.com" })),
-}))
-vi.mock("@/lib/auth/require-breeze", () => breezeGate)
-
 const { mockIsDocInScope } = vi.hoisted(() => ({
   mockIsDocInScope: vi.fn(),
 }))
@@ -251,16 +243,5 @@ describe("public S3 media authorization", () => {
     })
 
     expect(response.status).toBe(400)
-  })
-})
-
-
-describe("Breeze-only access", () => {
-  it("refuses callers who are not signed-in Breeze users", async () => {
-    breezeGate.breezeOnlyResponse.mockResolvedValueOnce(
-      Response.json({ error: "Unauthorized" }, { status: 401 }),
-    )
-    const res = await GET(new Request("https://app.test/api/public/media/x") as never, { params: Promise.resolve({ id: "x" }) } as never)
-    expect(res.status).toBe(401)
   })
 })

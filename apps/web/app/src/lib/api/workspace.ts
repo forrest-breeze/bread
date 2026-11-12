@@ -248,58 +248,6 @@ export async function updateWorkspacePortalHeader(
   return updateWorkspacePortalChrome({ header });
 }
 
-export interface UpdatePrimaryProjectResult {
-  ok: boolean;
-  projectSlug?: string | null;
-  error?: string;
-}
-
-/** Set the portal project the workspace root redirects to. */
-export async function updateWorkspacePrimaryProject(
-  projectSlug: string,
-): Promise<UpdatePrimaryProjectResult> {
-  const res = await fetch("/api/workspace/kb-primary-project", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ projectSlug }),
-  });
-  const body = (await res.json().catch(() => ({}))) as
-    | { kb_primary_project?: string | null }
-    | { error?: string };
-  if (!res.ok) {
-    return {
-      ok: false,
-      error:
-        (body as { error?: string }).error ??
-        "Couldn't set the primary project.",
-    };
-  }
-  return {
-    ok: true,
-    projectSlug:
-      (body as { kb_primary_project?: string | null }).kb_primary_project ??
-      null,
-  };
-}
-
-/** Clear the primary project (root falls back to the default project). */
-export async function clearWorkspacePrimaryProject(): Promise<UpdatePrimaryProjectResult> {
-  const res = await fetch("/api/workspace/kb-primary-project", {
-    method: "DELETE",
-  });
-  const body = (await res.json().catch(() => ({}))) as
-    | { kb_primary_project?: string | null }
-    | { error?: string };
-  if (!res.ok) {
-    return {
-      ok: false,
-      error:
-        (body as { error?: string }).error ??
-        "Couldn't clear the primary project.",
-    };
-  }
-  return { ok: true, projectSlug: null };
-}
 
 export interface PortalConnectionResult {
   connected: boolean;

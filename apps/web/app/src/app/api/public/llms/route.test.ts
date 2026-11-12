@@ -1,13 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-// Breeze internal tool: portal surfaces require a Breeze user. Default to an
-// allowed caller; individual tests override to check the refusal.
-const breezeGate = vi.hoisted(() => ({
-  breezeOnlyResponse: vi.fn(async (): Promise<Response | null> => null),
-  requireBreezeViewer: vi.fn(async () => ({ id: "u1", email: "u1@breeze.com" })),
-}))
-vi.mock("@/lib/auth/require-breeze", () => breezeGate)
-
 // ---------------------------------------------------------------------------
 // /api/public/llms — the text route behind <portal>/llms.txt.
 //
@@ -181,16 +173,5 @@ describe("GET /api/public/llms", () => {
   it("treats an unknown variant as invalid rather than defaulting to full", async () => {
     const res = await GET(request("portal=acme%2Fhelp&variant=everything"))
     expect(res.status).toBe(404)
-  })
-})
-
-
-describe("Breeze-only access", () => {
-  it("refuses callers who are not signed-in Breeze users", async () => {
-    breezeGate.breezeOnlyResponse.mockResolvedValueOnce(
-      Response.json({ error: "Unauthorized" }, { status: 401 }),
-    )
-    const res = await GET(new Request("https://app.test/api/public/llms?workspace=acme") as never)
-    expect(res.status).toBe(401)
   })
 })

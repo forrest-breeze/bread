@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useSyncExternalStore } from "react"
+import { useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react"
 import { Moon, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { PortalTheme } from "@/lib/portal/schema"
@@ -43,6 +43,40 @@ function applyPortalTheme(mode: PortalThemeMode): void {
   const root = document.querySelector<HTMLElement>("[data-portal-root]")
   root?.classList.toggle("dark", mode === "dark")
   root?.classList.toggle("light", mode === "light")
+}
+
+const subscribeToNothing = (): (() => void) => () => {}
+
+/**
+ * Applies the visitor's theme before first paint.
+ *
+ * On a document load the inline script runs while the HTML is parsed. React
+ * never executes a script it creates on the client (and warns about it), so on
+ * a client-side navigation into the portal the script is left out and a layout
+ * effect does the same correction before the browser paints.
+ */
+export function PortalThemeInit({
+  appearance,
+  script,
+}: {
+  appearance: PortalTheme["appearance"]
+  /** Inline script for the server-rendered document; must mirror getThemeSnapshot. */
+  script: string
+}): React.ReactElement | null {
+  // True on the server and while hydrating server HTML, false on a client mount.
+  const fromServerHtml = useSyncExternalStore(
+    subscribeToNothing,
+    () => false,
+    () => true,
+  )
+
+  useLayoutEffect(() => {
+    applyPortalTheme(getThemeSnapshot(appearance))
+  }, [appearance])
+
+  return fromServerHtml ? (
+    <script dangerouslySetInnerHTML={{ __html: script }} />
+  ) : null
 }
 
 function ThemeToggleButton({

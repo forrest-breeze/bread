@@ -1,12 +1,16 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useLayoutEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import {
   registerMobileNavRail,
   setMobileNavOpen,
   useMobileNav,
 } from "./portal-mobile-nav"
+import {
+  rememberRailScrollTop,
+  rememberedRailScrollTop,
+} from "@/lib/portal/nav-memory"
 
 // How long the scrollbar thumb lingers after the last scroll event.
 const SCROLLBAR_HIDE_DELAY_MS = 600
@@ -32,11 +36,21 @@ export function PortalSidebarRail({
   const { open } = useMobileNav()
   const drawerOpen = isNavigation && open
 
+  // The rail is rebuilt with each document page. Put it back where the reader
+  // left it before the first paint, so navigating never jumps it to the top.
+  useLayoutEffect(() => {
+    if (!isNavigation) return
+    const el = ref.current
+    const remembered = rememberedRailScrollTop()
+    if (el && remembered !== null) el.scrollTop = remembered
+  }, [isNavigation])
+
   useEffect(() => {
     const el = ref.current
     if (!el) return
     let timer: ReturnType<typeof setTimeout> | null = null
     const onScroll = (): void => {
+      if (isNavigation) rememberRailScrollTop(el.scrollTop)
       el.dataset.scrolling = ""
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
@@ -48,7 +62,7 @@ export function PortalSidebarRail({
       el.removeEventListener("scroll", onScroll)
       if (timer) clearTimeout(timer)
     }
-  }, [])
+  }, [isNavigation])
 
   useEffect(() => {
     if (!isNavigation) return

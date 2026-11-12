@@ -5,7 +5,6 @@ import { z } from "zod"
 import { requirePortal } from "@/lib/public-kb-route"
 import { parsePortalPath } from "@/lib/portal/portal-path"
 import { safeSearchParams, slugSchema } from "@/lib/validation"
-import { breezeOnlyResponse } from "@/lib/auth/require-breeze"
 
 export const dynamic = "force-dynamic"
 
@@ -47,10 +46,6 @@ function publicStorageImageUrl(value: string | null | undefined): string | null 
 }
 
 export async function GET(request: NextRequest): Promise<ImageResponse | Response> {
-  // Breeze internal tool: portals are Breeze-only (see lib/auth/require-breeze.ts).
-  const denied = await breezeOnlyResponse();
-  if (denied) return denied;
-
   const query = safeSearchParams(request.nextUrl, querySchema)
   if (!query.ok) return query.response
 

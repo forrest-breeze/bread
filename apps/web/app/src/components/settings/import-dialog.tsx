@@ -49,7 +49,7 @@ const SOURCES: SourceDef[] = [
   {
     id: "bread",
     name: "Bread JSON",
-    logoSrc: "/breeze-mark.svg",
+    logoSrc: "/breeze-mark.png",
     logoClassName: "object-contain",
     description: "Re-import a prior workspace export.",
   },

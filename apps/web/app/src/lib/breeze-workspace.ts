@@ -8,7 +8,7 @@ import { normalizeWorkspaceSettings } from "@/lib/workspace-settings";
 // ---------------------------------------------------------------------------
 // The single Breeze workspace.
 //
-// This internal tool has exactly one workspace. There is no onboarding flow:
+// This internal tool has exactly one workspace. There is no setup flow:
 // the first time a (Breeze-only, see auth/allowed-email.ts) user reaches the
 // app, they are added to it. The very first user creates it and becomes its
 // owner; everyone after joins as an editor. Owners/admins can change roles in
@@ -106,7 +106,6 @@ export async function ensureBreezeWorkspaceMember(
         .update({ status: "active" })
         .eq("id", member.id);
       if (activateError) throw new Error(`[breeze-workspace] activate: ${activateError.message}`);
-      await markOnboarded(admin, userId);
       return { workspaceId: workspace.id, joined: true };
     }
   }
@@ -130,17 +129,8 @@ export async function ensureBreezeWorkspaceMember(
     throw new Error(`[breeze-workspace] join: ${insertError.message}`);
   }
 
-  await markOnboarded(admin, userId);
   return { workspaceId: workspace.id, joined: true };
 }
 
-async function markOnboarded(admin: SupabaseClient, userId: string): Promise<void> {
-  // Other code still reads profiles.onboarding_completed_at; there is no flow
-  // to complete any more, so stamp it on join.
-  const now = new Date().toISOString();
-  await admin
-    .from("profiles")
-    .update({ onboarding_completed_at: now, updated_at: now })
-    .eq("user_id", userId)
-    .is("onboarding_completed_at", null);
-}
+// profiles.onboarding_completed_at is left null on join: it now means "has
+// finished or skipped the first-visit tutorial" (components/app/product-tour).

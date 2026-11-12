@@ -3,7 +3,7 @@ import type {
   PublicTaxonomy,
   PublicWorkspace,
 } from "@/lib/public-kb"
-import { renderPublicHtml } from "@/lib/public-kb-render"
+import { renderPublicHtmlCached } from "@/lib/public-kb-render-cache"
 import {
   buildChangelogLayout,
   buildDefaultFooter,
@@ -47,7 +47,7 @@ interface PortalChangelogViewProps {
   preview?: boolean
 }
 
-export function PortalChangelogView({
+export async function PortalChangelogView({
   workspace,
   base,
   hrefBase,
@@ -59,7 +59,7 @@ export function PortalChangelogView({
   entryHref,
   canRemoveBreadBranding,
   preview = false,
-}: PortalChangelogViewProps): React.ReactElement {
+}: PortalChangelogViewProps): Promise<React.ReactElement> {
   const hrefForEntry =
     entryHref ??
     ((documentSlug: string | null): string =>
@@ -119,7 +119,9 @@ export function PortalChangelogView({
             documentId={activeDocument.id}
             title={activeDocument.title}
             html={withPublicPortalHtml(
-              renderPublicHtml(activeDocument.content),
+              await renderPublicHtmlCached(activeDocument.content, {
+                memoryOnly: preview,
+              }),
               base,
               hrefBase,
             )}

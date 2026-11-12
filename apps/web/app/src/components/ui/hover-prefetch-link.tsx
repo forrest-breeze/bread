@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { ComponentPropsWithoutRef } from "react"
 import { useHoverIntent } from "@/hooks/use-hover-intent"
+import { prefetchRouteFull } from "@/lib/preload"
 
 type NextLinkProps = ComponentPropsWithoutRef<typeof Link>
 
@@ -44,6 +45,7 @@ export function HoverPrefetchLink({
   intentDelayMs = 80,
   disableHoverPrefetch = false,
   keepViewportPrefetch = false,
+  onTouchStart: externalTouchStart,
   onMouseEnter: externalMouseEnter,
   onMouseLeave: externalMouseLeave,
   children,
@@ -58,8 +60,10 @@ export function HoverPrefetchLink({
     useHoverIntent({
       delayMs: intentDelayMs,
       onIntent: () => {
+        // Full prefetch: fetch the finished page, not just its loading
+        // shell, so the click swaps content in with no loading state.
         if (!disableHoverPrefetch) {
-          router.prefetch(hrefString)
+          prefetchRouteFull(router, hrefString)
         }
       },
     })
@@ -82,10 +86,18 @@ export function HoverPrefetchLink({
     }
   }
 
+  // Touch devices have no hover: start the prefetch on touchstart, which
+  // lands ~100ms or more before the click that follows it.
+  const handleTouchStart = (e: React.TouchEvent<HTMLAnchorElement>) => {
+    if (!disableHoverPrefetch) prefetchRouteFull(router, hrefString)
+    if (typeof externalTouchStart === "function") externalTouchStart(e)
+  }
+
   return (
     <Link
       href={href}
       prefetch={keepViewportPrefetch ? undefined : false}
+      onTouchStart={handleTouchStart}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={className}

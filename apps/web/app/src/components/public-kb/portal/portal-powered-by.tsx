@@ -2,10 +2,10 @@ import { cn } from "@/lib/utils"
 
 // Portals render on hosts we don't own the asset root of (custom domains and
 // sub-folder mounts behind the Cloudflare Worker), where a root-relative
-// "/breeze-mark.svg" would 404. Load the mark from the app's own origin instead;
+// "/breeze-mark.png" would 404. Load the mark from the app's own origin instead;
 // fall back to root-relative when NEXT_PUBLIC_APP_URL is unset (local dev).
 const APP_ORIGIN = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "")
-const BREEZE_MARK_URL = `${APP_ORIGIN}/breeze-mark.svg`
+const BREEZE_MARK_URL = `${APP_ORIGIN}/breeze-mark.png`
 
 // The "Powered by Breeze" credit. Rendered either inline at the bottom of an
 // article (above the helpful widget) when there's no footer band, or inside the

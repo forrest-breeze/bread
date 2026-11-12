@@ -16,6 +16,7 @@ import {
   uuidParamSchema,
 } from "@/lib/validation";
 import { requireRouteUser } from "@/lib/auth/route-auth";
+import { warmPublicRender } from "@/lib/public-kb-render-warm";
 
 // DELETE accepts a single `?permanent=true` flag distinguishing a hard delete
 // from a soft delete (move-to-trash). Validated through safeSearchParams so the
@@ -53,7 +54,23 @@ export async function GET(
     return authResponse;
   }
 
-  const workspace = await getActiveWorkspace(supabase, user.id);
+  const parsedParams = safeRouteParams(await params, uuidParamSchema);
+  if (!parsedParams.ok) return parsedParams.response;
+  const { id } = parsedParams.data;
+
+  // This route gates how fast a document opens, so the membership lookup and
+  // the document read run concurrently instead of back to back (one database
+  // round-trip instead of two). The document is read by id alone and its
+  // workspace is checked against the caller's active workspace below, which
+  // is the same rule the previous `.eq("workspace_id", …)` filter enforced.
+  const [workspace, primaryResult] = await Promise.all([
+    getActiveWorkspace(supabase, user.id),
+    supabase
+      .from("documents")
+      .select("id, title, content, source, status, author, source_metadata, folder_id, deleted_at, created_at, updated_at, workspace_id")
+      .eq("id", id)
+      .single(),
+  ]);
 
   if (!workspace) {
     return NextResponse.json(
@@ -61,10 +78,6 @@ export async function GET(
       { status: 404 },
     );
   }
-
-  const parsedParams = safeRouteParams(await params, uuidParamSchema);
-  if (!parsedParams.ok) return parsedParams.response;
-  const { id } = parsedParams.data;
 
   const addRepositoryDocumentLink = async <T extends {
     source_metadata?: unknown;
@@ -102,14 +115,22 @@ export async function GET(
     };
   };
 
-  // Try with folder_id; fall back if column doesn't exist yet
-  const primary = await supabase
-    .from("documents")
-    .select("id, title, content, source, status, author, source_metadata, folder_id, deleted_at, created_at, updated_at")
-    .eq("id", id)
-    .eq("workspace_id", workspace.workspace_id)
-    .single();
+  // Enforce workspace scoping on the concurrently-read row: a document in any
+  // other workspace is reported exactly like a missing one, and the internal
+  // workspace_id never leaves the server.
+  const primaryRow = primaryResult.data as
+    | (Record<string, unknown> & { workspace_id?: string })
+    | null;
+  const inWorkspace =
+    primaryRow !== null && primaryRow.workspace_id === workspace.workspace_id;
+  const primary = {
+    error: primaryResult.error,
+    data: inWorkspace
+      ? (({ workspace_id: _workspaceId, ...rest }) => rest)(primaryRow)
+      : null,
+  };
 
+  // Fall back if the folder_id column doesn't exist yet
   if (primary.error?.message?.includes("folder_id")) {
     const fallback = await supabase
       .from("documents")
@@ -293,6 +314,7 @@ export async function PATCH(
       if (finalContent.length > 0) {
         fireDocumentEmbeddingUpdate(id, workspace.workspace_id, finalContent);
       }
+      warmPublicRender(finalContent);
     }
     return NextResponse.json(fallback.data);
   }
@@ -321,6 +343,9 @@ export async function PATCH(
     if (finalContent.length > 0) {
       fireDocumentEmbeddingUpdate(id, workspace.workspace_id, finalContent);
     }
+    // Render the portal HTML now, in the background, so readers never wait
+    // for it (render on publish, not on view).
+    warmPublicRender(finalContent);
   }
   return NextResponse.json(primary.data);
 }

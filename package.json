@@ -14,7 +14,6 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:coverage": "node scripts/repo-coverage.mjs",
-    "validate:bread-docs": "node .github/bread/validate-docs.mjs docs",
     "seed:bread-docs": "NODE_OPTIONS=--conditions=react-server npx tsx --tsconfig apps/web/app/tsconfig.json apps/web/app/scripts/seed-bread-docs.ts",
     "github:app-key": "npx tsx --tsconfig apps/web/app/tsconfig.json apps/web/app/scripts/put-github-app-key.ts",
     "clean": "turbo run clean",

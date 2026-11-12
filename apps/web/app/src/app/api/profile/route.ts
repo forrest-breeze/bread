@@ -10,6 +10,8 @@ const putBodySchema = z.object({
   status: z.enum(["active", "vacation", "departed"]).optional(),
   avatar_url: z.string().max(2048).nullable().optional(),
   role: z.string().trim().max(120).nullable().optional(),
+  /** The first-visit tutorial was finished or skipped. One-way. */
+  tutorial_completed: z.literal(true).optional(),
 });
 
 interface OwnedWorkspace {
@@ -166,6 +168,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   if (body.display_name !== undefined) updates.display_name = body.display_name;
   if (body.status !== undefined) updates.status = body.status;
   if (body.avatar_url !== undefined) updates.avatar_url = body.avatar_url;
+  if (body.tutorial_completed) updates.onboarding_completed_at = updates.updated_at;
 
   const { data, error } = await supabase
     .from("profiles")

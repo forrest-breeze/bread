@@ -181,22 +181,15 @@ describe("resolveDefaultPublishedProjectByWorkspace", () => {
     expect(admin.requestedSlugs).toEqual(["bread", "docs"])
   })
 
-  it("falls back to the configured primary project over the legacy docs slug", async () => {
+  it("ignores a stale primary-project setting: only the root and legacy docs slugs are tried", async () => {
     const admin = makeAdmin((slug) =>
-      slug === "help"
-        ? { ...PUBLISHED_ROW, slug: "help", scope: null }
-        : null,
+      slug === "help" ? { ...PUBLISHED_ROW, slug: "help", scope: null } : null,
     )
     adminMock.current = admin
 
-    const project = await resolveDefaultPublishedProjectByWorkspace(
-      "d44b116a-99ce-4cbf-ab04-d395266d6a62",
-      "bread",
-      "help",
-    )
-
-    expect(project?.slug).toBe("help")
-    // Configured primary replaces the "docs" fallback — never probes "docs".
-    expect(admin.requestedSlugs).toEqual(["bread", "help"])
+    await expect(
+      resolveDefaultPublishedProjectByWorkspace("d44b116a-99ce-4cbf-ab04-d395266d6a62", "bread"),
+    ).resolves.toBeNull()
+    expect(admin.requestedSlugs).toEqual(["bread", "docs"])
   })
 })

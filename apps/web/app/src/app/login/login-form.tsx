@@ -12,6 +12,10 @@ import { DOMAIN_NOT_ALLOWED_MESSAGE, isAllowedEmail } from '@/lib/auth/allowed-e
 type OAuthLoginMethod = 'google';
 type LastLoginMethod = OAuthLoginMethod | 'email';
 
+// Google sign-in is temporarily off (button shown greyed out). Flip back to
+// true once the Breeze Google OAuth client is configured in Supabase.
+export const GOOGLE_SIGN_IN_ENABLED = false;
+
 const LAST_LOGIN_METHOD_STORAGE_KEY = 'bread:last-login-method';
 const lastLoginMethodListeners = new Set<() => void>();
 
@@ -181,6 +185,30 @@ export function LoginForm({
     const postLoginNext = pendingInvite ? `/join?code=${pendingInvite}` : next;
     const origin = window.location.origin;
 
+    // TEMPORARY local-only bypass until Resend can deliver auth emails.
+    // See lib/auth/dev-login-bypass.ts. The server route enforces the real gate.
+    if (process.env.NEXT_PUBLIC_AUTH_DEV_BYPASS === 'true') {
+      try {
+        const res = await fetch('/api/auth/dev-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, next: postLoginNext }),
+        });
+        const body = (await res.json().catch(() => ({}))) as { redirectTo?: string; error?: string };
+        if (res.ok && body.redirectTo) {
+          rememberLastLoginMethod('email');
+          window.location.assign(body.redirectTo);
+          return;
+        }
+        setError(body.error ?? 'Dev login failed.');
+      } catch {
+        setError('Dev login failed.');
+      }
+      setLoading(false);
+      submittingRef.current = false;
+      return;
+    }
+
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -199,6 +227,7 @@ export function LoginForm({
   };
 
   const handleOAuth = async (provider: OAuthLoginMethod): Promise<void> => {
+    if (provider === 'google' && !GOOGLE_SIGN_IN_ENABLED) return;
     if (submittingRef.current) return;
     submittingRef.current = true;
     setError('');
@@ -254,7 +283,7 @@ export function LoginForm({
               {privatePortalLogin ? (
                 <LockKeyhole className="size-5" aria-hidden="true" />
               ) : (
-                <Image src="/breeze-mark.svg" alt="Breeze" width={28} height={28} className="object-contain" />
+                <Image src="/breeze-mark.png" alt="Breeze" width={22} height={22} className="object-contain" />
               )}
             </div>
           </Link>
@@ -353,11 +382,13 @@ export function LoginForm({
               {/* OAuth providers */}
               <div className="space-y-3" style={{ marginBottom: '1rem' }}>
                 <div className="relative">
-                  {lastMethod === 'google' && <LastUsedBadge />}
+                  {GOOGLE_SIGN_IN_ENABLED && lastMethod === 'google' && <LastUsedBadge />}
                   <button
                     type="button"
                     onClick={() => void handleOAuth('google')}
-                    disabled={loading}
+                    disabled={loading || !GOOGLE_SIGN_IN_ENABLED}
+                    aria-describedby={GOOGLE_SIGN_IN_ENABLED ? undefined : 'google-signin-unavailable'}
+                    title={GOOGLE_SIGN_IN_ENABLED ? undefined : 'Google sign-in is temporarily unavailable'}
                     className="w-full flex items-center justify-center gap-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                     style={{
                       height: '44px',
@@ -365,9 +396,12 @@ export function LoginForm({
                       border: '1px solid #ddddd8',
                       borderRadius: '8px',
                       color: '#111',
-                      cursor: loading ? 'not-allowed' : 'pointer',
+                      cursor: loading || !GOOGLE_SIGN_IN_ENABLED ? 'not-allowed' : 'pointer',
+                      filter: GOOGLE_SIGN_IN_ENABLED ? undefined : 'grayscale(1)',
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f7f7f5')}
+                    onMouseEnter={e => {
+                      if (GOOGLE_SIGN_IN_ENABLED) e.currentTarget.style.backgroundColor = '#f7f7f5';
+                    }}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -378,6 +412,11 @@ export function LoginForm({
                     </svg>
                     Continue with Google
                   </button>
+                  {!GOOGLE_SIGN_IN_ENABLED && (
+                    <p id="google-signin-unavailable" className="text-xs mt-1.5 text-center" style={{ color: 'var(--text-gray)' }}>
+                      Temporarily unavailable. Sign in with your Breeze email below.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -430,30 +469,11 @@ export function LoginForm({
                   <p className="text-xs mt-2" style={{ color: 'var(--text-gray)' }}>Sending magic link…</p>
                 )}
               </form>
-
-              {/* Terms */}
-              <p className="text-xs leading-relaxed" style={{ color: '#aaa', marginTop: '1.5rem' }}>
-                By continuing, you acknowledge that you understand and agree to the{' '}
-                <Link href="/terms" className="underline underline-offset-2" style={{ color: '#888' }}>Terms &amp; Conditions</Link>
-                {' '}and{' '}
-                <Link href="/privacy" className="underline underline-offset-2" style={{ color: '#888' }}>Privacy Policy</Link>.
-              </p>
             </>
           )}
         </div>
       </div>
 
-      {/* Bottom footer */}
-      <div className="flex items-center justify-center gap-6" style={{ paddingBottom: '3rem' }}>
-        {([['Terms', '/terms'], ['Privacy', '/privacy']] as const).map(([label, href]) => (
-          <Link key={href} href={href} className="text-xs transition-colors" style={{ color: '#aaa' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#555')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#aaa')}
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

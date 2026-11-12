@@ -13,7 +13,6 @@ import {
   resolvePortalPublicUrl,
 } from "@/lib/portal/llms-txt-request"
 import { portalLanguageCookieName } from "@/lib/portal/language-preference"
-import { requireBreezeViewer } from "@/lib/auth/require-breeze"
 
 export const dynamic = "force-dynamic"
 
@@ -27,8 +26,6 @@ export async function generateMetadata({
 }: {
   params: Promise<{ path: string[] }>
 }): Promise<Metadata> {
-  // Breeze internal tool: portals are Breeze-only.
-  await requireBreezeViewer()
   const { path } = await params
   const parsed = parsePortalPath(path)
   if (!parsed) return NOT_FOUND_META
@@ -82,8 +79,6 @@ export default async function PortalLayout({
   children: React.ReactNode
   params: Promise<{ path: string[] }>
 }): Promise<React.ReactElement> {
-  // Breeze internal tool: portals are Breeze-only.
-  await requireBreezeViewer()
   const { path } = await params
   const parsed = parsePortalPath(path)
   if (!parsed) notFound()

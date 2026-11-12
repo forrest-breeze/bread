@@ -16,7 +16,7 @@ deployed knowledge-base app (`apps/web/app`).
 
 | Workflow | What it does | Secrets |
 | :--- | :--- | :--- |
-| `ci-workspaces.yml` | Lint, typecheck, build for packages affected since the base commit (`turbo --affected`); docs front-matter validation; API route input-validation guard; unit tests with coverage across every workspace | — |
+| `ci-workspaces.yml` | Lint for packages affected since the base commit (`turbo --affected`) | — |
 | `cron-kb-ingest.yml` | Hourly POST to the production `/api/cron/ingest-all` | `BREAD_APP_URL`, `CRON_SECRET` |
 | `cron-kb-media-gc.yml` | Daily POST to the production `/api/cron/media-gc` | `BREAD_APP_URL`, `CRON_SECRET` |
 | `bot-claude.yml` | Runs Claude Code on `@claude` mentions | `CLAUDE_CODE_OAUTH_TOKEN` |

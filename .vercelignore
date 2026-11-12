@@ -1,0 +1,9 @@
+# Never upload local secrets or generated material.
+.env
+.env*.local
+**/.env.local
+outputs/
+**/node_modules
+**/.next
+**/.turbo
+*.tsbuildinfo

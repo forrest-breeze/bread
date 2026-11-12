@@ -196,7 +196,8 @@ describe("createPortalProject", () => {
     }
     expect(insert.status).toBe("draft")
     expect(insert.version).toBe(1)
-    expect(insert.slug).toBe("guides")
+    // One portal per workspace at the root: the suggested slug is ignored.
+    expect(insert.slug).toBe(WORKSPACE_SLUG)
     expect(insert.name).toBe("Guides")
     expect(insert.spec.theme.icon).toBe("📚")
   })
@@ -229,14 +230,17 @@ describe("createPortalProject", () => {
     ).rejects.toThrow(/already taken/)
   })
 
-  it("rejects the workspace slug (reserved for the default project)", async () => {
-    mockAdmin({ workspaceSlug: WORKSPACE_SLUG, slugRowExists: false })
-    await expect(
-      createPortalProject(WORKSPACE_ID, "user-1", {
-        slug: WORKSPACE_SLUG,
-        name: "Docs",
-      }),
-    ).rejects.toThrow(/reserved/)
+  it("creates the portal at the workspace root whatever slug the client suggests", async () => {
+    let captured: Record<string, unknown> | null = null
+    mockAdmin({
+      workspaceSlug: WORKSPACE_SLUG,
+      slugRowExists: false,
+      captureInsert: (row) => {
+        captured = row
+      },
+    })
+    await createPortalProject(WORKSPACE_ID, "user-1", { slug: "breeze-8tfg", name: "Docs" })
+    expect((captured as unknown as { slug: string }).slug).toBe(WORKSPACE_SLUG)
   })
 
   it("rejects a malformed slug before touching the database", async () => {
@@ -405,14 +409,14 @@ describe("updatePortalProjectPath", () => {
     })
   })
 
-  it("allows moving the root project to a suffix", async () => {
+  it("refuses to move the root portal off the workspace root", async () => {
     mockPathAdmin({ knownSlugs: [WORKSPACE_SLUG] })
     await expect(
       updatePortalProjectPath(WORKSPACE_ID, {
         currentSlug: WORKSPACE_SLUG,
         slug: "docs",
       }),
-    ).resolves.toEqual({ previousSlug: WORKSPACE_SLUG, slug: "docs" })
+    ).rejects.toThrow(/lives at the workspace root/)
   })
 
   it("rejects a suffix equal to the workspace slug because it resolves as root", async () => {

@@ -24,7 +24,6 @@ function workspace(overrides: Partial<PublicWorkspace> = {}): PublicWorkspace {
     slug: "acme",
     iconUrl: null,
     isPublic: true,
-    primaryProjectSlug: null,
     portalChromeScope: "workspace",
     branding: {
       name: "Acme Docs",

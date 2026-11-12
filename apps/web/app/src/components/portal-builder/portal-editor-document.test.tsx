@@ -12,7 +12,7 @@ const layout = {
     iconUrl: "",
     websiteUrl: null,
     branding: { name: "Acme", tagline: "", logoUrl: "", accentColor: "#2563eb" },
-  } as Parameters<typeof buildPortalTheme>[0]),
+  } as unknown as Parameters<typeof buildPortalTheme>[0]),
   header: buildDefaultHeader(),
   footer: { id: "footer", type: "footer", note: "Acme footer", showPoweredBy: true },
 } as PortalLayout

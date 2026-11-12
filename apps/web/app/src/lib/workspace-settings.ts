@@ -161,20 +161,17 @@ export function getKbCustomDomain(
 // A portal project slug: lowercase a-z/0-9/hyphen, no leading/trailing hyphen,
 // 1–50 chars. Mirrors PORTAL_SLUG_RE in the portal builder so the root-redirect
 // target validates against the same shape projects are created with.
-const PORTAL_PROJECT_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,48}[a-z0-9])?$/;
 
 /**
- * The configured "primary" portal project slug — the project the workspace root
- * (`/p/<slug>`) redirects to when nothing is published at the root. Returns the
- * normalized slug, or null when unset or malformed.
+ * Removed: the "primary project" setting. The workspace has one portal and it
+ * lives at the root (`/p/<workspace>`), so there is nothing to redirect to.
+ * Always null; kept only so older callers compile. Saved values are dropped by
+ * normalizeWorkspaceSettings and cleared by migration 20261112200400.
  */
 export function getKbPrimaryProject(
-  settings: WorkspaceSettings | Record<string, unknown> | null | undefined,
+  _settings?: WorkspaceSettings | Record<string, unknown> | null,
 ): string | null {
-  const raw = settings?.kb_primary_project;
-  if (typeof raw !== "string") return null;
-  const slug = raw.trim().toLowerCase();
-  return PORTAL_PROJECT_SLUG_RE.test(slug) ? slug : null;
+  return null;
 }
 
 /**
@@ -428,9 +425,7 @@ export function normalizeWorkspaceSettings(
   const domain = getKbCustomDomain(normalized);
   if (domain) normalized.kb_custom_domain = domain;
   else delete normalized.kb_custom_domain;
-  const primaryProject = getKbPrimaryProject(normalized);
-  if (primaryProject) normalized.kb_primary_project = primaryProject;
-  else delete normalized.kb_primary_project;
+  delete normalized.kb_primary_project;
   const brandName = normalizeKbBrandText(normalized.kb_brand_name, 80);
   if (brandName) normalized.kb_brand_name = brandName;
   else delete normalized.kb_brand_name;

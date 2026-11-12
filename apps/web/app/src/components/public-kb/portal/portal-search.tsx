@@ -43,15 +43,31 @@ interface PortalSearchProps {
 
 type PortalSearchMode = "dropdown" | "modal"
 
+// Stock placeholders that promise an AI answer. When the assistant is off we
+// swap these for a plain search prompt at render time; the stored value is left
+// alone so re-enabling the assistant restores it. Custom copy is never touched.
+const AI_DEFAULT_PLACEHOLDERS = new Set([
+  "Search or ask AI",
+  "Ask, search, or explain…",
+  "Ask, search, or explain...",
+])
+const PLAIN_SEARCH_PLACEHOLDER = "Search"
+
+export function resolveSearchPlaceholder(placeholder: string, askAiEnabled: boolean): string {
+  if (askAiEnabled) return placeholder
+  return AI_DEFAULT_PLACEHOLDERS.has(placeholder.trim()) ? PLAIN_SEARCH_PLACEHOLDER : placeholder
+}
+
 export function PortalSearch({
   slug,
   hrefBase,
-  placeholder,
+  placeholder: rawPlaceholder,
   askAiEnabled,
   variant = "header",
   globalShortcut,
   onNavigate,
 }: PortalSearchProps): React.ReactElement {
+  const placeholder = resolveSearchPlaceholder(rawPlaceholder, askAiEnabled)
   const [mode, setMode] = useState<PortalSearchMode | null>(null)
   const [modalTarget, setModalTarget] = useState<HTMLElement | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)

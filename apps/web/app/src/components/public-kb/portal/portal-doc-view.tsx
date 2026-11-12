@@ -11,8 +11,10 @@ import {
   type PublicDocSummary,
   type PortalScopeEntry,
 } from "@/lib/public-kb"
-import { renderPublicHtml } from "@/lib/public-kb-render"
-import { withCodeSampleGroups } from "@/lib/portal/api-reference-html"
+import {
+  renderPublicHtmlCached,
+  renderPublicHtmlWithCodeGroupsCached,
+} from "@/lib/public-kb-render-cache"
 import { parseApiOperation } from "@/lib/portal/api-reference-model"
 import { PublicKbDocument } from "@/components/public-kb/public-kb-document"
 import { PortalViewBeacon } from "@/components/public-kb/portal/portal-view-beacon"
@@ -150,14 +152,12 @@ export async function PortalDocView({
 
   // Endpoint docs ("GET /v1/...") get a language picker on their request
   // samples; ordinary guides keep adjacent code blocks as separate steps.
-  const bodyHtml = renderPublicHtml(doc.content)
-  const html = withPublicPortalHtml(
-    parseApiOperation(doc.title, doc.content).method
-      ? withCodeSampleGroups(bodyHtml)
-      : bodyHtml,
-    base,
-    hrefBase,
-  )
+  // Rendered once per body (content-addressed cache), not once per view.
+  const renderOptions = { memoryOnly: preview }
+  const bodyHtml = parseApiOperation(doc.title, doc.content).method
+    ? await renderPublicHtmlWithCodeGroupsCached(doc.content, renderOptions)
+    : await renderPublicHtmlCached(doc.content, renderOptions)
+  const html = withPublicPortalHtml(bodyHtml, base, hrefBase)
   // The reading rail resolves from the same taxonomy as folder pages.
   const [taxonomy, rootDocs] = previewData
     ? [previewData.taxonomy, previewData.documents]

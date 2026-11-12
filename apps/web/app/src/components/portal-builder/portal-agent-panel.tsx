@@ -584,10 +584,10 @@ export function PortalAgentPanel({
         ) : turns.length === 0 ? (
           <div className="flex h-full min-h-40 flex-col items-center justify-center gap-3 text-center">
             <Image
-              src="/breeze-mark.svg"
+              src="/breeze-mark.png"
               alt="Breeze"
-              width={40}
-              height={40}
+              width={32}
+              height={32}
               className="opacity-15 object-contain"
               priority={false}
             />

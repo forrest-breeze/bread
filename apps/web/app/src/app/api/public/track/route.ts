@@ -7,7 +7,6 @@ import { checkPublicRateLimit } from "@/lib/public-kb-ratelimit"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { logPortalEvent, portalVisitorId } from "@/lib/portal/analytics-capture"
 import { isPortalReportingEnabledForWorkspace } from "@/lib/db/subscription"
-import { breezeOnlyResponse } from "@/lib/auth/require-breeze"
 
 // ---------------------------------------------------------------------------
 // Public portal analytics beacon — records anonymous pageviews, doc views, and
@@ -75,10 +74,6 @@ async function clientMeta(): Promise<ClientMeta> {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  // Breeze internal tool: portals are Breeze-only (see lib/auth/require-breeze.ts).
-  const denied = await breezeOnlyResponse();
-  if (denied) return denied;
-
   let raw: unknown
   try {
     raw = await request.json()

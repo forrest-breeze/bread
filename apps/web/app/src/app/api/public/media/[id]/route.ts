@@ -9,7 +9,6 @@ import {
 import { portalContentScope } from "@/lib/portal/project-scope";
 import { validatePortalLayout } from "@/lib/portal/schema";
 import { safeRouteParams, uuidParamSchema } from "@/lib/validation";
-import { breezeOnlyResponse } from "@/lib/auth/require-breeze";
 
 // ---------------------------------------------------------------------------
 // GET /api/public/media/[id] — portal-scoped anonymous media read.
@@ -139,10 +138,6 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
-  // Breeze internal tool: portals are Breeze-only (see lib/auth/require-breeze.ts).
-  const denied = await breezeOnlyResponse();
-  if (denied) return denied;
-
   const parsedParams = safeRouteParams(await params, uuidParamSchema);
   if (!parsedParams.ok) return parsedParams.response;
   const { id } = parsedParams.data;

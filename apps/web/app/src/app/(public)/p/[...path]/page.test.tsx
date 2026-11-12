@@ -1,13 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-// Breeze internal tool: portal surfaces require a Breeze user. Default to an
-// allowed caller; individual tests override to check the refusal.
-const breezeGate = vi.hoisted(() => ({
-  breezeOnlyResponse: vi.fn(async (): Promise<Response | null> => null),
-  requireBreezeViewer: vi.fn(async () => ({ id: "u1", email: "u1@breeze.com" })),
-}))
-vi.mock("@/lib/auth/require-breeze", () => breezeGate)
-
 const mocks = vi.hoisted(() => ({
   notFound: vi.fn(() => {
     throw new Error("not found")
@@ -86,7 +78,6 @@ const workspace = {
   slug: "acme",
   iconUrl: null,
   isPublic: true,
-  primaryProjectSlug: null,
   portalChromeScope: "workspace",
   branding: {
     name: "Acme",
@@ -335,19 +326,5 @@ describe("portal browser titles", () => {
   it("does not expose titles for documents outside the portal scope", async () => {
     mocks.isDocInScope.mockResolvedValue(false)
     expect(await metadata(["acme", "doc", "introduction"])).toEqual({})
-  })
-})
-
-
-describe("Breeze-only access", () => {
-  it("checks for a Breeze viewer before rendering a portal page or its metadata", async () => {
-    breezeGate.requireBreezeViewer.mockRejectedValueOnce(new Error("NEXT_REDIRECT:/login"))
-    await expect(
-      PortalCatchAllPage({ params: Promise.resolve({ path: ["acme"] }) } as never),
-    ).rejects.toThrow("NEXT_REDIRECT:/login")
-    breezeGate.requireBreezeViewer.mockRejectedValueOnce(new Error("NEXT_REDIRECT:/login"))
-    await expect(
-      generateMetadata({ params: Promise.resolve({ path: ["acme"] }) } as never),
-    ).rejects.toThrow("NEXT_REDIRECT:/login")
   })
 })

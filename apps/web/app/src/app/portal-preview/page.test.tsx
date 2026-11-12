@@ -119,7 +119,6 @@ const workspace = {
     logoUrl: "",
     accentColor: "#334455",
   },
-  primaryProjectSlug: null,
   portalChromeScope: "workspace",
 }
 

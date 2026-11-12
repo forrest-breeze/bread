@@ -233,15 +233,17 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Use a production-ready SMTP server
+# Auth emails (magic links, invites) go through Resend SMTP in hosted envs.
+# Left commented so local dev keeps catching mail in Mailpit (localhost:54324).
+# Uncomment to send real mail locally; admin_email must be on a Resend-verified domain.
 # [auth.email.smtp]
 # enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# host = "smtp.resend.com"
+# port = 465
+# user = "resend"
+# pass = "env(RESEND_API_KEY)"
+# admin_email = "noreply@your-verified-domain.com"
+# sender_name = "Bread"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

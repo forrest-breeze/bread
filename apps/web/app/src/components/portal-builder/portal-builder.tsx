@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useSWRConfig } from "swr"
+import { preload, useSWRConfig } from "swr"
 import {
   AlertCircle,
   Bot,
@@ -157,6 +157,21 @@ import type {
   PreviewAppearance,
   PreviewDevice,
 } from "./portal-live-preview"
+import { portalDocRefFromHref } from "./portal-live-preview"
+import type { SidebarGroup } from "@/lib/portal/schema"
+import {
+  canOpenKnowledgeDocumentInPlace,
+  openKnowledgeDocumentInPlace,
+} from "@/lib/knowledge-route"
+
+// Rail hrefs are relative; any fixed origin works for parsing them.
+const PORTAL_REF_PARSE_ORIGIN = "http://portal.invalid"
+
+async function portalDocumentFetcher(url: string): Promise<unknown> {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Fetch failed: ${res.status}`)
+  return res.json()
+}
 import {
   PortalConnectionBadge,
   type PortalConnectionStatus,
@@ -2423,6 +2438,21 @@ export function PortalBuilder({
   const openDocumentId = hasOpenDocument
     ? decodeURIComponent(pathname.slice("/knowledge/".length).split("/")[0] ?? "")
     : undefined
+  // Portal doc links (public slug or id) → document id, from the rail the
+  // frame already renders, so opening one needs no lookup request.
+  const documentIdByPortalRef = useMemo(() => {
+    const map = new Map<string, string>()
+    const visit = (group: SidebarGroup): void => {
+      for (const child of group.children ?? []) visit(child)
+      for (const item of group.items) {
+        map.set(item.id, item.id)
+        const ref = portalDocRefFromHref(item.href, PORTAL_REF_PARSE_ORIGIN)
+        if (ref) map.set(ref, item.id)
+      }
+    }
+    layout?.sidebar?.groups.forEach(visit)
+    return map
+  }, [layout?.sidebar])
   // Toolbar element the open document's controls (save status, version
   // history) portal into, in place of the portal version menu, so the editor
   // in the preview frame carries no toolbar of its own.
@@ -2862,20 +2892,46 @@ export function PortalBuilder({
   // A doc clicked inside the rendered portal opens editable in the same frame.
   // Portal links carry the doc's public slug, so map it back to the document;
   // if that fails the click is simply ignored rather than leaving the preview.
-  async function handlePreviewOpenDocument(ref: string): Promise<void> {
+  //
+  // The rail's entries already carry their document ids, so the common case
+  // resolves locally and opens in place: no resolve request and no server
+  // navigation, just the document fetch (which the outlet hides behind the
+  // current document). Only a link the rail doesn't know falls back to the
+  // resolve endpoint.
+  async function resolvePortalDocumentRef(ref: string): Promise<string | null> {
+    const local = documentIdByPortalRef.get(ref)
+    if (local) return local
     try {
       const response = await fetch(
         `/api/documents/resolve?${new URLSearchParams({ ref }).toString()}`,
       )
-      if (!response.ok) return
+      if (!response.ok) return null
       const { id } = (await response.json()) as { id?: string }
-      if (id) {
-        const query = activePageSlug ? `?${new URLSearchParams({ page: activePageSlug })}` : ""
-        router.push(`/knowledge/${encodeURIComponent(id)}${query}`)
-      }
+      return id ?? null
     } catch {
       // Network failure: stay on the preview.
+      return null
     }
+  }
+
+  async function handlePreviewOpenDocument(ref: string): Promise<void> {
+    const id = await resolvePortalDocumentRef(ref)
+    if (!id) return
+    const query = activePageSlug ? `?${new URLSearchParams({ page: activePageSlug })}` : ""
+    if (canOpenKnowledgeDocumentInPlace(pathname, id)) {
+      openKnowledgeDocumentInPlace(id, query)
+      return
+    }
+    router.push(`/knowledge/${encodeURIComponent(id)}${query}`)
+  }
+
+  // Hovering a rail entry warms that document so the click swaps instantly.
+  function handlePreviewHoverDocument(ref: string): void {
+    const id = documentIdByPortalRef.get(ref)
+    if (!id) return
+    void Promise.resolve(
+      preload(`/api/documents/${id}`, portalDocumentFetcher),
+    ).catch(() => {})
   }
 
   async function handleCreateProject(input: {
@@ -3820,6 +3876,7 @@ export function PortalBuilder({
                     layout={layout}
                     appearance={appearance}
                     activeDocumentId={openDocumentId}
+                    onHoverDocument={handlePreviewHoverDocument}
                     onOpenDocument={(ref) => void handlePreviewOpenDocument(ref)}
                     onOpenPage={(slug) => void handlePageChange(slug)}
                   />

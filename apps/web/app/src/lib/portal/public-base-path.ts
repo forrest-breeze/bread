@@ -24,18 +24,85 @@ export function publicPortalHref(
   return `${hrefBase}${suffix.startsWith("/") ? suffix : `/${suffix}`}`
 }
 
+/**
+ * The address this portal had while it was still its workspace's default
+ * project, or null when it never could have had one.
+ *
+ * A default project's slug equals its workspace's slug and it is served from
+ * `/p/<slug>`. Renaming the workspace turns it into a named project at
+ * `/p/<workspace>/<slug>`, but links written into document bodies before the
+ * rename still say `/p/<slug>/…`, which now names a workspace that does not
+ * exist.
+ */
+function formerRootBase(portalBase: string): string | null {
+  const [workspaceSlug, projectSlug, ...rest] = portalBase.split("/")
+  if (!workspaceSlug || !projectSlug || rest.length > 0) return null
+  if (projectSlug === workspaceSlug) return null
+  return `/p/${projectSlug}`
+}
+
+const PORTAL_VIEW_PREFIXES = ["/doc/", "/page/", "/folder/"]
+
+function replaceFormerRootBase(
+  value: string,
+  formerBase: string,
+  hrefBase: string,
+): string {
+  if (!value.startsWith(`${formerBase}/`)) return value
+  const rest = value.slice(formerBase.length)
+  // Only content views: `/p/<slug>/<anything else>` may be a real address.
+  return PORTAL_VIEW_PREFIXES.some((prefix) => rest.startsWith(prefix))
+    ? `${hrefBase}${rest}`
+    : value
+}
+
 export function withPublicPortalHtml(
   html: string,
   portalBase: string,
   hrefBase: string,
 ): string {
   const internalBase = `/p/${portalBase}`
-  if (hrefBase === internalBase) return html
+  const formerBase = formerRootBase(portalBase)
+  const appOrigin = publicAppOrigin()
+  if (hrefBase === internalBase && !formerBase && !appOrigin) return html
   return html.replace(
     /(<a\b[^>]*\bhref=["'])([^"']+)(["'])/gi,
-    (_match, prefix: string, href: string, quote: string) =>
-      `${prefix}${replaceInternalBase(href, internalBase, hrefBase)}${quote}`,
+    (_match, prefix: string, href: string, quote: string) => {
+      const rebased = formerBase
+        ? replaceFormerRootBase(href, formerBase, hrefBase)
+        : href
+      const resolved = replaceInternalBase(rebased, internalBase, hrefBase)
+      return `${prefix}${withAppOrigin(resolved, hrefBase, appOrigin)}${quote}`
+    },
   )
+}
+
+/**
+ * The app's public origin from `NEXT_PUBLIC_APP_URL` (the deployed URL in
+ * production, the dev server locally), or "" when it is unset or not http(s).
+ */
+function publicAppOrigin(): string {
+  const raw = process.env.NEXT_PUBLIC_APP_URL?.trim()
+  if (!raw) return ""
+  try {
+    const url = new URL(raw)
+    return url.protocol === "http:" || url.protocol === "https:" ? url.origin : ""
+  } catch {
+    return ""
+  }
+}
+
+// Document links into the portal are made absolute on the app's public origin,
+// so they open the real page wherever the body happens to be rendered. A
+// reverse-proxy mount is already the portal's public address and stays as is.
+function withAppOrigin(href: string, hrefBase: string, appOrigin: string): string {
+  if (!appOrigin || !hrefBase.startsWith("/p/")) return href
+  const inPortal =
+    href === hrefBase ||
+    href.startsWith(`${hrefBase}/`) ||
+    href.startsWith(`${hrefBase}?`) ||
+    href.startsWith(`${hrefBase}#`)
+  return inPortal ? `${appOrigin}${href}` : href
 }
 
 function replaceInternalBase(

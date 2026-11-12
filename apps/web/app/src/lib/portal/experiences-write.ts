@@ -6,7 +6,6 @@ import {
   getKbBranding,
   getKbFooter,
   getKbHeader,
-  getKbPrimaryProject,
   getPortalChromeScope,
 } from "@/lib/workspace-settings"
 import {
@@ -756,7 +755,6 @@ async function buildLayoutForNewProject(
     iconUrl: row.icon_url,
     isPublic: row.settings?.kb_public === true,
     branding: getKbBranding(row.settings, row.name, row.icon_url),
-    primaryProjectSlug: getKbPrimaryProject(row.settings),
     footer: getKbFooter(row.settings),
     header: getKbHeader(row.settings),
     portalChromeScope: getPortalChromeScope(row.settings),
@@ -796,8 +794,7 @@ export async function createPortalProject(
   },
 ): Promise<PortalExperienceRow> {
   const admin = createAdminClient()
-  const slug = input.slug.trim()
-  if (!PORTAL_SLUG_RE.test(slug)) {
+  if (!PORTAL_SLUG_RE.test(input.slug.trim())) {
     throw new Error("portal experiences: invalid project slug")
   }
   const name = input.name.trim()
@@ -815,14 +812,10 @@ export async function createPortalProject(
       `portal experiences: workspace lookup failed: ${workspaceError?.message ?? "not found"}`,
     )
   }
-  if ((workspace as { slug: string }).slug === slug) {
-    throw new Error("portal experiences: slug is reserved for the default project")
-  }
-  // `doc` / `folder` / `page` are structural segments under the workspace root,
-  // so a named project may not use one or its routes would be shadowed.
-  if (PORTAL_RESERVED_PROJECT_SLUGS.has(slug)) {
-    throw new Error("portal experiences: that project slug is reserved")
-  }
+  // One portal per workspace, served at the workspace root (/p/<workspace>).
+  // The client-suggested slug is ignored: the project's slug IS the workspace
+  // slug, so there is no project suffix in the URL and nothing to redirect.
+  const slug = (workspace as { slug: string }).slug
 
   // Project slugs are unique PER WORKSPACE (model B): the same slug may exist in
   // different workspaces, each addressed under its own subdomain/path. Only
@@ -1058,6 +1051,11 @@ export async function updatePortalProjectPath(
 
   if (nextSlug === defaultSlug) {
     throw new Error("portal experiences: slug is reserved for the default project")
+  }
+  // One portal per workspace, served at the root: moving it off the root would
+  // leave /p/<workspace> empty.
+  if (currentSlug === defaultSlug) {
+    throw new Error("portal experiences: the portal lives at the workspace root")
   }
   if (PORTAL_RESERVED_PROJECT_SLUGS.has(nextSlug)) {
     throw new Error("portal experiences: that project slug is reserved")

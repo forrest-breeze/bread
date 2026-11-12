@@ -3,7 +3,7 @@ import type {
   PublicTaxonomy,
   PublicWorkspace,
 } from "@/lib/public-kb"
-import { renderApiReferenceHtml } from "@/lib/portal/api-reference-html"
+import { renderApiReferenceHtmlCached } from "@/lib/public-kb-render-cache"
 import {
   buildDefaultFooter,
   buildPortalTheme,
@@ -46,7 +46,7 @@ interface PortalApiReferenceViewProps {
   preview?: boolean
 }
 
-export function PortalApiReferenceView({
+export async function PortalApiReferenceView({
   workspace,
   base,
   hrefBase,
@@ -58,7 +58,7 @@ export function PortalApiReferenceView({
   activeDocRef = null,
   endpointHref,
   preview = false,
-}: PortalApiReferenceViewProps): React.ReactElement {
+}: PortalApiReferenceViewProps): Promise<React.ReactElement> {
   const resolvedLayout = withPublicPortalBase(
     resolvePortalLayout({
       slug: base,
@@ -116,7 +116,12 @@ export function PortalApiReferenceView({
     ? documents.find((document) => document.id === activeMeta.id)?.content
     : undefined
   const activeSection = activeMeta
-    ? { ...activeMeta, ...renderApiReferenceHtml(activeContent ?? "") }
+    ? {
+        ...activeMeta,
+        ...(await renderApiReferenceHtmlCached(activeContent ?? "", {
+          memoryOnly: preview,
+        })),
+      }
     : null
 
   return (

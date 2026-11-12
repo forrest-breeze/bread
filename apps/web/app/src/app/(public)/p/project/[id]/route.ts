@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { breezeOnlyResponse } from "@/lib/auth/require-breeze"
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -9,10 +8,6 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
-  // Breeze internal tool: portals are Breeze-only (see lib/auth/require-breeze.ts).
-  const denied = await breezeOnlyResponse();
-  if (denied) return denied;
-
   const { id } = await params
 
   if (!UUID_RE.test(id)) {

@@ -67,11 +67,7 @@ export async function resolvePortalBase(
     projectSlug && projectSlug !== workspace.slug ? projectSlug : null
   const project = named
     ? await resolvePublishedProjectByWorkspace(workspace.id, named)
-    : await resolveDefaultPublishedProjectByWorkspace(
-        workspace.id,
-        workspace.slug,
-        workspace.primaryProjectSlug,
-      )
+    : await resolveDefaultPublishedProjectByWorkspace(workspace.id, workspace.slug)
   // A named project URL must resolve to a published project.
   if (named && !project) return null
 

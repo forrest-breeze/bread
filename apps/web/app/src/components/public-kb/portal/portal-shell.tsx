@@ -6,6 +6,7 @@ import {
   withWorkspaceHeaderDefaults,
 } from "@/lib/portal/build-default"
 import { PortalHeader } from "@/components/public-kb/portal/portal-header"
+import { PortalNavProgress } from "@/components/public-kb/portal/portal-nav-progress"
 import {
   portalFontFaceCss,
   portalGoogleFontsHref,
@@ -26,6 +27,7 @@ import { withPublicPortalBase } from "@/lib/portal/public-base-path"
 import type { PortalPreviewThemeMode } from "@/lib/portal/preview-theme-message"
 import { validPortalLanguage } from "@/lib/portal/language-preference"
 import { PortalTranslationProvider } from "./portal-translation"
+import { PortalThemeInit } from "./portal-theme-toggle"
 
 interface PortalShellPreview {
   /** Editor-owned mode, kept separate from a real visitor's theme preference. */
@@ -182,7 +184,7 @@ export function PortalShell({
       } as React.CSSProperties}
     >
       {themeInitScript ? (
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <PortalThemeInit appearance={theme.appearance} script={themeInitScript} />
       ) : null}
       {googleFontsHref ? (
         // React hoists precedence stylesheets into <head>.
@@ -205,6 +207,8 @@ export function PortalShell({
         askAiEnabled={askAiEnabled && theme.assistant?.enabled === true}
         showThemeToggle={!theme.appearanceLocked}
       />
+      {/* The builder preview intercepts its links; it has its own loader. */}
+      {preview ? null : <PortalNavProgress />}
       <main className="flex-1 flex flex-col">{children}</main>
       {askAiEnabled && theme.assistant?.enabled ? (
         <PortalAiAssistant

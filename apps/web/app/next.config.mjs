@@ -97,6 +97,9 @@ const nextConfig = {
     // route, so one glob covers every public-portal page.
     "/p/[...path]": SHIKI_TRACE_INCLUDES,
     "/portal-preview": SHIKI_TRACE_INCLUDES,
+    // The save route warms the portal render cache in the background (see
+    // lib/public-kb-render-warm.ts), so it runs the same highlighter.
+    "/api/documents/[id]": SHIKI_TRACE_INCLUDES,
   },
   images: {
     remotePatterns: [

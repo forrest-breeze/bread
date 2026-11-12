@@ -4,7 +4,6 @@ import { headers } from "next/headers"
 import { searchPublic, type PublicSearchHit } from "@/lib/public-kb"
 import { resolvePortalBase } from "@/lib/public-kb-portal-base"
 import { checkPublicRateLimit } from "@/lib/public-kb-ratelimit"
-import { breezeOnlyResponse } from "@/lib/auth/require-breeze"
 
 // ---------------------------------------------------------------------------
 // Public portal search — JSON results for the in-portal command palette.
@@ -44,10 +43,6 @@ async function clientIp(): Promise<string> {
 }
 
 export async function GET(request: Request): Promise<NextResponse> {
-  // Breeze internal tool: portals are Breeze-only (see lib/auth/require-breeze.ts).
-  const denied = await breezeOnlyResponse();
-  if (denied) return denied;
-
   const url = new URL(request.url)
   const parsed = querySchema.safeParse({
     portal: url.searchParams.get("portal") ?? "",

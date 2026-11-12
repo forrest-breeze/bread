@@ -35,7 +35,6 @@ import {
   clearWorkspaceCustomDomain,
   updateWorkspaceCustomDomain,
   updateWorkspacePortalAddressConfig,
-  updateWorkspacePrimaryProject,
   verifyPortalAddress,
   type PortalConnectionResult,
 } from "@/lib/api/workspace"
@@ -43,7 +42,6 @@ import {
   customDomainDnsRecord,
   customDomainErrorMessage,
   getKbCustomDomain,
-  getKbPrimaryProject,
   getKbPublic,
   getPortalAddressMode,
   getPortalAddressScope,
@@ -64,17 +62,14 @@ import {
 export function WorkspacePortalAddressCard(): React.ReactElement | null {
   const { data: workspace, mutate } = useWorkspace()
   const hasHydrated = useHasHydrated()
-  // Published projects feed the "primary project" selector (where the root
-  // redirects). Only admins/owners can read them, so gate the fetch on role to
-  // avoid a guaranteed 403 for viewers.
+  // Published projects feed the example URLs below. Only admins/owners can
+  // read them, so gate the fetch on role to avoid a guaranteed 403 for viewers.
   const canManageProjects =
     workspace?.user_role === "admin" || workspace?.user_role === "owner"
   const { data: projectData } = usePortalProjects({
     workspaceId: workspace?.id,
     enabled: Boolean(workspace?.id) && canManageProjects,
   })
-  const [primarySaving, setPrimarySaving] = useState(false)
-  const [primaryError, setPrimaryError] = useState<string | null>(null)
   const [scopeSaving, setScopeSaving] = useState(false)
   const [scopeError, setScopeError] = useState<string | null>(null)
 
@@ -178,28 +173,9 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
   const origin = hasHydrated ? window.location.origin : ""
   const directUrl = directPath ? `${origin}${directPath}` : null
 
-  // "Primary project" — where the root (/p/<slug>) redirects when no project is
-  // published at the root itself. Only relevant when there are published
-  // projects AND none of them lives at the root (slug === workspace slug); a
-  // real root project renders inline and the setting has no effect.
   const publishedProjects = (projectData?.projects ?? []).filter(
     (p) => p.publishedVersion != null,
   )
-  const hasRootProject = publishedProjects.some(
-    (p) => p.slug === workspace.slug,
-  )
-  const showPrimaryProject =
-    isAdmin && !hasRootProject && publishedProjects.length > 0
-  const configuredPrimary = getKbPrimaryProject(workspace.settings)
-  // Mirror the server's fallback order so the selector reflects the project the
-  // root actually serves today: configured → legacy "docs" → first published.
-  const effectivePrimary =
-    (configuredPrimary &&
-      publishedProjects.some((p) => p.slug === configuredPrimary) &&
-      configuredPrimary) ||
-    publishedProjects.find((p) => p.slug === "docs")?.slug ||
-    publishedProjects[0]?.slug ||
-    ""
   const exampleProject =
     publishedProjects.find((project) => project.slug !== workspace.slug) ??
     (projectData?.projects ?? []).find((project) => project.slug !== workspace.slug) ??
@@ -228,27 +204,6 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
       return
     }
     void mutate(result.workspace, false)
-    window.dispatchEvent(new Event("workspace-updated"))
-  }
-
-  const onChangePrimary = async (slug: string): Promise<void> => {
-    if (!slug || slug === configuredPrimary) return
-    setPrimaryError(null)
-    setPrimarySaving(true)
-    void mutate(
-      {
-        ...workspace,
-        settings: { ...workspace.settings, kb_primary_project: slug },
-      },
-      false,
-    )
-    const result = await updateWorkspacePrimaryProject(slug)
-    setPrimarySaving(false)
-    if (!result.ok) {
-      setPrimaryError(result.error ?? "Couldn't set the primary project.")
-      void mutate()
-      return
-    }
     window.dispatchEvent(new Event("workspace-updated"))
   }
 
@@ -423,7 +378,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
           <div className="rounded-lg border border-input bg-muted/20 p-4">
             <p className="text-sm font-medium">Hosting is configured per project</p>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              Each project chooses its own Bread URL, custom sub-folder, or
+              Each project chooses its own Breeze URL, custom sub-folder, or
               custom domain. Workspace hosting controls are hidden in this mode.
             </p>
             <Button
@@ -451,7 +406,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
                   scheduleAddressSave("bread", domainInput, 0)
                 }}
                 disabled={!isAdmin || scopeSaving}
-                title="Bread URL"
+                title="Breeze URL"
                 description="Use the built-in workspace address on the app domain."
                 icon={<Link2 className="size-4 text-violet-500" />}
               />
@@ -635,49 +590,6 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
             </div>
           </div>
         )}
-
-        {showPrimaryProject ? (
-          <div className="rounded-lg border border-input p-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium">Primary project</p>
-              <p className="text-[11px] text-muted-foreground">
-                No project is published at the root, so visitors who open{" "}
-                <span className="font-mono">/p/{workspace.slug}</span> are
-                redirected to this project.
-              </p>
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Select
-                value={effectivePrimary}
-                onValueChange={(value) => void onChangePrimary(value as string)}
-                disabled={primarySaving}
-              >
-                <SelectTrigger className="h-9 w-64 max-w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {publishedProjects.map((project) => (
-                    <SelectItem key={project.slug} value={project.slug}>
-                      <span className="mr-1.5">{project.icon}</span>
-                      {project.displayName}
-                      <span className="ml-1 font-mono text-muted-foreground">
-                        /{project.slug}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {primarySaving ? (
-                <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-              ) : null}
-              {primaryError ? (
-                <p role="alert" className="text-xs text-destructive">
-                  {primaryError}
-                </p>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
 
         {!isAdmin ? (
           <p className="text-xs text-muted-foreground">

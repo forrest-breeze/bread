@@ -26,7 +26,6 @@ import { portalPagePresentation } from "@/lib/portal/schema"
 import { sortApiReferenceDocuments } from "@/lib/portal/api-reference-model"
 import { PortalChangelogView } from "@/components/public-kb/portal/portal-changelog-view"
 import { PortalApiReferenceView } from "@/components/public-kb/portal/portal-api-reference-view"
-import { requireBreezeViewer } from "@/lib/auth/require-breeze"
 
 // Reads search params + request headers and rate-limits search — never static.
 export const dynamic = "force-dynamic"
@@ -54,8 +53,6 @@ function metadataImageUrl(
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  // Breeze internal tool: portals are Breeze-only.
-  await requireBreezeViewer()
   const { path } = await params
   const parsed = parsePortalPath(path)
   if (!parsed) return {}
@@ -203,8 +200,6 @@ export default async function PortalCatchAllPage({
   params,
   searchParams,
 }: PageProps): Promise<React.ReactElement> {
-  // Breeze internal tool: portals are Breeze-only.
-  await requireBreezeViewer()
   const { path } = await params
   const parsed = parsePortalPath(path)
   if (!parsed) notFound()

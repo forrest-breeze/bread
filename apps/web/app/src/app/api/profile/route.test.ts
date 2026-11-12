@@ -86,4 +86,10 @@ describe("PUT /api/profile — validation", () => {
     const res = await PUT(makeRequest({ role: "x".repeat(121) }))
     expect(res.status).toBe(400)
   })
+
+  it("returns 400 when trying to un-complete the tutorial", async () => {
+    mockAuthed()
+    const res = await PUT(makeRequest({ tutorial_completed: false }))
+    expect(res.status).toBe(400)
+  })
 })

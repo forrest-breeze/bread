@@ -2,7 +2,7 @@
 
 import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { ReactNode } from "react"
 import type { SidebarBlock } from "@/lib/portal/schema"
 
@@ -12,6 +12,7 @@ const route = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => route.pathname,
+  useRouter: () => ({ prefetch: vi.fn() }),
 }))
 
 vi.mock("@/components/ui/hover-prefetch-link", () => ({
@@ -33,6 +34,7 @@ vi.mock("@/components/ui/hover-prefetch-link", () => ({
 }))
 
 import { SidebarNav } from "./sidebar-nav"
+import { resetPortalNavMemory } from "@/lib/portal/nav-memory"
 
 const block: SidebarBlock = {
   id: "sidebar",
@@ -77,6 +79,12 @@ const block: SidebarBlock = {
 }
 
 describe("SidebarNav", () => {
+  // Open-folder state is remembered across navigations for the life of the
+  // tab; start each test from a fresh tab.
+  beforeEach(() => {
+    resetPortalNavMemory()
+  })
+
   afterEach(() => {
     cleanup()
     route.pathname = "/p/acme"
@@ -128,7 +136,8 @@ describe("SidebarNav", () => {
     rerender(<SidebarNav block={block} variant="docs" activeDocumentId="slack" />)
 
     expect(screen.getByRole("link", { name: "Slack Integration" })).toHaveAttribute("aria-current", "page")
-    expect(screen.queryByRole("link", { name: "MCP Tools" })).not.toBeInTheDocument()
+    // The folder it came from stays open; only the highlight moves.
+    expect(screen.getByRole("link", { name: "MCP Tools" })).not.toHaveAttribute("aria-current")
   })
 
   it("opens every ancestor for the current nested document", () => {
@@ -158,5 +167,31 @@ describe("SidebarNav", () => {
     rerender(<SidebarNav block={block} variant="docs" activeDocumentId="mcp-tools" />)
     expect(screen.getByRole("button", { name: "Collapse MCP" })).toHaveAttribute("aria-expanded", "true")
     expect(screen.getByRole("link", { name: "MCP Tools" })).toHaveAttribute("aria-current", "page")
+  })
+
+  it("keeps a folder open after navigating to a document outside it", () => {
+    route.pathname = "/p/acme/doc/mcp-tools"
+    const { rerender } = render(<SidebarNav block={block} variant="docs" activeDocumentId="mcp-tools" />)
+    expect(screen.getByRole("button", { name: "Collapse MCP" })).toHaveAttribute("aria-expanded", "true")
+
+    // Open a document in a different folder: MCP must not collapse behind us.
+    route.pathname = "/p/acme/doc/slack"
+    rerender(<SidebarNav block={block} variant="docs" activeDocumentId="slack" />)
+    expect(screen.getByRole("button", { name: "Collapse MCP" })).toHaveAttribute("aria-expanded", "true")
+    expect(screen.getByRole("link", { name: "MCP Tools" })).toBeInTheDocument()
+  })
+
+  it("restores open folders when the rail is rebuilt by a page navigation", () => {
+    // The portal renders the rail inside each document page, so a navigation
+    // unmounts it and mounts a new one.
+    route.pathname = "/p/acme/doc/mcp-tools"
+    const first = render(<SidebarNav block={block} variant="docs" activeDocumentId="mcp-tools" />)
+    first.unmount()
+
+    route.pathname = "/p/acme/doc/slack"
+    render(<SidebarNav block={block} variant="docs" activeDocumentId="slack" />)
+
+    expect(screen.getByRole("button", { name: "Collapse MCP" })).toHaveAttribute("aria-expanded", "true")
+    expect(screen.getByRole("link", { name: "MCP Tools" })).toBeInTheDocument()
   })
 })

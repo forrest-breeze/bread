@@ -270,20 +270,25 @@ function withSessionCookies(target: NextResponse, session: NextResponse): NextRe
 }
 
 export default async function proxy(request: NextRequest) {
-  // Breeze internal tool: authenticate FIRST. updateSession verifies the
-  // session, refreshes it, and returns a redirect to /login (pages) or a 401
-  // (APIs) unless the user is a Breeze account or the path is on the short
-  // anonymous allowlist (lib/auth/anonymous-paths.ts). Only a passing request
-  // (a plain 200 "next" response) continues to the portal rewrites below, so
-  // subdomain / custom-domain portal entry points are Breeze-only too.
+  // Portal hosts (subdomain / custom domain) rewrite onto /p/* or /api/public/*,
+  // which skip the Breeze-session requirement and gate on the portal's own
+  // visibility setting (public → anyone, private → signed-in members). Run the
+  // session pass only to refresh cookies; never let it redirect a portal host
+  // to the app's login page.
+  const portalRewrite =
+    (await publicKbRewrite(request)) ??
+    (await publicKbCustomDomainRewrite(request));
+  if (portalRewrite) {
+    return withSessionCookies(portalRewrite, await updateSession(request));
+  }
+
+  // Everything else: authenticate FIRST. updateSession verifies the session,
+  // refreshes it, and returns a redirect to /login (pages) or a 401 (APIs)
+  // unless the user is a Breeze account or the path is on the anonymous
+  // allowlist (lib/auth/anonymous-paths.ts — which includes /p/* and
+  // /api/public/*, so path-addressed portals are reachable too).
   const session = await updateSession(request);
   if (session.status !== 200 || session.headers.has("location")) return session;
-
-  const rewrite = await publicKbRewrite(request);
-  if (rewrite) return withSessionCookies(rewrite, session);
-
-  const customRewrite = await publicKbCustomDomainRewrite(request);
-  if (customRewrite) return withSessionCookies(customRewrite, session);
 
   // A /p/... path reaches here two ways: addressed directly on the app host, or
   // forwarded by the Worker proxy (which addresses /p/<ws>/<project> and so skips
@@ -306,6 +311,6 @@ export const config = {
      * in /public. Matching by extension (the old `.*\\.(png|svg|…)$` rule)
      * let any route whose URL ends in ".png" skip authentication.
      */
-    "/((?!_next/static|_next/image|breeze-mark\\.svg|icon\\.svg).*)",
+    "/((?!_next/static|_next/image|breeze-mark\\.png|icon\\.png).*)",
   ],
 };

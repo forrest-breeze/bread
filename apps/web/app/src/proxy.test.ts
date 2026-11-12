@@ -476,33 +476,43 @@ describe("proxy — portal llms.txt files", () => {
 })
 
 
-describe("proxy — Breeze-only gate runs before any portal routing", () => {
+describe("proxy — portals are public, the app stays behind login", () => {
   function signedOut(): void {
     mockUpdateSession.mockImplementation(
       () => NextResponse.redirect("https://app.example.com/login"),
     )
   }
 
-  it("turns away a signed-out visitor on a portal subdomain without resolving it", async () => {
+  it("serves a portal subdomain to a signed-out visitor (portal gates its own visibility)", async () => {
     signedOut()
     mockResolveSubdomainSlug.mockResolvedValue("acme-k3n8")
     const proxy = await loadProxy()
     const res = await proxy(makeReq("acme.example.com", "/"))
-    expect(res.headers.get("location")).toBe("https://app.example.com/login")
-    expect(rewriteTarget(res)).toBeNull()
-    expect(mockResolveSubdomainSlug).not.toHaveBeenCalled()
+    expect(res.headers.get("location")).toBeNull()
+    expect(rewriteTarget(res)).toContain("/p/acme-k3n8")
   })
 
-  it("turns away a signed-out visitor on a custom domain without resolving it", async () => {
+  it("serves a custom-domain portal to a signed-out visitor", async () => {
+    signedOut()
+    mockResolveCustomDomainRoute.mockResolvedValue({
+      workspaceSlug: "acme",
+      projectSlug: "docs",
+      pathPrefix: "/",
+    })
+    const proxy = await loadProxy()
+    const res = await proxy(makeReq("docs.customer.com", "/doc/install"))
+    expect(res.headers.get("location")).toBeNull()
+    expect(rewriteTarget(res)).toContain("/p/acme/docs/doc/install")
+  })
+
+  it("still sends a signed-out visitor on an unknown host to login", async () => {
     signedOut()
     const proxy = await loadProxy()
     const res = await proxy(makeReq("docs.customer.com", "/guide"))
     expect(res.headers.get("location")).toBe("https://app.example.com/login")
-    expect(mockResolveCustomDomainProjectRoute).not.toHaveBeenCalled()
-    expect(mockResolveCustomDomainRoute).not.toHaveBeenCalled()
   })
 
-  it("turns away a signed-out visitor on /p and on llms.txt", async () => {
+  it("honors the session gate's redirect on the app host", async () => {
     signedOut()
     const proxy = await loadProxy()
     for (const path of ["/p/acme/docs", "/p/acme/llms.txt", "/p/acme/x.png"]) {
@@ -529,6 +539,6 @@ describe("proxy matcher", () => {
     expect(pattern.test("/p/acme/docs/x.png")).toBe(true)
     expect(pattern.test("/api/public/media/abc.svg")).toBe(true)
     expect(pattern.test("/_next/static/chunk.js")).toBe(false)
-    expect(pattern.test("/breeze-mark.svg")).toBe(false)
+    expect(pattern.test("/breeze-mark.png")).toBe(false)
   })
 })

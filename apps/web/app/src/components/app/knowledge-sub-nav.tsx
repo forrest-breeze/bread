@@ -65,6 +65,7 @@ export function KnowledgeSubNav({
           <Link
             href="/knowledge/changes"
             role="tab"
+            data-tour="changes"
             aria-selected={showingChanges}
             className={cn(
               "flex h-7 min-w-0 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground",

@@ -105,7 +105,8 @@ describe("ensureBreezeWorkspaceMember", () => {
       expect.objectContaining({ user_id: "u1", role: "owner", status: "active" }),
     ])
     expect(db.subscriptions).toHaveLength(1)
-    expect(db.profiles![0]!.onboarding_completed_at).toEqual(expect.any(String))
+    // Left null so the first-visit tutorial shows (see product-tour.tsx).
+    expect(db.profiles![0]!.onboarding_completed_at).toBeNull()
   })
 
   it("adds later users to the same workspace as editors", async () => {

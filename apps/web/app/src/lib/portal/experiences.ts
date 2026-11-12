@@ -257,29 +257,23 @@ export async function resolvePublishedProjectByWorkspace(
 }
 
 /**
- * Resolve the workspace-root KB project. The canonical default slug is the
- * workspace slug; when no project lives at the root, fall back to the configured
- * primary project (Settings → Public Portal Address), then the legacy "docs"
- * slug for back-compat. The public root route serves/redirects to whatever this
- * returns. A returned project whose slug differs from the workspace slug means
- * nothing is hosted at the root itself (the caller redirects to its canonical
+ * Resolve the workspace-root KB project. The workspace has one portal and it
+ * lives at the root: its slug is the workspace slug. The legacy "docs" slug is
+ * still tried for back-compat. (The old "primary project" redirect setting was
+ * removed; migration 20261112200400 moved existing projects to the root.) A
+ * returned project whose slug differs from the workspace slug means nothing is
+ * hosted at the root itself (the caller redirects to its canonical
  * `/p/<workspace>/<slug>` URL rather than rendering it inline at the root).
  */
 export async function resolveDefaultPublishedProjectByWorkspace(
   workspaceId: string,
   workspaceSlug: string,
-  primaryProjectSlug?: string | null,
 ): Promise<PublishedProject | null> {
   const canonical = await resolvePublishedProjectByWorkspace(
     workspaceId,
     workspaceSlug,
   )
   if (canonical) return canonical
-  const fallbackSlug =
-    (primaryProjectSlug && primaryProjectSlug.trim()) ||
-    LEGACY_DEFAULT_PROJECT_SLUG
-  // The canonical lookup already ran, so a fallback equal to the workspace slug
-  // can only miss — short-circuit instead of repeating it.
-  if (fallbackSlug === workspaceSlug) return null
-  return resolvePublishedProjectByWorkspace(workspaceId, fallbackSlug)
+  if (LEGACY_DEFAULT_PROJECT_SLUG === workspaceSlug) return null
+  return resolvePublishedProjectByWorkspace(workspaceId, LEGACY_DEFAULT_PROJECT_SLUG)
 }

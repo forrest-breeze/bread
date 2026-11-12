@@ -32,7 +32,7 @@ vi.mock('@/lib/supabase/client', () => ({
   createClient: () => ({ auth }),
 }));
 
-import { LoginForm } from './login-form';
+import { GOOGLE_SIGN_IN_ENABLED, LoginForm } from './login-form';
 
 describe('LoginForm OAuth', () => {
   beforeEach(() => {
@@ -53,6 +53,16 @@ describe('LoginForm OAuth', () => {
     vi.clearAllMocks();
   });
 
+  it.skipIf(GOOGLE_SIGN_IN_ENABLED)('shows Google greyed out and does nothing while it is disabled', () => {
+    render(<LoginForm next="/dashboard" privatePortalLogin={false} />);
+
+    const google = screen.getByRole('button', { name: 'Continue with Google' });
+    expect(google).toBeDisabled();
+    expect(screen.getByText(/Temporarily unavailable/)).toBeInTheDocument();
+    fireEvent.click(google);
+    expect(auth.signInWithOAuth).not.toHaveBeenCalled();
+  });
+
   it('offers Google only, with no GitHub sign-in', () => {
     render(<LoginForm next="/dashboard" privatePortalLogin={false} />);
 
@@ -60,7 +70,7 @@ describe('LoginForm OAuth', () => {
     expect(screen.queryByRole('button', { name: 'Continue with GitHub' })).toBeNull();
   });
 
-  it('starts Google OAuth with the shared auth callback and preserves an invite return', async () => {
+  it.skipIf(!GOOGLE_SIGN_IN_ENABLED)('starts Google OAuth with the shared auth callback and preserves an invite return', async () => {
     window.sessionStorage.setItem('bread:pending-invite', 'invite-code');
     render(<LoginForm next="/dashboard" privatePortalLogin={false} />);
 
@@ -80,7 +90,7 @@ describe('LoginForm OAuth', () => {
     expect(window.sessionStorage.getItem('bread:pending-invite')).toBeNull();
   });
 
-  it('keeps the Google account chooser behavior', async () => {
+  it.skipIf(!GOOGLE_SIGN_IN_ENABLED)('keeps the Google account chooser behavior', async () => {
     render(<LoginForm next="/knowledge" privatePortalLogin={false} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Continue with Google' }));
@@ -96,7 +106,7 @@ describe('LoginForm OAuth', () => {
     });
   });
 
-  it('shows provider errors and does not remember a failed Google attempt', async () => {
+  it.skipIf(!GOOGLE_SIGN_IN_ENABLED)('shows provider errors and does not remember a failed Google attempt', async () => {
     auth.signInWithOAuth.mockResolvedValueOnce({
       data: { provider: 'google', url: null },
       error: { message: 'Google sign-in is not enabled' },

@@ -17,6 +17,7 @@ import {
   Search,
   Lock,
   FileText,
+  Compass,
 } from "lucide-react"
 // Primary navigation icons use Phosphor (duotone) to give the app a
 // distinct identity from the default lucide set every shadcn app ships with.
@@ -38,6 +39,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
@@ -51,6 +53,7 @@ import { SubSidebarProvider, useSubSidebar } from "@/components/app/sub-sidebar-
 import { SubSidebar, MobileSubSidebar } from "@/components/app/sub-sidebar"
 import { RemoteIcon } from "@/components/ui/remote-icon"
 import { SearchPopout } from "@/components/app/search-popout"
+import { ProductTourProvider, useProductTour } from "@/components/app/product-tour"
 import { WorkspaceRealtimeSync } from "@/components/app/workspace-realtime-sync"
 import { WorkspaceSwitchProvider, useWorkspaceSwitch } from "@/components/app/workspace-switch-context"
 import { useKnowledgeBuilderActive } from "@/components/app/knowledge-portal-access"
@@ -82,6 +85,8 @@ interface NavItem {
   subSidebarSection?: "settings" | "knowledge"
   activePrefixes?: string[]
   inactivePrefixes?: string[]
+  /** Spotlight anchor for the product tour (data-tour). */
+  tourId?: string
 }
 
 interface NavSection {
@@ -98,11 +103,13 @@ const navigationSections: NavSection[] = [
         href: "/knowledge",
         icon: FileText,
         subSidebarSection: "knowledge",
+        tourId: "knowledge",
       },
       {
         label: "Analytics",
         href: "/reporting",
         icon: ChartLineUp,
+        tourId: "analytics",
       },
     ],
   },
@@ -114,6 +121,7 @@ const navigationSections: NavSection[] = [
         href: "/settings/integrations",
         linkHref: "/settings/integrations/openapi",
         icon: Plugs,
+        tourId: "integrations",
       },
       {
         label: "Settings",
@@ -121,6 +129,7 @@ const navigationSections: NavSection[] = [
         linkHref: "/settings/profile",
         icon: GearSix,
         subSidebarSection: "settings",
+        tourId: "settings",
         inactivePrefixes: ["/settings/integrations"],
       },
     ],
@@ -141,7 +150,7 @@ function Logo({ size = "default", isMinimized }: { size?: "default" | "sm", isMi
           rounding
         )}
       >
-        <Image src="/breeze-mark.svg" alt="Breeze" width={24} height={24} className="object-contain" />
+        <Image src="/breeze-mark.png" alt="Breeze" width={20} height={20} className="object-contain" />
       </div>
     </HoverPrefetchLink>
   )
@@ -212,6 +221,7 @@ function NavLinks({ onNavigate, isMinimized }: { onNavigate?: () => void, isMini
                 // are thin (pages fetch through SWR), so warm them on idle.
                 keepViewportPrefetch
                 onClick={handleClick}
+                data-tour={item.tourId}
                 className={cn(
                   "relative flex items-center rounded-lg transition-colors overflow-hidden",
                   isMinimized ? "justify-center p-2" : "gap-2.5 px-2.5 py-1.5",
@@ -334,6 +344,7 @@ function WorkspaceMenu({ isMinimized }: { isMinimized?: boolean }) {
     error: listError,
   } = useWorkspaces()
   const isAdmin = wsData?.user_role === "admin" || wsData?.user_role === "owner"
+  const { start: startTour } = useProductTour()
   // The SWR cache is synchronously seeded from localStorage (see swr-provider),
   // so on the client's first render `wsData` may already be populated while the
   // server (no localStorage) rendered the skeleton. Branching the DOM structure
@@ -514,6 +525,11 @@ function WorkspaceMenu({ isMinimized }: { isMinimized?: boolean }) {
             )}
           </DropdownMenuGroup>
           {/* Breeze internal tool: one workspace, so no create/join entries. */}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={startTour}>
+            <Compass className="size-4" />
+            <span className="ml-2">Take the tour</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -535,6 +551,7 @@ function SidebarSearch({ isMinimized }: { isMinimized?: boolean }) {
           <AppTooltip label="Search" side="right" sideOffset={16}>
             <button
               onClick={() => setSearchOpen(true)}
+              data-tour="search"
               aria-label="Search"
               className="flex w-full items-center justify-center rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
             >
@@ -552,6 +569,7 @@ function SidebarSearch({ isMinimized }: { isMinimized?: boolean }) {
       <div className="mb-1 px-2">
         <button
           onClick={() => setSearchOpen(true)}
+          data-tour="search"
           className="flex w-full items-center gap-2.5 rounded-md border border-border bg-muted/50 px-2.5 py-1.5 text-[13px] text-muted-foreground/60 transition-colors hover:bg-muted hover:text-muted-foreground"
         >
           <Search className="size-3.5 shrink-0" />
@@ -730,6 +748,7 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
     <TooltipProvider delay={300}>
       <SubSidebarProvider>
         <WorkspaceChangesProvider>
+          <ProductTourProvider>
           <WorkspaceRealtimeSync />
           <div className="flex h-screen bg-background text-foreground">
             <aside
@@ -779,6 +798,7 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
+          </ProductTourProvider>
         </WorkspaceChangesProvider>
       </SubSidebarProvider>
     </TooltipProvider>

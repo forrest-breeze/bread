@@ -18,7 +18,6 @@ import {
   selectPortalLlmsFullDocs,
   type PortalLlmsFullDoc,
 } from "@/lib/portal/llms-txt"
-import { breezeOnlyResponse } from "@/lib/auth/require-breeze"
 
 // ---------------------------------------------------------------------------
 // Machine-readable portal index — llms.txt / llms-full.txt.
@@ -64,10 +63,6 @@ async function clientIp(): Promise<string> {
 }
 
 export async function GET(request: Request): Promise<NextResponse> {
-  // Breeze internal tool: portals are Breeze-only (see lib/auth/require-breeze.ts).
-  const denied = await breezeOnlyResponse();
-  if (denied) return denied;
-
   const url = new URL(request.url)
   const parsed = querySchema.safeParse({
     portal: url.searchParams.get("portal") ?? "",

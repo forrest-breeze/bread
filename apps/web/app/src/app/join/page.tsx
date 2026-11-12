@@ -133,10 +133,10 @@ export default function JoinPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm space-y-6 text-center">
         <Image
-          src="/breeze-mark.svg"
+          src="/breeze-mark.png"
           alt="Breeze"
-          width={32}
-          height={32}
+          width={26}
+          height={26}
           className="mx-auto object-contain"
         />
         <Suspense

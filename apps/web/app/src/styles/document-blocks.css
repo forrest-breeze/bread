@@ -87,8 +87,16 @@
   --card-surface: var(--portal-bg, var(--background, Canvas));
   border: 1px solid color-mix(in oklab, var(--card-accent) 22%, var(--card-surface));
   border-radius: .75rem;
-  background: color-mix(in oklab, var(--card-accent) 10%, var(--card-surface));
+  /* Light theme: a soft diagonal accent wash. Dark theme (below): flat. */
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--card-accent) 11%, var(--card-surface)),
+    color-mix(in oklab, var(--card-accent) 3%, var(--card-surface)) 70%
+  );
   transition: border-color .15s ease, background-color .15s ease;
+}
+.dark :is(.portal-docs-prose, .bread-editor) [data-document-card] {
+  background: color-mix(in oklab, var(--card-accent) 10%, var(--card-surface));
 }
 :is(.portal-docs-prose, .bread-editor) [data-document-card] > [data-card-title] {
   margin: 0 0 .35rem;

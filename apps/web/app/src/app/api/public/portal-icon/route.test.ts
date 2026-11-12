@@ -1,12 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-// Breeze internal tool: portal surfaces require a Breeze user. Default to an
-// allowed caller; individual tests override to check the refusal.
-const breezeGate = vi.hoisted(() => ({
-  breezeOnlyResponse: vi.fn(async (): Promise<Response | null> => null),
-  requireBreezeViewer: vi.fn(async () => ({ id: "u1", email: "u1@breeze.com" })),
-}))
-vi.mock("@/lib/auth/require-breeze", () => breezeGate)
 import { NextRequest } from "next/server"
 import type { ReactElement } from "react"
 
@@ -79,16 +72,5 @@ describe("portal favicon", () => {
     mocks.requirePortal.mockRejectedValue(new Error("not found"))
     await expect(GET(request())).rejects.toThrow("not found")
     expect(mocks.render).not.toHaveBeenCalled()
-  })
-})
-
-
-describe("Breeze-only access", () => {
-  it("refuses callers who are not signed-in Breeze users", async () => {
-    breezeGate.breezeOnlyResponse.mockResolvedValueOnce(
-      Response.json({ error: "Unauthorized" }, { status: 401 }),
-    )
-    const res = await GET(new Request("https://app.test/api/public/portal-icon?workspace=acme") as never)
-    expect(res.status).toBe(401)
   })
 })

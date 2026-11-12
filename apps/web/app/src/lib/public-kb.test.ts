@@ -241,7 +241,6 @@ function expectedWorkspace(slug: string, isPublic: boolean) {
     customDomain: "",
     portalAddressScope: "workspace",
     portalAddressMode: "bread",
-    primaryProjectSlug: null,
     portalChromeScope: "workspace",
     header: null,
     branding: {
