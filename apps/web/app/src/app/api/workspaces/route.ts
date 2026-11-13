@@ -22,14 +22,14 @@ export async function GET(): Promise<NextResponse> {
 
   if (memError) {
     if (isTransientSupabaseError(memError)) {
-      console.warn("[Bread] Workspace memberships temporarily unavailable:", memError.message);
+      console.warn("[Breezify] Workspace memberships temporarily unavailable:", memError.message);
       return NextResponse.json(
         { error: "Service temporarily unavailable" },
         { status: 503 },
       );
     }
 
-    console.error("[Bread] Failed to fetch memberships:", memError.message);
+    console.error("[Breezify] Failed to fetch memberships:", memError.message);
     return NextResponse.json(
       { error: "Failed to fetch memberships" },
       { status: 500 }
@@ -49,14 +49,14 @@ export async function GET(): Promise<NextResponse> {
 
   if (error) {
     if (isTransientSupabaseError(error)) {
-      console.warn("[Bread] Workspace list temporarily unavailable:", error.message);
+      console.warn("[Breezify] Workspace list temporarily unavailable:", error.message);
       return NextResponse.json(
         { error: "Service temporarily unavailable" },
         { status: 503 },
       );
     }
 
-    console.error("[Bread] Failed to fetch workspaces:", error.message);
+    console.error("[Breezify] Failed to fetch workspaces:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch workspaces" },
       { status: 500 }
@@ -77,7 +77,7 @@ export async function GET(): Promise<NextResponse> {
     .in("workspace_id", workspaceIds);
   if (subsError) {
     console.error(
-      "[Bread] Failed to fetch workspace subscriptions:",
+      "[Breezify] Failed to fetch workspace subscriptions:",
       subsError.message,
     );
   }
@@ -101,6 +101,7 @@ export async function GET(): Promise<NextResponse> {
         memberships.find((m) => m.workspace_id === ws.id)?.role ?? "viewer",
       portal_editor_enabled: portalEntitlements.portalEditor,
       portal_ai_builder_enabled: portalEntitlements.portalAiBuilder,
+      portal_assistant_enabled: portalEntitlements.portalAssistant,
       portal_translations_enabled: portalEntitlements.portalTranslations,
       portal_reporting_enabled: portalEntitlements.portalReporting,
       portal_reporting_max_days: portalEntitlements.portalReportingMaxDays,

@@ -128,6 +128,7 @@ import {
   setStoredBuilderDocumentSortMode,
 } from "@/lib/document-nav-preferences"
 import {
+  portalNavEntries,
   portalPagePresentation,
   type PortalLayout,
   type PortalPage,
@@ -275,7 +276,7 @@ type CustomizeSection =
   | "scope"
 type ScopeState = "idle" | "saving" | "error"
 type ProjectAddressMode = "inherited" | PortalDomainRouteMode
-const STORED_SIDEBAR_VIEW_KEY = "bread-kb-builder-sidebar-view"
+const STORED_SIDEBAR_VIEW_KEY = "breezify-kb-builder-sidebar-view"
 const PORTAL_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,48}[a-z0-9])?$/
 
 const DEFAULT_VIEWPORT_WIDTH = 1440
@@ -547,11 +548,13 @@ function CustomizeSubPanel({
 
 function PageSwitcher({
   pages,
+  homePosition,
   activeSlug,
   disabled,
   onChange,
 }: {
   pages: PortalPage[]
+  homePosition?: number
   activeSlug: string | null
   disabled: boolean
   onChange: (slug: string | null) => void
@@ -593,20 +596,29 @@ function PageSwitcher({
               onChange(value === "__home__" ? null : value)
             }
           >
-            <DropdownMenuRadioItem value="__home__" className="gap-2">
-              <Home className="size-4 text-muted-foreground" />
-              <span className="min-w-0 flex-1 truncate">Documents</span>
-            </DropdownMenuRadioItem>
-            {pages.map((page) => (
-              <DropdownMenuRadioItem
-                key={page.id}
-                value={page.slug}
-                className="gap-2"
-              >
-                <FileText className="size-4 text-muted-foreground" />
-                <span className="min-w-0 flex-1 truncate">{page.title}</span>
-              </DropdownMenuRadioItem>
-            ))}
+            {portalNavEntries({ pages, homePosition }).map((entry) =>
+              entry.kind === "home" ? (
+                <DropdownMenuRadioItem
+                  key="__home__"
+                  value="__home__"
+                  className="gap-2"
+                >
+                  <Home className="size-4 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate">Documents</span>
+                </DropdownMenuRadioItem>
+              ) : (
+                <DropdownMenuRadioItem
+                  key={entry.page.id}
+                  value={entry.page.slug}
+                  className="gap-2"
+                >
+                  <FileText className="size-4 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate">
+                    {entry.page.title}
+                  </span>
+                </DropdownMenuRadioItem>
+              ),
+            )}
           </DropdownMenuRadioGroup>
         </DropdownMenuGroup>
       </DropdownMenuContent>
@@ -900,7 +912,7 @@ function PortalCustomCreateView({
         </div>
         <p className="text-sm text-muted-foreground">
           Describe the portal you want and choose which folders it should cover.
-          Bread designs and assembles it for you — refine it afterward in the builder.
+          Breezify designs and assembles it for you — refine it afterward in the builder.
         </p>
         <form
           className="flex flex-col gap-5"
@@ -1036,7 +1048,7 @@ function ProjectPathControl({
   const workspaceCustomDomain = getKbCustomDomain(workspace.settings)
   const workspaceAddressMode = getPortalAddressMode(workspace.settings)
   const activeWorkspaceDomain =
-    !projectAddressScope && workspaceAddressMode !== "bread"
+    !projectAddressScope && workspaceAddressMode !== "breezify"
       ? workspaceCustomDomain
       : ""
   const domainRoute = domainRouteData?.route ?? null
@@ -1074,7 +1086,7 @@ function ProjectPathControl({
 
   const portalKey = workspace.slug
   const origin = hasHydrated ? window.location.origin : ""
-  const breadOrigin = (
+  const breezifyOrigin = (
     process.env.NEXT_PUBLIC_APP_URL ||
     origin
   ).replace(/\/+$/, "")
@@ -1385,7 +1397,7 @@ function ProjectPathControl({
             />
             <ProjectAddressOption
               selected={addressMode === "inherited"}
-              title="Bread URL"
+              title="Breezify URL"
               description={inheritedUrl.replace(/^https?:\/\//, "")}
               icon={<Link2 className="size-4 text-violet-500" />}
               disabled={domainRouteLoading || addressSaving}
@@ -1401,7 +1413,7 @@ function ProjectPathControl({
 
         {addressMode === "inherited" ? (
           <p className="text-[11px] text-muted-foreground">
-            Uses this project&apos;s built-in Bread URL. Workspace hosting is
+            Uses this project&apos;s built-in Breezify URL. Workspace hosting is
             disabled while URL ownership is project-specific.
           </p>
         ) : (
@@ -1440,12 +1452,12 @@ function ProjectPathControl({
                   Save a path suffix below before mounting this root project on
                   a shared domain.
                 </p>
-              ) : normalizedAddressDomain && breadOrigin ? (
+              ) : normalizedAddressDomain && breezifyOrigin ? (
                 <PortalReverseProxyInstructions
                   domain={normalizedAddressDomain}
                   mountPath={`/${project.slug}`}
                   portalPath={`/p/${portalKey}/${project.slug}`}
-                  breadOrigin={breadOrigin}
+                  breezifyOrigin={breezifyOrigin}
                   connectorReady={Boolean(domainRoute && !addressDirty)}
                   verifyWorkerActivation={async () =>
                     (await verifyPortalProjectAddress(project.slug)).connected
@@ -2288,7 +2300,7 @@ export function PortalBuilder({
   const canCreateProject = !projectLimitReached
   const projectLimitLabel =
     typeof projectLimit === "number"
-      ? `Your plan includes ${projectLimit} portal project${projectLimit === 1 ? "" : "s"}.`
+      ? `This workspace is limited to ${projectLimit} portal project${projectLimit === 1 ? "" : "s"}.`
       : null
   const defaultProject = projects.find((project) => project.isDefault) ?? projects[0]
   const rootProjectSlug =
@@ -3356,7 +3368,7 @@ export function PortalBuilder({
       : workspace?.slug ?? activeProject.slug ?? "preview"
   const workspaceDomain =
     portalAddressScope === "workspace" &&
-    getPortalAddressMode(workspace?.settings) !== "bread"
+    getPortalAddressMode(workspace?.settings) !== "breezify"
       ? getKbCustomDomain(workspace?.settings)
       : ""
   const publicPortalHref =
@@ -3574,7 +3586,11 @@ export function PortalBuilder({
                           <CustomizeMenuRow
                             icon={Bot}
                             label="AI assistant"
-                            description="Header or corner popout"
+                            description={
+                              workspace?.portal_assistant_enabled === true
+                                ? "Header or corner popout"
+                                : "Requires an API key"
+                            }
                             onClick={() => setCustomizeSection("assistant")}
                           />
                           <CustomizeMenuRow
@@ -3583,7 +3599,7 @@ export function PortalBuilder({
                             description={
                               workspace?.portal_translations_enabled === true
                                 ? "Translation and selector position"
-                                : "Available on Business"
+                                : "Requires an API key"
                             }
                             onClick={() => setCustomizeSection("languages")}
                           />
@@ -3624,7 +3640,7 @@ export function PortalBuilder({
                             workspace?.icon_url ||
                             undefined
                           }
-                          canRemoveBreadBranding={
+                          canRemoveBreezifyBranding={
                             workspace?.portal_branding_removal_enabled === true
                           }
                         />
@@ -3655,7 +3671,7 @@ export function PortalBuilder({
                           key={activeProject?.id ?? "default"}
                           layout={layout}
                           onLayoutChange={applyLayout}
-                          canUseAi={workspace?.portal_ai_builder_enabled === true}
+                          canUseAi={workspace?.portal_assistant_enabled === true}
                         />
                       </CustomizeSubPanel>
                     ) : customizeSection === "languages" ? (
@@ -3706,6 +3722,7 @@ export function PortalBuilder({
                             <Label className="text-[11px]">Portal page</Label>
                             <PageSwitcher
                               pages={layout.pages ?? []}
+                              homePosition={layout.homePosition}
                               activeSlug={activePageSlug}
                               disabled={
                                 saveState === "saving" || scopeState === "saving"

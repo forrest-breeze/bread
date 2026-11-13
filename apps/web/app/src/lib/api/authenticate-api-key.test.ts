@@ -23,7 +23,7 @@ import { resetTouchLastUsedCache } from './touch-last-used'
 
 const WORKSPACE_ID = '11111111-2222-3333-4444-555555555555'
 
-function makeRequest(authHeader = 'Bearer bread_sk_valid'): NextRequest {
+function makeRequest(authHeader = 'Bearer breezify_sk_valid'): NextRequest {
   const headers = new Headers()
   headers.set('authorization', authHeader)
   return new NextRequest('http://localhost/api/v1/search', {
@@ -79,7 +79,7 @@ describe('authenticateApiKey — last_used_at error visibility (W3)', () => {
     expect(errorSpy).not.toHaveBeenCalled()
   })
 
-  it('logs once with "[Bread] api_keys last_used_at update failed:" when the update errors', async () => {
+  it('logs once with "[Breezify] api_keys last_used_at update failed:" when the update errors', async () => {
     const mock = makeAdminMock({
       error: { message: 'permission denied for table api_keys' },
     })
@@ -95,7 +95,7 @@ describe('authenticateApiKey — last_used_at error visibility (W3)', () => {
     const firstArg = errorSpy.mock.calls[0][0]
     expect(typeof firstArg).toBe('string')
     expect(firstArg as string).toContain(
-      '[Bread] api_keys last_used_at update failed:',
+      '[Breezify] api_keys last_used_at update failed:',
     )
   })
 })

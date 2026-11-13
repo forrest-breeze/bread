@@ -3,7 +3,10 @@
 import { PortalHeader } from "@/components/public-kb/portal/portal-header"
 import { SidebarNav } from "@/components/public-kb/portal/sidebar-nav"
 import { portalThemeCssVars } from "@/lib/portal/theme-vars"
-import type { PortalLayout } from "@/lib/portal/schema"
+import {
+  resolvePortalNavRoute,
+  type PortalLayout,
+} from "@/lib/portal/schema"
 import { cn } from "@/lib/utils"
 import {
   portalDocRefFromHref,
@@ -29,7 +32,12 @@ export interface FrameNavigation {
  * editor, a page (or home) opens in the preview, and anything off-site opens
  * in a new tab.
  */
-export function navigateFromFrame(href: string, nav: FrameNavigation): void {
+export function navigateFromFrame(
+  href: string,
+  nav: FrameNavigation,
+  /** Resolves the root and /page/home against the portal's page order. */
+  layout?: Pick<PortalLayout, "pages" | "homePosition">,
+): void {
   const origin = window.location.origin
   let url: URL
   try {
@@ -51,12 +59,25 @@ export function navigateFromFrame(href: string, nav: FrameNavigation): void {
     return
   }
   const page = /\/page\/([^/]+)\/?$/.exec(url.pathname)
-  nav.onOpenPage(page ? decodeURIComponent(page[1]) : null)
+  const route = page
+    ? resolvePortalNavRoute(layout, "page", decodeURIComponent(page[1]))
+    : resolvePortalNavRoute(layout, "home")
+  nav.onOpenPage(
+    route?.kind === "page"
+      ? route.page.slug
+      : route?.kind === "home"
+        ? null
+        : // Unknown page: keep the old behavior and let the preview decide.
+          page
+          ? decodeURIComponent(page[1])
+          : null,
+  )
 }
 
 /** Click-capture handler shared by the frame's header and nav rail. */
 function interceptPortalLinks(
   nav: FrameNavigation,
+  layout: Pick<PortalLayout, "pages" | "homePosition">,
 ): React.MouseEventHandler<HTMLElement> {
   return (event) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey) return
@@ -64,7 +85,7 @@ function interceptPortalLinks(
     if (!anchor) return
     event.preventDefault()
     event.stopPropagation()
-    navigateFromFrame(anchor.getAttribute("href") ?? "", nav)
+    navigateFromFrame(anchor.getAttribute("href") ?? "", nav, layout)
   }
 }
 
@@ -85,7 +106,7 @@ export function PortalEditorFrameHeader({
   return (
     <div
       data-testid="portal-editor-frame-header"
-      onClickCapture={interceptPortalLinks(nav)}
+      onClickCapture={interceptPortalLinks(nav, layout)}
       className={cn("shrink-0 bg-background text-foreground", appearance)}
       style={portalThemeCssVars(layout.theme)}
     >
@@ -94,6 +115,7 @@ export function PortalEditorFrameHeader({
         theme={layout.theme}
         header={layout.header}
         pages={layout.pages ?? []}
+        homePosition={layout.homePosition}
         themeControl={{ mode: appearance, onChange: onAppearanceChange }}
         onNavigate={(href) => navigateFromFrame(href, nav)}
       />
@@ -122,7 +144,7 @@ export function PortalEditorFrameSidebar({
     <nav
       aria-label="Portal navigation"
       data-testid="portal-editor-frame-sidebar"
-      onClickCapture={interceptPortalLinks({ onOpenDocument, onOpenPage })}
+      onClickCapture={interceptPortalLinks({ onOpenDocument, onOpenPage }, layout)}
       onMouseOver={
         onHoverDocument
           ? (event) => {

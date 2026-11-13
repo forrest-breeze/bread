@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useSWRConfig } from "swr"
 import { MoreHorizontal, Pencil, GitMerge, Trash2, Loader2 } from "lucide-react"
 import { useFolders, useWorkspace } from "@/hooks/swr"
-import type { WorkspaceRole } from "@bread/core"
+import type { WorkspaceRole } from "@breezify/core"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,

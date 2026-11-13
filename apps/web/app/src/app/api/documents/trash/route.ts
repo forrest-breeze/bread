@@ -36,7 +36,7 @@ export async function GET(): Promise<NextResponse> {
     .order("deleted_at", { ascending: false });
 
   if (error) {
-    console.error("[Bread] Failed to fetch document trash:", error.message);
+    console.error("[Breezify] Failed to fetch document trash:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch trash" },
       { status: 500 },

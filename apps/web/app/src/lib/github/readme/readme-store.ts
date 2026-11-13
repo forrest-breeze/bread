@@ -61,7 +61,7 @@ export interface ReadmeStore {
   /** Every public slug in use, including soft-deleted documents. */
   listPublicSlugs(): Promise<string[]>
   /**
-   * Repository links of documents that were deleted in Bread while still
+   * Repository links of documents that were deleted in Breezify while still
    * linked: deletions that have not been published to GitHub yet.
    */
   listDeletedLinks(): Promise<Array<{ path: string; blobSha: string | null }>>

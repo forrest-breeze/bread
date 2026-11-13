@@ -39,7 +39,7 @@ export async function POST(
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] cancel import job:", error.message);
+    console.error("[Breezify] cancel import job:", error.message);
     return NextResponse.json({ error: "Cancel failed" }, { status: 500 });
   }
   if (!data) {

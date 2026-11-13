@@ -9,11 +9,11 @@ import type { GitHubCheckRun } from './github-checks'
 import {
   extractGitHubDocsCheckInfo,
   handleGitHubDocsCheck,
-  BREAD_DOCS_CHECK_NAME,
+  BREEZIFY_DOCS_CHECK_NAME,
   type GitHubDocsCheckDependencies,
   type GitHubDocsCheckInfo,
 } from './github-docs-check'
-import { BREAD_HOSTED_DOC_MAX_BYTES } from './github-hosted-format'
+import { BREEZIFY_HOSTED_DOC_MAX_BYTES } from './github-hosted-format'
 import { MAX_HOSTED_WORKSPACE_BYTES } from './github-hosted-workspace'
 import { GitHubApiError } from './retry'
 
@@ -73,7 +73,7 @@ function documentContent(index = 1): string {
   return [
     '---',
     `title: "Document ${index}"`,
-    `bread_document_id: "00000000-0000-4000-8000-${id}"`,
+    `breezify_document_id: "00000000-0000-4000-8000-${id}"`,
     '---',
     '',
     `# Document ${index}`,
@@ -185,7 +185,7 @@ describe('extractGitHubDocsCheckInfo', () => {
       ...common,
       action: 'rerequested',
       check_run: {
-        name: BREAD_DOCS_CHECK_NAME,
+        name: BREEZIFY_DOCS_CHECK_NAME,
         head_sha: 'run-head-sha',
         app: { id: 1234 },
       },
@@ -268,9 +268,9 @@ describe('handleGitHubDocsCheck', () => {
       'installation-token',
       INFO.repoFullName,
       {
-        name: BREAD_DOCS_CHECK_NAME,
+        name: BREEZIFY_DOCS_CHECK_NAME,
         head_sha: INFO.headSha,
-        external_id: `bread-docs:${INFO.repoId}:${INFO.headSha}`,
+        external_id: `breezify-docs:${INFO.repoId}:${INFO.headSha}`,
         status: 'in_progress',
         started_at: NOW.toISOString(),
       },
@@ -292,9 +292,9 @@ describe('handleGitHubDocsCheck', () => {
       conclusion: 'success',
       completed_at: NOW.toISOString(),
       output: {
-        title: 'Bread documents are valid',
+        title: 'Breezify documents are valid',
         summary:
-          'Validated 2 Bread documents across 2 linked roots at this commit. All 6 checks passed.',
+          'Validated 2 Breezify documents across 2 linked roots at this commit. All 6 checks passed.',
       },
     })
     expect(completion?.output?.text).toContain('### Checks performed')
@@ -311,7 +311,7 @@ describe('handleGitHubDocsCheck', () => {
     expect(completion?.output?.text).toContain('- `docs/api`')
     expect(completion?.output?.text).toContain('- `guides`')
     expect(completion?.output?.text).toContain(
-      'Bread does not lint links, prose, or general Markdown/MDX syntax.',
+      'Breezify does not lint links, prose, or general Markdown/MDX syntax.',
     )
   })
 
@@ -325,7 +325,7 @@ describe('handleGitHubDocsCheck', () => {
 
     const output = mocks.updateCheck.mock.calls[0]?.[3].output
     expect(output?.summary).toBe(
-      'Validated 1 Bread document across 1 linked root at this commit. All 6 checks passed.',
+      'Validated 1 Breezify document across 1 linked root at this commit. All 6 checks passed.',
     )
     expect(output?.text).toContain('1 Markdown/MDX document was decoded completely')
     expect(output?.text).toContain('1 document is within the 500-document limit')
@@ -410,7 +410,7 @@ describe('handleGitHubDocsCheck', () => {
     )).toBe(true)
     expect(completion?.output?.text).toContain('### Errors')
     expect(completion?.output?.text).toContain('- `docs/invalid-0.md`')
-    expect(completion?.output?.text).toContain('`must start with Bread frontmatter`')
+    expect(completion?.output?.text).toContain('`must start with Breezify frontmatter`')
     expect(completion?.output?.text).toContain('…and 35 more issues')
     expect(completion?.output?.text).toContain(
       'GitHub annotations show the first 50 issues.',
@@ -426,7 +426,7 @@ describe('handleGitHubDocsCheck', () => {
     const invalid = [
       '---',
       'title: "Document 1"',
-      'bread_document_id: "not-a-uuid"',
+      'breezify_document_id: "not-a-uuid"',
       '---',
       '',
       '# Document 1',
@@ -449,7 +449,7 @@ describe('handleGitHubDocsCheck', () => {
     expect(output?.summary).toBe('1 issue found in 1 document.')
     expect(output?.text).toContain('- `docs/guides/setup.md`')
     expect(output?.text).toContain(
-      '`bread_document_id must be a valid quoted UUID`',
+      '`breezify_document_id must be a valid quoted UUID`',
     )
     expect(output?.text).toContain('- Commit: `commit-sha`')
     expect(output?.text).toContain('- Linked docs folder:')
@@ -482,7 +482,7 @@ describe('handleGitHubDocsCheck', () => {
         ...Array.from({ length: 501 }, (_, index) =>
           treeEntry(`docs/doc-${index}.md`)),
       ]),
-      summary: 'more than 500 linked Bread documents',
+      summary: 'more than 500 linked Breezify documents',
     },
     {
       name: 'a document with missing size metadata',
@@ -497,7 +497,7 @@ describe('handleGitHubDocsCheck', () => {
       tree: repositoryTree([
         treeEntry('docs', { type: 'tree', mode: '040000', size: undefined }),
         ...Array.from({ length: 33 }, (_, index) =>
-          treeEntry(`docs/doc-${index}.md`, { size: BREAD_HOSTED_DOC_MAX_BYTES })),
+          treeEntry(`docs/doc-${index}.md`, { size: BREEZIFY_HOSTED_DOC_MAX_BYTES })),
       ]),
       summary: `${MAX_HOSTED_WORKSPACE_BYTES}-byte workspace limit`,
     },
@@ -523,7 +523,7 @@ describe('handleGitHubDocsCheck', () => {
     const mocks = defaultMocks({
       tree: repositoryTree([
         treeEntry('docs', { type: 'tree', mode: '040000', size: undefined }),
-        treeEntry('docs/large.md', { size: BREAD_HOSTED_DOC_MAX_BYTES + 1 }),
+        treeEntry('docs/large.md', { size: BREEZIFY_HOSTED_DOC_MAX_BYTES + 1 }),
       ]),
     })
 
@@ -537,7 +537,7 @@ describe('handleGitHubDocsCheck', () => {
       end_line: 1,
       annotation_level: 'failure',
     })
-    expect(annotation?.message).toContain(`${BREAD_HOSTED_DOC_MAX_BYTES}-byte`)
+    expect(annotation?.message).toContain(`${BREEZIFY_HOSTED_DOC_MAX_BYTES}-byte`)
   })
 
   it('rejects a non-base64 blob with a file annotation', async () => {
@@ -602,9 +602,9 @@ describe('handleGitHubDocsCheck', () => {
     const completion = mocks.updateCheck.mock.calls[0]?.[3]
     expect(JSON.stringify(completion?.output)).not.toContain(secret)
     expect(completion?.output).toEqual({
-      title: 'Bread document validation could not finish',
-      summary: 'Bread could not safely complete validation for this commit.',
-      text: 'Re-run the check. If it fails again, reconnect the repository from Bread settings.',
+      title: 'Breezify document validation could not finish',
+      summary: 'Breezify could not safely complete validation for this commit.',
+      text: 'Re-run the check. If it fails again, reconnect the repository from Breezify settings.',
     })
   })
 
@@ -632,7 +632,7 @@ describe('handleGitHubDocsCheck', () => {
     const mocks = defaultMocks({ admin: admin.admin })
 
     await expect(handleGitHubDocsCheck(INFO, mocks.deps)).rejects.toThrow(
-      'Unable to look up linked Bread documentation roots.',
+      'Unable to look up linked Breezify documentation roots.',
     )
     expect(mocks.getToken).not.toHaveBeenCalled()
     expect(mocks.createCheck).not.toHaveBeenCalled()

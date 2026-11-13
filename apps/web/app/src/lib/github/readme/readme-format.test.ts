@@ -72,7 +72,7 @@ describe('ReadMe frontmatter', () => {
     expect(frontmatterSlug({})).toBeNull()
   })
 
-  it('changes only the fields Bread owns when a page is edited', () => {
+  it('changes only the fields Breezify owns when a page is edited', () => {
     const previous = { title: 'Old', excerpt: 'Kept', deprecated: false, hidden: false, next: { pages: [] } }
     const merged = mergeReadmeFrontmatter({ previous, title: 'New', hidden: true })
     expect(merged).toEqual({ ...previous, title: 'New', hidden: true })
@@ -106,7 +106,7 @@ describe('ReadMe frontmatter', () => {
   })
 })
 
-describe('ReadMe Markdown -> Bread Markdown', () => {
+describe('ReadMe Markdown -> Breezify Markdown', () => {
   it('turns callouts into ReadMe-style blockquotes', () => {
     expect(
       readmeBodyToMarkdown('<Callout icon="💡" theme="default">\n  **Understanding ids**\n\n  Every response has two.\n</Callout>'),
@@ -323,7 +323,7 @@ describe('planReadmeExport', () => {
     const orderContent = '- balances\n- notes\n- customers\n- changelog\n- removed-long-ago\n'
     const tree = new Map([
       [orderPath, gitBlobSha(orderContent)],
-      // Generated tag folders Bread does not mirror.
+      // Generated tag folders Breezify does not mirror.
       ['reference/Breeze API/balances/getbalance.md', 'stub-1'],
       ['reference/Breeze API/customers/index.md', 'stub-2'],
       ['reference/Breeze API/notes.md', 'old-notes'],
@@ -352,7 +352,7 @@ describe('planReadmeExport', () => {
         linkedFolder('ref', 'API Reference', 'reference'),
         { ...linkedFolder('api', 'Breeze API', 'reference/Breeze API'), parentId: 'ref' },
       ],
-      // Bread swapped the order of its two pages.
+      // Breezify swapped the order of its two pages.
       documents: [page('d1', 'changelog', 0), page('d2', 'notes', 1)],
       specs: [],
       tree,
@@ -368,7 +368,7 @@ describe('planReadmeExport', () => {
       },
     })
     const written = plan.writes.find((write) => write.path === orderPath)
-    // Bread's pages swap inside their own slots; generated entries stay put;
+    // Breezify's pages swap inside their own slots; generated entries stay put;
     // the entry for something that no longer exists is dropped.
     expect(written?.content).toBe('- balances\n- changelog\n- customers\n- notes\n')
     expect(plan.deletes).toEqual([])
@@ -428,7 +428,7 @@ describe('planReadmeExport', () => {
       tree,
       state: { ...emptyState, managed_paths: ['docs/guides/old.md'] },
     })
-    // Only the page Bread imported and no longer has is removed.
+    // Only the page Breezify imported and no longer has is removed.
     expect(plan.deletes).toEqual(['docs/guides/old.md'])
     expect(plan.writes).toEqual([])
   })

@@ -110,7 +110,7 @@ export async function cleanupOrphanedMedia({
       .order("id", { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
     if (error) {
-      console.error("[Bread] media-gc: document scan failed:", error.message);
+      console.error("[Breezify] media-gc: document scan failed:", error.message);
       // Fail closed: an incomplete reference set could orphan a live asset.
       return { scanned: 0, referenced: referencedIds.size, deleted: 0, dryRun };
     }
@@ -131,7 +131,7 @@ export async function cleanupOrphanedMedia({
       .order("id", { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
     if (error) {
-      console.error("[Bread] media-gc: media scan failed:", error.message);
+      console.error("[Breezify] media-gc: media scan failed:", error.message);
       return {
         scanned: mediaRows.length,
         referenced: referencedIds.size,
@@ -160,7 +160,7 @@ export async function cleanupOrphanedMedia({
       .select("id")
       .in("id", slice);
     if (error) {
-      console.error("[Bread] media-gc: capture scan failed:", error.message);
+      console.error("[Breezify] media-gc: capture scan failed:", error.message);
       // Fail closed: treat every candidate capture as live so nothing pinned
       // to a capture is reaped on an incomplete read.
       for (const id of candidateCaptureIds) liveCaptureIds.add(id);
@@ -192,7 +192,7 @@ export async function cleanupOrphanedMedia({
           .eq("id", orphan.id);
         if (error) {
           console.error(
-            `[Bread] media-gc: row delete failed for ${orphan.id}:`,
+            `[Breezify] media-gc: row delete failed for ${orphan.id}:`,
             error.message,
           );
           continue;
@@ -201,7 +201,7 @@ export async function cleanupOrphanedMedia({
       } catch (err) {
         // S3 (or row) delete threw — leave the row so a later run retries.
         console.error(
-          `[Bread] media-gc: delete failed for ${orphan.id}:`,
+          `[Breezify] media-gc: delete failed for ${orphan.id}:`,
           err instanceof Error ? err.message : String(err),
         );
       }
@@ -212,7 +212,7 @@ export async function cleanupOrphanedMedia({
 
   // f. One-line summary.
   console.log(
-    `[Bread] media-gc: scanned=${mediaRows.length} referenced=${referencedIds.size} orphans=${orphans.length} deleted=${deleted}${dryRun ? " (dryRun)" : ""}`,
+    `[Breezify] media-gc: scanned=${mediaRows.length} referenced=${referencedIds.size} orphans=${orphans.length} deleted=${deleted}${dryRun ? " (dryRun)" : ""}`,
   );
 
   return {

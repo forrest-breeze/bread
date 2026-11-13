@@ -65,7 +65,7 @@ describe("parseWorkspaceExport", () => {
 
   it("rejects the wrong format discriminator", () => {
     const input = { ...makeValid(), format: "random-dump" };
-    expect(() => parseWorkspaceExport(input)).toThrow(/Not a Bread workspace export/);
+    expect(() => parseWorkspaceExport(input)).toThrow(/Not a Breezify workspace export/);
   });
 
   it("rejects the old v1 payload the user shared", () => {
@@ -76,7 +76,7 @@ describe("parseWorkspaceExport", () => {
       documents: [],
     };
     expect(() => parseWorkspaceExport(v1Shape)).toThrow(
-      /Not a Bread workspace export/,
+      /Not a Breezify workspace export/,
     );
   });
 

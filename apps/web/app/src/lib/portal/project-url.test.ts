@@ -9,7 +9,7 @@ const base = {
 }
 
 describe("portalProjectUrl", () => {
-  it("builds the built-in Bread project URL", () => {
+  it("builds the built-in Breezify project URL", () => {
     expect(portalProjectUrl(base)).toBe("https://app.example.com/p/acme/docs")
   })
 

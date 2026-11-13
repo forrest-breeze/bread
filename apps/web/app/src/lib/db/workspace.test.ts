@@ -2,7 +2,7 @@
  * getActiveWorkspace() is the maybeSingle choke-point for workspace scoping (see
  * CLAUDE.md §"Workspace Scoping"). These tests pin its contract:
  *
- *   1. When a `bread-workspace` cookie is present AND the user is a member,
+ *   1. When a `breezify-workspace` cookie is present AND the user is a member,
  *      return that membership.
  *   2. When the cookie is present but the user is NOT a member, fall back to
  *      their first membership.
@@ -326,7 +326,7 @@ describe("countActiveMembers", () => {
     await expect(countActiveMembers("workspace-1")).rejects.toThrow(
       "Failed to count active members: database unavailable",
     )
-    expect(consoleError).toHaveBeenCalledWith("[Bread] countActiveMembers:", "database unavailable")
+    expect(consoleError).toHaveBeenCalledWith("[Breezify] countActiveMembers:", "database unavailable")
 
     consoleError.mockRestore()
   })

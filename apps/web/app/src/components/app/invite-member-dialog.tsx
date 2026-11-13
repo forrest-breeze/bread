@@ -35,7 +35,7 @@ import { Badge } from "@/components/ui/badge"
 import { RelativeTime } from "@/components/app/relative-time"
 import { useWorkspace, useTeamMembers } from "@/hooks/swr"
 import type { InviteLinkRow } from "@/lib/types"
-import { WorkspaceRole, canManageRole } from "@bread/core"
+import { WorkspaceRole, canManageRole } from "@breezify/core"
 
 interface InviteMemberDialogProps {
   open: boolean
@@ -73,7 +73,7 @@ export function InviteMemberDialog({
       setInviteLink(link)
       return link
     } catch (err) {
-      console.error("[Bread] Failed to fetch invite link:", err)
+      console.error("[Breezify] Failed to fetch invite link:", err)
       return null
     } finally {
       setInviteLinkLoading(false)
@@ -115,7 +115,7 @@ export function InviteMemberDialog({
         setInviteError(data.error ?? "Failed to send invite")
       }
     } catch (err) {
-      console.error("[Bread] Failed to invite member:", err)
+      console.error("[Breezify] Failed to invite member:", err)
       setInviteError("Failed to send invite")
     } finally {
       setInviting(false)
@@ -144,7 +144,7 @@ export function InviteMemberDialog({
         setInviteLink(data.invite_link as InviteLinkRow)
       }
     } catch (err) {
-      console.error("[Bread] Failed to regenerate invite link:", err)
+      console.error("[Breezify] Failed to regenerate invite link:", err)
     } finally {
       setRegenerating(false)
     }
@@ -167,7 +167,7 @@ export function InviteMemberDialog({
         setInviteLink(data.invite_link as InviteLinkRow)
       }
     } catch (err) {
-      console.error("[Bread] Failed to update invite link role:", err)
+      console.error("[Breezify] Failed to update invite link role:", err)
       setInviteLink(previous)
     }
   }

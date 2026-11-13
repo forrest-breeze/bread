@@ -6,9 +6,9 @@ const API_BASE = "https://api.cloudflare.com/client/v4";
 // Raw URL of the portal proxy Worker script (see
 // templates/cloudflare-portal-subfolder-proxy) and its expected SHA-256. Both
 // must be set to deploy the proxy; there is no default source.
-const WORKER_SOURCE_URL = process.env.BREAD_PORTAL_WORKER_SOURCE_URL?.trim() ?? "";
+const WORKER_SOURCE_URL = process.env.BREEZIFY_PORTAL_WORKER_SOURCE_URL?.trim() ?? "";
 const WORKER_SOURCE_SHA256 =
-  process.env.BREAD_PORTAL_WORKER_SOURCE_SHA256?.trim().toLowerCase() ?? "";
+  process.env.BREEZIFY_PORTAL_WORKER_SOURCE_SHA256?.trim().toLowerCase() ?? "";
 const COMPATIBILITY_DATE = "2026-07-15";
 
 interface CloudflareEnvelope<T> {
@@ -111,7 +111,7 @@ export async function loadCloudflareWorkerSource(): Promise<string> {
   if (cachedWorkerSource) return cachedWorkerSource;
   if (!WORKER_SOURCE_URL || !WORKER_SOURCE_SHA256) {
     throw new Error(
-      "Set BREAD_PORTAL_WORKER_SOURCE_URL and BREAD_PORTAL_WORKER_SOURCE_SHA256 to deploy the portal proxy Worker",
+      "Set BREEZIFY_PORTAL_WORKER_SOURCE_URL and BREEZIFY_PORTAL_WORKER_SOURCE_SHA256 to deploy the portal proxy Worker",
     );
   }
   const response = await fetch(WORKER_SOURCE_URL, {
@@ -119,12 +119,12 @@ export async function loadCloudflareWorkerSource(): Promise<string> {
     signal: AbortSignal.timeout(15_000),
   });
   if (!response.ok) {
-    throw new Error(`Failed to load the Bread Worker template (HTTP ${response.status})`);
+    throw new Error(`Failed to load the Breezify Worker template (HTTP ${response.status})`);
   }
   const source = await response.text();
   const digest = createHash("sha256").update(source).digest("hex");
   if (digest !== WORKER_SOURCE_SHA256) {
-    throw new Error("The Bread Worker template failed its integrity check");
+    throw new Error("The Breezify Worker template failed its integrity check");
   }
   cachedWorkerSource = source;
   return source;
@@ -135,7 +135,7 @@ export async function uploadCloudflareWorker(input: {
   accountId: string;
   scriptName: string;
   domain: string;
-  breadOrigin: string;
+  breezifyOrigin: string;
   routes: Record<string, string>;
   source?: string;
 }): Promise<void> {
@@ -145,16 +145,16 @@ export async function uploadCloudflareWorker(input: {
     compatibility_date: COMPATIBILITY_DATE,
     bindings: [
       { type: "plain_text", name: "EXPECTED_HOST", text: input.domain },
-      { type: "plain_text", name: "BREAD_ORIGIN", text: input.breadOrigin },
+      { type: "plain_text", name: "BREEZIFY_ORIGIN", text: input.breezifyOrigin },
       {
         type: "plain_text",
-        name: "BREAD_ROUTES",
+        name: "BREEZIFY_ROUTES",
         text: JSON.stringify(input.routes),
       },
     ],
     annotations: {
-      "workers/message": "Deployed automatically by Bread",
-      "workers/tag": "bread-portal-proxy",
+      "workers/message": "Deployed automatically by Breezify",
+      "workers/tag": "breezify-portal-proxy",
     },
   };
   const form = new FormData();
@@ -199,7 +199,7 @@ export async function syncCloudflareWorkerRoutes(input: {
   const current = response.result ?? [];
   const desired = new Set(input.patterns);
 
-  // Only remove routes already owned by this Bread-managed Worker. A route
+  // Only remove routes already owned by this Breezify-managed Worker. A route
   // attached to any other Worker is left untouched and Cloudflare will return
   // a conflict when we try to create it.
   for (const route of current) {

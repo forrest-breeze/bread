@@ -43,7 +43,7 @@ export async function GET(request: Request): Promise<NextResponse> {
   if (!entitlements.portalReporting) {
     return NextResponse.json(
       {
-        error: "Portal reporting is a Business plan feature",
+        error: "Portal reporting is not enabled for this workspace",
         message: "This workspace cannot view portal analytics.",
         code: "payment_required",
       },
@@ -90,7 +90,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     })
     return NextResponse.json(overview)
   } catch (err) {
-    console.error("[Bread] portal analytics GET:", err)
+    console.error("[Breezify] portal analytics GET:", err)
     return NextResponse.json(
       { error: "Failed to load portal analytics" },
       { status: 500 },

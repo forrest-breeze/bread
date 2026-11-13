@@ -14,7 +14,7 @@ import { syncReadmeRepository } from './readme-sync'
  *     src/lib/github/readme/readme-real-repository.test.ts
  *
  * It asserts the property that matters most for a drop-in replacement: after
- * importing the repository, Bread wants to change nothing in it.
+ * importing the repository, Breezify wants to change nothing in it.
  */
 const fixtureDirectory = process.env.README_SYNC_FIXTURE_DIR
 
@@ -108,7 +108,7 @@ describe.skipIf(!fixtureDirectory)('ReadMe-format sync against a real repository
     // Editing one page touches exactly that one file.
     const before = repo.files()
     const edited = store.liveDocuments()[0]!
-    edited.content = `${edited.content}\n\nEdited in Bread.`
+    edited.content = `${edited.content}\n\nEdited in Breezify.`
     await publishReadmeWorkspace(publishSource(), deps)
     const after = repo.files()
     const changed = Object.keys({ ...before, ...after }).filter((path) => before[path] !== after[path])

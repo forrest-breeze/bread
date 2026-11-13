@@ -48,17 +48,17 @@ interface RepositoryCompanionRow {
   source_metadata: Record<string, unknown> | null
 }
 
-export interface BreadWorkspaceExport {
+export interface BreezifyWorkspaceExport {
   files: GitHubBootstrapFile[]
   documents: DocumentRow[]
-  /** Existing repository paths Bread may safely update/delete. */
+  /** Existing repository paths Breezify may safely update/delete. */
   managedPaths: string[]
   restrictedFolderNames: string[]
   totalBytes: number
 }
 
 /** Build one deterministic repository tree for the complete authored workspace. */
-export async function buildBreadWorkspaceExport(
+export async function buildBreezifyWorkspaceExport(
   admin: SupabaseClient,
   input: {
     workspaceId: string
@@ -66,7 +66,7 @@ export async function buildBreadWorkspaceExport(
     repoId?: number
     hostedRootFolderId?: string | null
   },
-): Promise<BreadWorkspaceExport> {
+): Promise<BreezifyWorkspaceExport> {
   // These reads are independent. Starting them together removes two database
   // round trips from every status check, diff preview, and commit.
   const folderQuery = admin
@@ -114,7 +114,7 @@ export async function buildBreadWorkspaceExport(
     input.hostedRootFolderId &&
     !userFolderIds.has(input.hostedRootFolderId)
   ) {
-    throw new Error('The linked Bread folder is unavailable.')
+    throw new Error('The linked Breezify folder is unavailable.')
   }
   const folderById = new Map(userFolders.map((folder) => [folder.id, folder]))
   const isInsideHostedRoot = (folderId: string | null): boolean => {
@@ -134,7 +134,7 @@ export async function buildBreadWorkspaceExport(
   const bootstrapFolders: BootstrapFolder[] = [
     {
       id: WORKSPACE_ROOT_ID,
-      displayName: 'Bread workspace',
+      displayName: 'Breezify workspace',
       parentFolderId: null,
       visibility: 'workspace',
       requiredRole: null,
@@ -217,12 +217,12 @@ export async function buildBreadWorkspaceExport(
 
   const bootstrapDocuments: BootstrapDocument[] = documents.map((document) => {
     const path = canonicalPath(document)
-    const externalDocumentId = document.source_metadata?.bread_document_id
+    const externalDocumentId = document.source_metadata?.breezify_document_id
     const contentMarkdown = portalDocumentToMarkdown(document.content)
     const syncedContentHash = document.source_metadata?.github_hosted_content_hash
     return {
       id: document.id,
-      breadDocumentId:
+      breezifyDocumentId:
         typeof externalDocumentId === 'string' ? externalDocumentId : null,
       title: document.title,
       folderId: document.folder_id ?? WORKSPACE_ROOT_ID,
@@ -260,7 +260,7 @@ export async function buildBreadWorkspaceExport(
 }
 
 /** Attach deterministic root-relative repository paths before initial pull sync. */
-export async function linkBreadWorkspaceDocuments(
+export async function linkBreezifyWorkspaceDocuments(
   admin: SupabaseClient,
   input: {
     workspaceId: string
@@ -268,7 +268,7 @@ export async function linkBreadWorkspaceDocuments(
     repoFullName: string
     ref: string
     commitSha: string
-    exported: BreadWorkspaceExport
+    exported: BreezifyWorkspaceExport
   },
 ): Promise<void> {
   const documentById = new Map(
@@ -285,7 +285,7 @@ export async function linkBreadWorkspaceDocuments(
           ...(document.source_metadata ?? {}),
           kind: 'github_hosted_document',
           canonical_repo_path: file.path,
-          bread_document_id: file.breadDocumentId ?? file.documentId,
+          breezify_document_id: file.breezifyDocumentId ?? file.documentId,
           github_hosted_sync: true,
           github_hosted_conflict: false,
           repo_id: input.repoId,

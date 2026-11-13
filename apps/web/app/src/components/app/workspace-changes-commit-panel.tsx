@@ -110,7 +110,7 @@ export function WorkspaceChangesCommitPanel(): React.ReactElement {
             }
             title={
               selectedCanRevert
-                ? "Make the staged Bread files match GitHub"
+                ? "Make the staged Breezify files match GitHub"
                 : "One or more staged files cannot be safely reverted from this diff"
             }
             onClick={() => {
@@ -177,10 +177,10 @@ export function WorkspaceChangesCommitPanel(): React.ReactElement {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmation === "revert"
-                ? "Modified and removed files will be restored from the GitHub comparison. Newly added Bread documents will move to Trash, where they can still be recovered."
+                ? "Modified and removed files will be restored from the GitHub comparison. Newly added Breezify documents will move to Trash, where they can still be recovered."
                 : directCommit
-                  ? "Bread will create one GitHub commit containing every staged file, directly on the synced branch. Unstaged changes will remain in this view."
-                  : "Bread will create one GitHub commit containing every staged file and add it to the workspace pull request. Unstaged changes will remain in this view."}
+                  ? "Breezify will create one GitHub commit containing every staged file, directly on the synced branch. Unstaged changes will remain in this view."
+                  : "Breezify will create one GitHub commit containing every staged file and add it to the workspace pull request. Unstaged changes will remain in this view."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {conflictCount > 0 && confirmation === "commit" ? (
@@ -188,7 +188,7 @@ export function WorkspaceChangesCommitPanel(): React.ReactElement {
               <AlertTriangle className="mt-0.5 size-4 shrink-0" />
               <span>
                 {conflictCount} GitHub conflict
-                {conflictCount === 1 ? "" : "s"} will keep the current Bread
+                {conflictCount === 1 ? "" : "s"} will keep the current Breezify
                 version for this commit.
               </span>
             </p>

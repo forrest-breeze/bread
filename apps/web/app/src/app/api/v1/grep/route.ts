@@ -80,7 +80,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
     if (error) {
-      console.error("[Bread] grep_documents rpc failed:", error);
+      console.error("[Breezify] grep_documents rpc failed:", error);
       return withCors(
         request,
         NextResponse.json({ error: "Grep failed" }, { status: 500 }),
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const text = formatGrepForLLM(rows);
     return withCors(request, NextResponse.json({ text, results: rows }));
   } catch (err) {
-    console.error("[Bread] grep route error:", err);
+    console.error("[Breezify] grep route error:", err);
     return withCors(
       request,
       NextResponse.json({ error: "Grep failed" }, { status: 500 }),

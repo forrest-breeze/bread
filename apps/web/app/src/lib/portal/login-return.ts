@@ -45,9 +45,9 @@ const REVERSE_PROXY_MARKERS = new Set([
  * middleware rewrite on /p/*). Null for plain app-host requests.
  */
 function forwardedPortalHost(h: Headers): string | null {
-  const stamped = h.get("x-bread-portal-host")?.split(":")[0].trim().toLowerCase()
+  const stamped = h.get("x-breezify-portal-host")?.split(":")[0].trim().toLowerCase()
   if (stamped && stamped.includes(".") && !stamped.includes("/")) return stamped
-  const marker = h.get("x-bread-proxy") ?? ""
+  const marker = h.get("x-breezify-proxy") ?? ""
   if (!REVERSE_PROXY_MARKERS.has(marker)) return null
   const forwarded = (h.get("x-forwarded-host") ?? "")
     .split(",")[0]

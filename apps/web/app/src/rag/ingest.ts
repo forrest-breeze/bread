@@ -356,7 +356,7 @@ export async function ingestFromText(
  */
 export function fireIngestFromText(documentId: string, text: string): void {
   void ingestFromText(documentId, text).catch((err) => {
-    console.error("[Bread] fireIngestFromText failed:", err);
+    console.error("[Breezify] fireIngestFromText failed:", err);
   });
 }
 
@@ -387,7 +387,7 @@ export function fireDocumentEmbeddingUpdate(
   content: string,
 ): void {
   void updateDocumentEmbedding(documentId, workspaceId, content).catch((err) => {
-    console.error("[Bread] Document embedding regeneration failed:", err);
+    console.error("[Breezify] Document embedding regeneration failed:", err);
   });
 }
 

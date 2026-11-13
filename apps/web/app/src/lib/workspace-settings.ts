@@ -1,4 +1,4 @@
-import type { IngestionApprovalMode, WorkspaceSettings } from "@bread/core";
+import type { IngestionApprovalMode, WorkspaceSettings } from "@breezify/core";
 import {
   parseStoredFooter,
   parseStoredHeader,
@@ -19,7 +19,7 @@ export const KB_BRAND_ACCENT_SWATCHES = [
 export type PortalChromeScope = "workspace" | "project";
 export const DEFAULT_PORTAL_CHROME_SCOPE: PortalChromeScope = "workspace";
 export type PortalAddressScope = "workspace" | "project";
-export type PortalAddressMode = "bread" | "path" | "domain";
+export type PortalAddressMode = "breezify" | "path" | "domain";
 
 export interface KbBranding {
   name: string;
@@ -107,12 +107,15 @@ export function getKbHeader(
   return parseStoredHeader(settings?.kb_header);
 }
 
+/**
+ * Every portal project shares the workspace header and footer. The per-project
+ * option was removed; a stored "project" value is ignored and normalized away
+ * on the next settings save.
+ */
 export function getPortalChromeScope(
-  settings: WorkspaceSettings | Record<string, unknown> | null | undefined,
+  _settings?: WorkspaceSettings | Record<string, unknown> | null,
 ): PortalChromeScope {
-  return settings?.portal_chrome_scope === "project"
-    ? "project"
-    : DEFAULT_PORTAL_CHROME_SCOPE;
+  return DEFAULT_PORTAL_CHROME_SCOPE;
 }
 
 export function getPortalAddressScope(
@@ -130,10 +133,10 @@ export function getPortalAddressMode(
   settings: WorkspaceSettings | Record<string, unknown> | null | undefined,
 ): PortalAddressMode {
   const value = settings?.portal_address_mode;
-  if (value === "bread" || value === "path" || value === "domain") {
+  if (value === "breezify" || value === "path" || value === "domain") {
     return value;
   }
-  return getKbCustomDomain(settings) ? "domain" : "bread";
+  return getKbCustomDomain(settings) ? "domain" : "breezify";
 }
 
 // A bare hostname: one or more dot-separated labels, ending in a 2+ char TLD.
@@ -348,7 +351,7 @@ export function customDomainErrorMessage(error: CustomDomainError): string {
     case "own_host":
       return "That's the app's own domain. Use a domain you control.";
     case "reserved_base":
-      return "That domain is reserved for Bread-hosted portals. Use a domain you control.";
+      return "That domain is reserved for Breezify-hosted portals. Use a domain you control.";
     case "infra_host":
       return "That host can't be used as a custom domain.";
   }

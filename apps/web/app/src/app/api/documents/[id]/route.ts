@@ -140,7 +140,7 @@ export async function GET(
       .single();
 
     if (fallback.error || !fallback.data) {
-      console.error("[Bread] Failed to fetch document:", fallback.error?.message);
+      console.error("[Breezify] Failed to fetch document:", fallback.error?.message);
       return NextResponse.json({ error: "Document not found" }, { status: 404 });
     }
 
@@ -148,7 +148,7 @@ export async function GET(
   }
 
   if (primary.error || !primary.data) {
-    console.error("[Bread] Failed to fetch document:", primary.error?.message);
+    console.error("[Breezify] Failed to fetch document:", primary.error?.message);
     return NextResponse.json({ error: "Document not found" }, { status: 404 });
   }
 
@@ -263,7 +263,7 @@ export async function PATCH(
       }
     } catch (err) {
       // Version snapshot is non-fatal — log and continue with the save
-      console.error("[Bread] Failed to snapshot document version:", err);
+      console.error("[Breezify] Failed to snapshot document version:", err);
     }
   }
 
@@ -291,7 +291,7 @@ export async function PATCH(
       .maybeSingle();
 
     if (fallback.error) {
-      console.error("[Bread] Failed to update document:", fallback.error.message);
+      console.error("[Breezify] Failed to update document:", fallback.error.message);
       return NextResponse.json({ error: "Failed to update document" }, { status: 500 });
     }
 
@@ -320,7 +320,7 @@ export async function PATCH(
   }
 
   if (primary.error) {
-    console.error("[Bread] Failed to update document:", primary.error.message);
+    console.error("[Breezify] Failed to update document:", primary.error.message);
     return NextResponse.json({ error: "Failed to update document" }, { status: 500 });
   }
 
@@ -354,7 +354,7 @@ export async function PATCH(
 // failed re-ingest is logged, never surfaced to the editor.
 function fireIngest(documentId: string, tiptapDoc: ProseMirrorDoc): void {
   void ingestDocument(documentId, tiptapDoc).catch((err) => {
-    console.error("[Bread] ingestDocument failed:", err);
+    console.error("[Breezify] ingestDocument failed:", err);
   });
 }
 
@@ -413,7 +413,7 @@ export async function DELETE(
       .not("deleted_at", "is", null);
 
     if (error) {
-      console.error("[Bread] Failed to permanently delete document:", error.message);
+      console.error("[Breezify] Failed to permanently delete document:", error.message);
       return NextResponse.json(
         { error: "Failed to permanently delete document" },
         { status: 500 },
@@ -434,7 +434,7 @@ export async function DELETE(
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] Failed to delete document:", error.message);
+    console.error("[Breezify] Failed to delete document:", error.message);
     return NextResponse.json(
       { error: "Failed to delete document" },
       { status: 500 },

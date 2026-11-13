@@ -2,7 +2,7 @@ import "server-only";
 
 import { randomBytes } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { WorkspaceRole } from "@bread/core";
+import type { WorkspaceRole } from "@breezify/core";
 import { normalizeWorkspaceSettings } from "@/lib/workspace-settings";
 
 // ---------------------------------------------------------------------------

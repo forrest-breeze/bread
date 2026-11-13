@@ -64,7 +64,7 @@ export async function GET(
     .order("id", { ascending: true });
 
   if (msgError) {
-    console.error("[Bread] Failed to fetch messages:", msgError.message);
+    console.error("[Breezify] Failed to fetch messages:", msgError.message);
     return NextResponse.json(
       { error: "Failed to fetch messages" },
       { status: 500 },
@@ -110,7 +110,7 @@ export async function PATCH(
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to update conversation:", error.message);
+    console.error("[Breezify] Failed to update conversation:", error.message);
     return NextResponse.json(
       { error: "Failed to update conversation" },
       { status: 500 },
@@ -149,7 +149,7 @@ export async function DELETE(
     .eq("user_id", user.id);
 
   if (error) {
-    console.error("[Bread] Failed to delete conversation:", error.message);
+    console.error("[Breezify] Failed to delete conversation:", error.message);
     return NextResponse.json(
       { error: "Failed to delete conversation" },
       { status: 500 },

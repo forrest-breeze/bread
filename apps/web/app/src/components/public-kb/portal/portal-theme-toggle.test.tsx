@@ -25,11 +25,11 @@ describe("PortalThemeToggle", () => {
 
     expect(container.firstElementChild).toHaveClass("dark")
     expect(container.firstElementChild).not.toHaveClass("light")
-    expect(window.localStorage.getItem("bread-public-portal-theme")).toBe("dark")
+    expect(window.localStorage.getItem("breezify-public-portal-theme")).toBe("dark")
   })
 
   it("keeps preview mode isolated from the public preference", () => {
-    window.localStorage.setItem("bread-public-portal-theme", "dark")
+    window.localStorage.setItem("breezify-public-portal-theme", "dark")
     const postMessage = vi.spyOn(window.parent, "postMessage")
     const { container } = render(
       <div data-portal-root className="light">
@@ -41,7 +41,7 @@ describe("PortalThemeToggle", () => {
 
     expect(container.firstElementChild).toHaveClass("dark")
     expect(container.firstElementChild).not.toHaveClass("light")
-    expect(window.localStorage.getItem("bread-public-portal-theme")).toBe("dark")
+    expect(window.localStorage.getItem("breezify-public-portal-theme")).toBe("dark")
     expect(postMessage).toHaveBeenCalledWith(
       createPortalPreviewThemeMessage("dark"),
       window.location.origin,

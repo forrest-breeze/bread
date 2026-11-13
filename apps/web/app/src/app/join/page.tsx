@@ -44,7 +44,7 @@ function JoinContent() {
         const data = await res.json()
 
         if (res.ok) {
-          document.cookie = `bread-workspace=${data.workspace_id}; path=/; max-age=31536000; samesite=lax`
+          document.cookie = `breezify-workspace=${data.workspace_id}; path=/; max-age=31536000; samesite=lax`
           setStatus("success")
           setMessage("You've joined the workspace!")
           setTimeout(() => router.push("/knowledge"), 1500)
@@ -73,7 +73,7 @@ function JoinContent() {
 
   const handleLoginRedirect = () => {
     if (code) {
-      sessionStorage.setItem("bread:pending-invite", code)
+      sessionStorage.setItem("breezify:pending-invite", code)
     }
     router.push("/login")
   }

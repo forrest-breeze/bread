@@ -58,7 +58,7 @@ export async function POST(
     .is("deleted_at", null)
     .maybeSingle()
   if (documentError) {
-    console.error("[Bread] Failed to load hosted conflict document:", documentError)
+    console.error("[Breezify] Failed to load hosted conflict document:", documentError)
     return NextResponse.json({ error: "Could not load this document" }, { status: 500 })
   }
   if (!document) {
@@ -93,7 +93,7 @@ export async function POST(
     .maybeSingle()
   if (repositoryDocumentError) {
     console.error(
-      "[Bread] Failed to find repository document for hosted conflict:",
+      "[Breezify] Failed to find repository document for hosted conflict:",
       repositoryDocumentError,
     )
     return NextResponse.json(
@@ -171,7 +171,7 @@ export async function POST(
         { status: 409 },
       )
     }
-    console.error("[Bread] Failed to resolve hosted GitHub conflict:", error)
+    console.error("[Breezify] Failed to resolve hosted GitHub conflict:", error)
     return NextResponse.json(
       { error: "Could not use the current GitHub version" },
       { status: 502 },

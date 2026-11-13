@@ -15,7 +15,7 @@ function renderControls(hasPublishableChanges: boolean): void {
       workspace={workspace}
       projectSlug="docs"
       visibility="public"
-      brandName="Bread"
+      brandName="Breezify"
       isPublished
       hasPublishableChanges={hasPublishableChanges}
       canDiscard={false}

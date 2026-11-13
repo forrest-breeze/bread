@@ -1,7 +1,7 @@
 /**
- * Tests for the pure runtime exports in @bread/core.
+ * Tests for the pure runtime exports in @breezify/core.
  *
- * @bread/core is predominantly a type-only package, but a handful of runtime
+ * @breezify/core is predominantly a type-only package, but a handful of runtime
  * values encode domain rules that the rest of the monorepo depends on:
  *   - `CORE_VERSION`          — module identity
  *   - `ROLE_RANKS`            — workspace role hierarchy
@@ -17,31 +17,31 @@ import {
   CORE_VERSION,
   portalUrl,
   ROLE_RANKS,
-  BREAD_PORTAL_SLUGS,
+  BREEZIFY_PORTAL_SLUGS,
   type WorkspaceRole,
 } from "./index.js";
 
 describe("portalUrl", () => {
   it("builds a root-relative path with no appUrl", () => {
-    expect(portalUrl("bread-help")).toBe("/p/bread-help");
+    expect(portalUrl("breezify-help")).toBe("/p/breezify-help");
   });
 
   it("prefixes the origin and trims a trailing slash", () => {
-    expect(portalUrl("bread", { appUrl: "https://app.example.com/" })).toBe(
-      "https://app.example.com/p/bread",
+    expect(portalUrl("breezify", { appUrl: "https://app.example.com/" })).toBe(
+      "https://app.example.com/p/breezify",
     );
   });
 
   it("appends a subpath, normalizing a leading slash", () => {
-    expect(portalUrl("bread", { appUrl: "https://app.example.com", subpath: "/doc/abc" })).toBe(
-      "https://app.example.com/p/bread/doc/abc",
+    expect(portalUrl("breezify", { appUrl: "https://app.example.com", subpath: "/doc/abc" })).toBe(
+      "https://app.example.com/p/breezify/doc/abc",
     );
-    expect(portalUrl("bread", { subpath: ":path*" })).toBe("/p/bread/:path*");
+    expect(portalUrl("breezify", { subpath: ":path*" })).toBe("/p/breezify/:path*");
   });
 
   it("exposes the dogfood slug registry", () => {
-    expect(BREAD_PORTAL_SLUGS.docs).toBe("bread");
-    expect(BREAD_PORTAL_SLUGS.help).toBe("help");
+    expect(BREEZIFY_PORTAL_SLUGS.docs).toBe("breezify");
+    expect(BREEZIFY_PORTAL_SLUGS.help).toBe("help");
   });
 });
 

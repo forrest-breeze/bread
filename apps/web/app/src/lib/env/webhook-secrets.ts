@@ -42,7 +42,7 @@ export function assertWebhookSecrets(
     if (!loggedMisconfigs.has(key)) {
       loggedMisconfigs.add(key)
       console.error(
-        `[Bread] webhook-secrets: provider=${provider} missing=${name}`,
+        `[Breezify] webhook-secrets: provider=${provider} missing=${name}`,
       )
     }
   }

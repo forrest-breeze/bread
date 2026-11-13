@@ -182,7 +182,7 @@ describe('POST /api/github/webhook', () => {
     expect(afterCallbacks).toHaveLength(0)
   })
 
-  it('dispatches a Bread docs check for requested check suites', async () => {
+  it('dispatches a Breezify docs check for requested check suites', async () => {
     vi.mocked(verifyGitHubSignature).mockReturnValue(true)
     const checkInfo = {
       installationId: 456,

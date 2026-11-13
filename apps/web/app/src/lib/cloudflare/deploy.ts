@@ -22,11 +22,11 @@ import { getCloudflareAccessToken } from "@/lib/cloudflare/oauth";
 import type {
   CloudflareConnectionRow,
   CloudflarePortalDeploymentRow,
-} from "@bread/core";
+} from "@breezify/core";
 
 export interface PortalProxyConfig {
   domain: string;
-  breadOrigin: string;
+  breezifyOrigin: string;
   workspaceSlug: string;
   routes: Record<string, string>;
 }
@@ -68,30 +68,30 @@ function isLoopbackHost(hostname: string): boolean {
   );
 }
 
-function breadOrigin(): string {
+function breezifyOrigin(): string {
   const raw =
-    process.env.BREAD_PORTAL_PROXY_ORIGIN?.trim() ||
+    process.env.BREEZIFY_PORTAL_PROXY_ORIGIN?.trim() ||
     process.env.NEXT_PUBLIC_APP_URL?.trim();
   if (!raw) {
     throw new PortalProxyConfigurationError(
-      "Set BREAD_PORTAL_PROXY_ORIGIN or NEXT_PUBLIC_APP_URL to deploy the portal proxy",
+      "Set BREEZIFY_PORTAL_PROXY_ORIGIN or NEXT_PUBLIC_APP_URL to deploy the portal proxy",
     );
   }
   try {
     const url = new URL(raw);
     if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error();
-    // The origin is baked into the deployed Worker as BREAD_ORIGIN. A Worker
+    // The origin is baked into the deployed Worker as BREEZIFY_ORIGIN. A Worker
     // running on Cloudflare's edge can never reach a loopback address, so a
     // deploy triggered from a dev server (NEXT_PUBLIC_APP_URL=localhost) must
-    // set BREAD_PORTAL_PROXY_ORIGIN to the public app, or every request 1003s.
+    // set BREEZIFY_PORTAL_PROXY_ORIGIN to the public app, or every request 1003s.
     if (isLoopbackHost(url.hostname)) {
       throw new PortalProxyConfigurationError(
-        "Portal proxy origin is a loopback address; set BREAD_PORTAL_PROXY_ORIGIN to the public app URL",
+        "Portal proxy origin is a loopback address; set BREEZIFY_PORTAL_PROXY_ORIGIN to the public app URL",
       );
     }
     return url.origin;
   } catch {
-    throw new PortalProxyConfigurationError("Bread's public app URL is invalid");
+    throw new PortalProxyConfigurationError("Breezify's public app URL is invalid");
   }
 }
 
@@ -197,7 +197,7 @@ export async function loadPortalProxyConfig(
   return {
     domain,
     workspaceSlug,
-    breadOrigin: breadOrigin(),
+    breezifyOrigin: breezifyOrigin(),
     routes,
   };
 }
@@ -207,7 +207,7 @@ export function cloudflareScriptName(workspaceId: string, domain: string): strin
     .update(`${workspaceId}:${domain}`)
     .digest("hex")
     .slice(0, 20);
-  return `bread-portal-${digest}`;
+  return `breezify-portal-${digest}`;
 }
 
 function sameRoutes(a: unknown, b: Record<string, string>): boolean {
@@ -276,7 +276,7 @@ export async function deployWorkspacePortalToCloudflare(
       accountId: zone.account.id,
       scriptName,
       domain: config.domain,
-      breadOrigin: config.breadOrigin,
+      breezifyOrigin: config.breezifyOrigin,
       routes: config.routes,
     });
     await syncCloudflareWorkerRoutes({

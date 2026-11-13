@@ -8,7 +8,7 @@
  *   - 401 when expires_at is in the past
  *   - 401 when revoked_at is set
  *   - returns scopes to caller on success
- *   - still enforces workspace membership via x-bread-workspace header
+ *   - still enforces workspace membership via x-breezify-workspace header
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -96,7 +96,7 @@ function makeAdminMock({
 function makeRequest(authHeader: string, workspace: string): NextRequest {
   const headers = new Headers()
   if (authHeader) headers.set('authorization', authHeader)
-  if (workspace) headers.set('x-bread-workspace', workspace)
+  if (workspace) headers.set('x-breezify-workspace', workspace)
   return new NextRequest('http://localhost/api/captures', { headers })
 }
 
@@ -120,7 +120,7 @@ describe('authenticatePAT — missing token', () => {
 
   it('returns 401 when the token has no matching row', async () => {
     makeAdminMock({ patRow: null })
-    const { error } = await authenticatePAT(makeRequest('Bearer bread_pat_x', 'ws-slug'))
+    const { error } = await authenticatePAT(makeRequest('Bearer breezify_pat_x', 'ws-slug'))
     expect(error?.status).toBe(401)
   })
 })
@@ -137,7 +137,7 @@ describe('authenticatePAT — expiry', () => {
     })
 
     const { error, data } = await authenticatePAT(
-      makeRequest('Bearer bread_pat_expired', 'ws-slug'),
+      makeRequest('Bearer breezify_pat_expired', 'ws-slug'),
     )
     expect(data).toBeUndefined()
     expect(error?.status).toBe(401)
@@ -157,7 +157,7 @@ describe('authenticatePAT — expiry', () => {
     })
 
     const { data, error } = await authenticatePAT(
-      makeRequest('Bearer bread_pat_ok', 'ws-slug'),
+      makeRequest('Bearer breezify_pat_ok', 'ws-slug'),
     )
     expect(error).toBeUndefined()
     expect(data?.userId).toBe('user-1')
@@ -177,7 +177,7 @@ describe('authenticatePAT — revocation', () => {
     })
 
     const { error, data } = await authenticatePAT(
-      makeRequest('Bearer bread_pat_revoked', 'ws-slug'),
+      makeRequest('Bearer breezify_pat_revoked', 'ws-slug'),
     )
     expect(data).toBeUndefined()
     expect(error?.status).toBe(401)
@@ -199,7 +199,7 @@ describe('authenticatePAT — scopes', () => {
     })
 
     const { data } = await authenticatePAT(
-      makeRequest('Bearer bread_pat_ok', 'ws-slug'),
+      makeRequest('Bearer breezify_pat_ok', 'ws-slug'),
     )
     expect(data?.scopes).toEqual(['capture', 'read'])
   })
@@ -219,7 +219,7 @@ describe('authenticatePAT — scopes', () => {
     })
 
     const { data } = await authenticatePAT(
-      makeRequest('Bearer bread_pat_ok', 'ws-slug'),
+      makeRequest('Bearer breezify_pat_ok', 'ws-slug'),
     )
     expect(data?.scopes).toEqual([])
   })
@@ -233,7 +233,7 @@ describe('authenticatePAT — effective role (downscope)', () => {
       patRow: { user_id: 'u', expires_at: future(), scopes: ['read'], revoked_at: null, role: null },
       membershipRow: { workspace_id: 'ws', role: 'admin' },
     })
-    const { data } = await authenticatePAT(makeRequest('Bearer bread_pat_ok', 'ws-slug'))
+    const { data } = await authenticatePAT(makeRequest('Bearer breezify_pat_ok', 'ws-slug'))
     expect(data?.role).toBe('admin')
   })
 
@@ -242,7 +242,7 @@ describe('authenticatePAT — effective role (downscope)', () => {
       patRow: { user_id: 'u', expires_at: future(), scopes: ['read'], revoked_at: null, role: 'viewer' },
       membershipRow: { workspace_id: 'ws', role: 'admin' },
     })
-    const { data } = await authenticatePAT(makeRequest('Bearer bread_pat_ok', 'ws-slug'))
+    const { data } = await authenticatePAT(makeRequest('Bearer breezify_pat_ok', 'ws-slug'))
     expect(data?.role).toBe('viewer')
   })
 
@@ -251,13 +251,13 @@ describe('authenticatePAT — effective role (downscope)', () => {
       patRow: { user_id: 'u', expires_at: future(), scopes: ['read'], revoked_at: null, role: 'admin' },
       membershipRow: { workspace_id: 'ws', role: 'viewer' },
     })
-    const { data } = await authenticatePAT(makeRequest('Bearer bread_pat_ok', 'ws-slug'))
+    const { data } = await authenticatePAT(makeRequest('Bearer breezify_pat_ok', 'ws-slug'))
     expect(data?.role).toBe('viewer')
   })
 })
 
 describe('authenticatePAT — workspace membership', () => {
-  it('returns 400 when x-bread-workspace header is missing', async () => {
+  it('returns 400 when x-breezify-workspace header is missing', async () => {
     makeAdminMock({
       patRow: {
         user_id: 'user-1',
@@ -268,7 +268,7 @@ describe('authenticatePAT — workspace membership', () => {
     })
 
     const req = new NextRequest('http://localhost/api/captures', {
-      headers: { authorization: 'Bearer bread_pat_ok' },
+      headers: { authorization: 'Bearer breezify_pat_ok' },
     })
     const { error } = await authenticatePAT(req)
     expect(error?.status).toBe(400)
@@ -287,7 +287,7 @@ describe('authenticatePAT — workspace membership', () => {
     })
 
     const { error } = await authenticatePAT(
-      makeRequest('Bearer bread_pat_ok', 'other-ws'),
+      makeRequest('Bearer breezify_pat_ok', 'other-ws'),
     )
     expect(error?.status).toBe(403)
   })
@@ -307,7 +307,7 @@ describe('authenticatePAT — Breeze accounts only', () => {
       membershipRow: { workspace_id: 'ws-1', role: 'editor' },
       isBreeze: false,
     })
-    const result = await authenticatePAT(makeRequest('Bearer bread_sk_x', 'breeze'))
+    const result = await authenticatePAT(makeRequest('Bearer breezify_sk_x', 'breeze'))
     expect(result.data).toBeUndefined()
     expect(result.error?.status).toBe(403)
     expect(rpc).toHaveBeenCalledWith('user_is_breeze', { p_user_id: 'user-x' })

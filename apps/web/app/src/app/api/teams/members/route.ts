@@ -37,7 +37,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .eq("team_id", teamId);
 
   if (error) {
-    console.error("[Bread] Failed to fetch team members:", error.message);
+    console.error("[Breezify] Failed to fetch team members:", error.message);
     return NextResponse.json({ error: "Failed to fetch team members" }, { status: 500 });
   }
 
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 409 }
       );
     }
-    console.error("[Bread] Failed to add team member:", error.message);
+    console.error("[Breezify] Failed to add team member:", error.message);
     return NextResponse.json({ error: "Failed to add team member" }, { status: 500 });
   }
 
@@ -149,7 +149,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     .eq("id", teamMemberId);
 
   if (error) {
-    console.error("[Bread] Failed to remove team member:", error.message);
+    console.error("[Breezify] Failed to remove team member:", error.message);
     return NextResponse.json({ error: "Failed to remove team member" }, { status: 500 });
   }
 

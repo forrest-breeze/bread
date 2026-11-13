@@ -1,5 +1,5 @@
 /**
- * Per-million-token USD pricing for every model the Bread app emits
+ * Per-million-token USD pricing for every model the Breezify app emits
  * into llm_metrics. Update entries when the vendor bumps their
  * pricing — the "Last verified" comment + URL is the maintenance record.
  *
@@ -31,6 +31,9 @@ export interface ModelRate {
 // casts and erased types at runtime.
 export const MODEL_PRICING: Readonly<Record<string, Readonly<ModelRate>>> =
   Object.freeze({
+    // Portal Ask AI (claude-opus-5-5) and translation (claude-haiku-5-5).
+    "claude-opus-5-5": Object.freeze({ input: 4.0, output: 20.0 }),
+    "claude-haiku-5-5": Object.freeze({ input: 0.1, output: 0.5 }),
     "claude-opus-4-8": Object.freeze({ input: 5.0, output: 25.0 }),
     "claude-opus-4-7": Object.freeze({ input: 15.0, output: 75.0 }),
     "claude-sonnet-4-6": Object.freeze({ input: 3.0, output: 15.0 }),

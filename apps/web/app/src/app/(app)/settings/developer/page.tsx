@@ -71,7 +71,7 @@ export default function DeveloperPage(): React.JSX.Element {
 
   // Revealed secrets are held in memory only, keyed by api_keys.id — never
   // written to storage, and dropped on navigation. `revealErrors` covers the
-  // legacy-key 409 and a bad BREAD_TOKEN_ENC_KEY, which are per-row failures.
+  // legacy-key 409 and a bad BREEZIFY_TOKEN_ENC_KEY, which are per-row failures.
   const [revealedKeys, setRevealedKeys] = useState<Record<string, string>>({})
   const [revealingId, setRevealingId] = useState<string | null>(null)
   const [revealErrors, setRevealErrors] = useState<Record<string, string>>({})

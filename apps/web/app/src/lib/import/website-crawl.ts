@@ -16,7 +16,7 @@ import { scrapeFooterFromHtml, type ScrapedFooter } from "@/lib/portal/footer-sc
 // ---------------------------------------------------------------------------
 
 const USER_AGENT =
-  "BreadBot/1.0 (knowledge-base onboarding import)";
+  "BreezifyBot/1.0 (knowledge-base onboarding import)";
 const MAX_PAGES = 12;
 const FETCH_TIMEOUT_MS = 8_000;
 const MAX_CHARS_PER_PAGE = 20_000;
@@ -251,7 +251,7 @@ export function parseRobotsDisallow(robots: string): string[] {
     const key = field?.trim().toLowerCase();
     const value = rest.join(":").trim();
     if (key === "user-agent") {
-      applies = value === "*" || /breadbot/i.test(value);
+      applies = value === "*" || /breezifybot/i.test(value);
     } else if (key === "disallow" && applies) {
       if (value && value !== "/") rules.push(value);
       // Disallow: / blocks the whole site — represent as "/" sentinel.

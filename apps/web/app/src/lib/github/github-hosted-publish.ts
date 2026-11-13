@@ -1,7 +1,7 @@
-interface BreadGitHubDraftInput {
+interface BreezifyGitHubDraftInput {
   repositoryContent: string
-  breadTitle: string
-  breadMarkdown: string
+  breezifyTitle: string
+  breezifyMarkdown: string
 }
 
 interface RepositoryContentParts {
@@ -43,18 +43,18 @@ function updateFrontmatterTitle(frontmatter: string, title: string): string {
 }
 
 /**
- * Builds the complete repository draft used by an explicit Bread -> GitHub
- * update. Repository frontmatter stays intact (with Bread's title applied),
- * while the proposed file body comes from Bread's Markdown export.
+ * Builds the complete repository draft used by an explicit Breezify -> GitHub
+ * update. Repository frontmatter stays intact (with Breezify's title applied),
+ * while the proposed file body comes from Breezify's Markdown export.
  */
-export function buildBreadGitHubDraft({
+export function buildBreezifyGitHubDraft({
   repositoryContent,
-  breadTitle,
-  breadMarkdown,
-}: BreadGitHubDraftInput): string {
+  breezifyTitle,
+  breezifyMarkdown,
+}: BreezifyGitHubDraftInput): string {
   const { frontmatter } = splitFrontmatter(repositoryContent)
-  const nextFrontmatter = updateFrontmatterTitle(frontmatter, breadTitle)
-  const nextBody = breadMarkdown.trim()
+  const nextFrontmatter = updateFrontmatterTitle(frontmatter, breezifyTitle)
+  const nextBody = breezifyMarkdown.trim()
 
   if (!nextFrontmatter) return nextBody ? `${nextBody}\n` : ""
   return nextBody

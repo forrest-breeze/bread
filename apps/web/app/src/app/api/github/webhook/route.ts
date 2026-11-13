@@ -100,7 +100,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (deliveryId) {
     const dedup = await recordWebhookDelivery('github', deliveryId)
     if (dedup.error) {
-      console.error('[Bread] GitHub webhook dedup error:', dedup.error)
+      console.error('[Breezify] GitHub webhook dedup error:', dedup.error)
     }
     if (!dedup.isNew) {
       return NextResponse.json({ ok: true, duplicate: true })
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           // Attach the rejection handler immediately. Another handler may still
           // be running when the check fails, and a late catch would leave a
           // rejected background promise temporarily unhandled.
-          logWebhookFailure('[Bread] GitHub docs check handler failed:', err)
+          logWebhookFailure('[Breezify] GitHub docs check handler failed:', err)
         })
       : Promise.resolve()
 
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (pushInfo) await handleRepositoryPush(pushInfo)
       if (branchPushInfo) await handleHostedBranchPush(branchPushInfo)
     } catch (err) {
-      logWebhookFailure('[Bread] GitHub webhook handler failed:', err)
+      logWebhookFailure('[Breezify] GitHub webhook handler failed:', err)
     }
 
     await docsCheckTask

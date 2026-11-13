@@ -196,7 +196,7 @@ describe("PortalLivePreview", () => {
 
     window.dispatchEvent(
       new MessageEvent("message", {
-        data: { type: "bread:portal-preview-page", page: "guides" },
+        data: { type: "breezify:portal-preview-page", page: "guides" },
         origin: window.location.origin,
         source: iframe.contentWindow,
       }),

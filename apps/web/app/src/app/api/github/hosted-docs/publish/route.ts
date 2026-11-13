@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { z } from 'zod'
 import { requireRouteUser } from '@/lib/auth/route-auth'
 import { getActiveWorkspace } from '@/lib/db/workspace'
@@ -8,12 +8,12 @@ import { isWorkspaceOnPaidTier } from '@/lib/db/subscription'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import {
-  assertBreadHostedDocsFiles,
-  BreadDocsFormatError,
-  BREAD_HOSTED_DOC_MAX_BYTES,
+  assertBreezifyHostedDocsFiles,
+  BreezifyDocsFormatError,
+  BREEZIFY_HOSTED_DOC_MAX_BYTES,
 } from '@/lib/github/github-hosted-format'
 import {
-  buildBreadWorkspaceExport,
+  buildBreezifyWorkspaceExport,
   MAX_HOSTED_WORKSPACE_BYTES,
   MAX_HOSTED_WORKSPACE_DOCUMENTS,
 } from '@/lib/github/github-hosted-workspace'
@@ -101,7 +101,7 @@ function hasActivePublishLease(source: GitHubHostedDocsSourceRow): boolean {
 
 const bodySchema = z
   .object({
-    conflict_resolution: z.literal('bread').optional(),
+    conflict_resolution: z.literal('breezify').optional(),
     paths: z
       .array(z.string().trim().min(1).max(1024))
       .min(1)
@@ -176,7 +176,7 @@ export async function GET(): Promise<NextResponse> {
   }
   if (!(await isWorkspaceOnPaidTier(workspace.workspace_id))) {
     return privateJson(
-      { error: 'GitHub publishing requires a paid plan.', code: 'paid_plan_required' },
+      { error: 'GitHub publishing is not enabled for this workspace.', code: 'feature_not_enabled' },
       402,
     )
   }
@@ -273,7 +273,7 @@ export async function GET(): Promise<NextResponse> {
     }
 
     const targetPath = source.paths[0]!
-    const exported = await buildBreadWorkspaceExport(admin, {
+    const exported = await buildBreezifyWorkspaceExport(admin, {
       workspaceId: workspace.workspace_id,
       targetPath,
       repoId: source.repo_id,
@@ -309,7 +309,7 @@ export async function GET(): Promise<NextResponse> {
     const oversizedFile = exported.files.find(
       (file) =>
         /\.(?:md|mdx)$/i.test(file.path) &&
-        Buffer.byteLength(file.content, 'utf8') > BREAD_HOSTED_DOC_MAX_BYTES,
+        Buffer.byteLength(file.content, 'utf8') > BREEZIFY_HOSTED_DOC_MAX_BYTES,
     )
     if (oversizedFile) {
       return privateJson(
@@ -321,14 +321,14 @@ export async function GET(): Promise<NextResponse> {
       )
     }
     try {
-      assertBreadHostedDocsFiles(exported.files)
+      assertBreezifyHostedDocsFiles(exported.files)
     } catch (formatError) {
-      if (!(formatError instanceof BreadDocsFormatError)) throw formatError
+      if (!(formatError instanceof BreezifyDocsFormatError)) throw formatError
       return privateJson(
         emptyPublishStatus(
           'blocked',
           'invalid_workspace_export',
-          'The workspace export does not follow the Bread GitHub docs format.',
+          'The workspace export does not follow the Breezify GitHub docs format.',
         ),
       )
     }
@@ -351,12 +351,12 @@ export async function GET(): Promise<NextResponse> {
       message: inspected.message,
     })
   } catch (error) {
-    console.error('[Bread] hosted workspace publish inspection failed:', error)
+    console.error('[Breezify] hosted workspace publish inspection failed:', error)
     return privateJson(
       emptyPublishStatus(
         'unavailable',
         'github_publish_status_unavailable',
-        'Could not compare the Bread workspace with GitHub right now.',
+        'Could not compare the Breezify workspace with GitHub right now.',
       ),
     )
   }
@@ -389,7 +389,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   if (!(await isWorkspaceOnPaidTier(workspace.workspace_id))) {
     return NextResponse.json(
-      { error: 'GitHub publishing requires a paid plan.', code: 'paid_plan_required' },
+      { error: 'GitHub publishing is not enabled for this workspace.', code: 'feature_not_enabled' },
       { status: 402 },
     )
   }
@@ -441,12 +441,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     if (
       source.conflict_count > 0 &&
-      parsedBody.data.conflict_resolution !== 'bread'
+      parsedBody.data.conflict_resolution !== 'breezify'
     ) {
       return NextResponse.json(
         {
           error:
-            'This workspace has GitHub conflicts. Confirm that Bread should win before publishing.',
+            'This workspace has GitHub conflicts. Confirm that Breezify should win before publishing.',
           code: 'conflict_resolution_required',
           conflict_count: source.conflict_count,
         },
@@ -527,7 +527,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const published = await publishReadmeSource(
         leased,
         {
-          includeConflicts: parsedBody.data.conflict_resolution === 'bread',
+          includeConflicts: parsedBody.data.conflict_resolution === 'breezify',
           selectedPaths: parsedBody.data.paths,
         },
         admin,
@@ -563,7 +563,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const targetPath = source.paths[0]!
-    const exported = await buildBreadWorkspaceExport(admin, {
+    const exported = await buildBreezifyWorkspaceExport(admin, {
       workspaceId: workspace.workspace_id,
       targetPath,
       repoId: source.repo_id,
@@ -605,7 +605,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const oversizedFile = exported.files.find(
       (file) =>
         /\.(?:md|mdx)$/i.test(file.path) &&
-        Buffer.byteLength(file.content, 'utf8') > BREAD_HOSTED_DOC_MAX_BYTES,
+        Buffer.byteLength(file.content, 'utf8') > BREEZIFY_HOSTED_DOC_MAX_BYTES,
     )
     if (oversizedFile) {
       return NextResponse.json(
@@ -613,18 +613,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           error: `${oversizedFile.path} exceeds the per-document GitHub sync limit.`,
           code: 'document_too_large',
           path: oversizedFile.path,
-          maximum_bytes: BREAD_HOSTED_DOC_MAX_BYTES,
+          maximum_bytes: BREEZIFY_HOSTED_DOC_MAX_BYTES,
         },
         { status: 413 },
       )
     }
     try {
-      assertBreadHostedDocsFiles(exported.files)
+      assertBreezifyHostedDocsFiles(exported.files)
     } catch (formatError) {
-      if (!(formatError instanceof BreadDocsFormatError)) throw formatError
+      if (!(formatError instanceof BreezifyDocsFormatError)) throw formatError
       return NextResponse.json(
         {
-          error: 'The workspace export does not follow the Bread GitHub docs format.',
+          error: 'The workspace export does not follow the Breezify GitHub docs format.',
           code: 'invalid_workspace_export',
           format_errors: formatError.issues,
         },
@@ -684,11 +684,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     if (
       leasedSource.conflict_count > 0 &&
-      parsedBody.data.conflict_resolution !== 'bread'
+      parsedBody.data.conflict_resolution !== 'breezify'
     ) {
       return NextResponse.json(
         {
-          error: 'GitHub conflicts appeared while publishing started. Confirm that Bread should win.',
+          error: 'GitHub conflicts appeared while publishing started. Confirm that Breezify should win.',
           code: 'conflict_resolution_required',
           conflict_count: leasedSource.conflict_count,
         },
@@ -765,7 +765,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // The PR is live and the reserved head makes a retry recoverable. Do not
       // turn a successful provider write into a user-visible failure.
       console.error(
-        '[Bread] workspace publish pointer persistence failed:',
+        '[Breezify] workspace publish pointer persistence failed:',
         updateError ?? new Error('No hosted docs source returned after publish'),
       )
     }
@@ -818,7 +818,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           .eq('workspace_id', workspace.workspace_id)
           .eq('publish_pull_request_head', reservedHead)
         if (clearError) {
-          console.error('[Bread] no-change publish reservation cleanup failed:', clearError)
+          console.error('[Breezify] no-change publish reservation cleanup failed:', clearError)
         }
       }
       return NextResponse.json(
@@ -832,7 +832,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: error.status },
       )
     }
-    console.error('[Bread] hosted workspace publish failed:', error)
+    console.error('[Breezify] hosted workspace publish failed:', error)
     return NextResponse.json(
       {
         error:
@@ -853,7 +853,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .eq('workspace_id', workspace.workspace_id)
         .eq('publish_operation_id', leaseOperationId)
       if (releaseError) {
-        console.error('[Bread] workspace publish lease release failed:', releaseError)
+        console.error('[Breezify] workspace publish lease release failed:', releaseError)
       }
     }
   }

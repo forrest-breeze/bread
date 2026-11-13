@@ -7,7 +7,7 @@
  * On reopening a document, a newer local draft is offered for restoration.
  */
 
-const DRAFT_PREFIX = "bread:doc-draft:"
+const DRAFT_PREFIX = "breezify:doc-draft:"
 
 export interface DocumentDraft {
   title: string

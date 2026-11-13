@@ -11,7 +11,7 @@ import {
   updateWorkspaceSlug,
 } from "@/lib/api/workspace"
 import { handleErrorMessage, validateHandle } from "@/lib/public-kb-handle"
-import type { WorkspaceRole } from "@bread/core"
+import type { WorkspaceRole } from "@breezify/core"
 
 // ---------------------------------------------------------------------------
 // Editable workspace identifier (the `slug` column).
@@ -55,7 +55,7 @@ export function WorkspaceIdentifierField(): React.ReactElement | null {
   const normalized = validation.handle
   // The current slug is grandfathered: re-displaying it is never an error or a
   // pending change, even if it predates a reserved-word it would now fail (e.g.
-  // an existing "bread" slug). Only a value the user actually changed to is
+  // an existing "breezify" slug). Only a value the user actually changed to is
   // validated. The slug is required, so an empty field is an error, not "clear".
   const unchanged = trimmed.toLowerCase() === savedSlug.toLowerCase()
   const dirty = !unchanged

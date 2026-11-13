@@ -28,7 +28,7 @@ import {
   type TopicDropEdge,
   type TopicDropTarget,
 } from "@/components/kb/topic-drag"
-import type { WorkspaceRole } from "@bread/core"
+import type { WorkspaceRole } from "@breezify/core"
 import { cn } from "@/lib/utils"
 
 interface TopicTileProps {

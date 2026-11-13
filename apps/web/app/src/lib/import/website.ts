@@ -81,7 +81,7 @@ async function persistCrawledBranding(
       .update({ settings: next })
       .eq("id", workspaceId);
   } catch (err) {
-    console.error("[Bread] persistCrawledBranding:", err);
+    console.error("[Breezify] persistCrawledBranding:", err);
   }
 }
 
@@ -124,12 +124,12 @@ async function ensureCategoryFolder(
       .select("id")
       .single();
     if (error || !inserted) {
-      console.error("[Bread] website import folder create:", error?.message);
+      console.error("[Breezify] website import folder create:", error?.message);
       return null;
     }
     return (inserted as { id: string }).id;
   } catch (err) {
-    console.error("[Bread] website import folder:", err);
+    console.error("[Breezify] website import folder:", err);
     return null;
   }
 }

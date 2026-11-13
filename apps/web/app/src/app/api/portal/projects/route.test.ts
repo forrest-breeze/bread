@@ -69,6 +69,7 @@ describe("POST /api/portal/projects — plan gates", () => {
       portalEditor: true,
       portalProjectLimit: 1,
       portalAiBuilder: false,
+      portalAssistant: false,
       portalReporting: false,
       portalReportingMaxDays: 0,
     })
@@ -82,6 +83,7 @@ describe("POST /api/portal/projects — plan gates", () => {
       portalEditor: false,
       portalProjectLimit: 0,
       portalAiBuilder: false,
+      portalAssistant: false,
       portalReporting: false,
       portalReportingMaxDays: 0,
     })

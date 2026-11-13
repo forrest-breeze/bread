@@ -77,7 +77,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .maybeSingle();
 
   if (queryError) {
-    console.error("[Bread] slug check failed:", queryError.message);
+    console.error("[Breezify] slug check failed:", queryError.message);
     return NextResponse.json(
       { error: "Couldn't check availability" },
       { status: 500 },

@@ -52,7 +52,7 @@ function canManage(role: string): boolean {
 function portalEditorPaymentRequired(): NextResponse {
   return NextResponse.json(
     {
-      error: "Portal editor requires a paid plan",
+      error: "The portal editor is not enabled for this workspace",
       message: "This workspace cannot manage portal projects.",
       code: "payment_required",
     },
@@ -128,7 +128,7 @@ export async function PATCH(
 
     return NextResponse.json(result)
   } catch (err) {
-    console.error("[Bread] portal project PATCH:", err)
+    console.error("[Breezify] portal project PATCH:", err)
     const message = err instanceof Error ? err.message : "Failed to update project"
     const status =
       message.includes("unknown project") ||
@@ -182,7 +182,7 @@ export async function DELETE(
     const result = await deletePortalProject(workspace.workspace_id, slug)
     return NextResponse.json(result)
   } catch (err) {
-    console.error("[Bread] portal project DELETE:", err)
+    console.error("[Breezify] portal project DELETE:", err)
     const message = err instanceof Error ? err.message : "Failed to delete project"
     const status = message.includes("unknown project") ? 400 : 500
     return NextResponse.json({ error: "Failed to delete project" }, { status })

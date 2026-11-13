@@ -92,6 +92,18 @@ function publicAppOrigin(): string {
   }
 }
 
+/**
+ * Make a root-relative app asset (e.g. the seeded "/breeze-icon.png" workspace
+ * icon) absolute on the app origin. Portals also render on custom domains and
+ * reverse-proxy mounts, where a root-relative path would 404. Absolute URLs
+ * and protocol-relative ones pass through unchanged.
+ */
+export function appAbsoluteAssetUrl(url: string | null): string | null {
+  if (!url || !url.startsWith("/") || url.startsWith("//")) return url
+  const origin = publicAppOrigin()
+  return origin ? `${origin}${url}` : url
+}
+
 // Document links into the portal are made absolute on the app's public origin,
 // so they open the real page wherever the body happens to be rendered. A
 // reverse-proxy mount is already the portal's public address and stays as is.
@@ -173,6 +185,6 @@ export function publicPortalApiPath(
   const root = document.querySelector<HTMLElement>("[data-portal-href-base]")
   const hrefBase = normalizedMountPath(root?.dataset.portalHrefBase)
   return hrefBase
-    ? `${hrefBase}/_bread/api/${endpoint}`
+    ? `${hrefBase}/_breezify/api/${endpoint}`
     : `/api/public/${endpoint}`
 }

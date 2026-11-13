@@ -13,8 +13,8 @@ import {
 
 type PortalThemeMode = PortalPreviewThemeMode
 
-const STORAGE_KEY = "bread-public-portal-theme"
-const STORAGE_EVENT = "bread-public-portal-theme-change"
+const STORAGE_KEY = "breezify-public-portal-theme"
+const STORAGE_EVENT = "breezify-public-portal-theme-change"
 
 function initialMode(appearance: PortalTheme["appearance"]): PortalThemeMode {
   return appearance === "dark" ? "dark" : "light"

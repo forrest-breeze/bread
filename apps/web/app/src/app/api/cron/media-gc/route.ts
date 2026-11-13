@@ -36,7 +36,7 @@ const querySchema = z
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
-    console.error("[Bread] CRON_SECRET not configured");
+    console.error("[Breezify] CRON_SECRET not configured");
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
   if (!verifyCronBearer(req.headers.get("authorization"), secret)) {
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ ok: true, ...counts });
   } catch (err) {
     // Never leak internals to an unauthenticated-shaped surface.
-    console.error("[Bread] /api/cron/media-gc failed:", err);
+    console.error("[Breezify] /api/cron/media-gc failed:", err);
     return NextResponse.json({ error: "Cleanup failed" }, { status: 503 });
   }
 }

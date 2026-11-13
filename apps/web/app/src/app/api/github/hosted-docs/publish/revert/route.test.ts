@@ -23,16 +23,16 @@ vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: vi.fn(() => ({ from: mocks.from, rpc: mocks.rpc })),
 }))
 vi.mock('@/lib/github/github-hosted-format', () => {
-  class BreadDocsFormatError extends Error {
+  class BreezifyDocsFormatError extends Error {
     issues: unknown[] = []
   }
   return {
-    assertBreadHostedDocsFiles: vi.fn(),
-    BreadDocsFormatError,
+    assertBreezifyHostedDocsFiles: vi.fn(),
+    BreezifyDocsFormatError,
   }
 })
 vi.mock('@/lib/github/github-hosted-workspace', () => ({
-  buildBreadWorkspaceExport: mocks.buildExport,
+  buildBreezifyWorkspaceExport: mocks.buildExport,
 }))
 vi.mock('@/lib/github/github-hosted-workspace-publish', () => {
   class HostedWorkspacePublishError extends Error {

@@ -17,7 +17,7 @@ import type {
   GitHubPRSessionRow,
   GitHubUserLinkRow,
   MonitoredRepoRow,
-} from '@bread/core'
+} from '@breezify/core'
 
 // ---------------------------------------------------------------------------
 // GitHubIntegrationRow

@@ -24,7 +24,7 @@ import {
  *
  * The plan is computed from blob SHAs alone: a document that still matches
  * what the last sync recorded is not rendered at all, so files nobody edited
- * in Bread are never rewritten (and keep any MDX the editor cannot express).
+ * in Breezify are never rewritten (and keep any MDX the editor cannot express).
  *
  * Pure: no database or network access.
  */
@@ -102,13 +102,13 @@ export interface ReadmeExportPlan {
   writes: Array<{ path: string; content: string }>
   deletes: string[]
   unchangedCount: number
-  /** Documents left out because both sides changed and Bread was not chosen. */
+  /** Documents left out because both sides changed and Breezify was not chosen. */
   conflictCount: number
   documents: ReadmeExportDocumentResult[]
   folders: ReadmeExportFolderResult[]
   specs: ReadmeExportSpecResult[]
   orderFiles: Record<string, ReadmeOrderFileState>
-  /** Paths Bread manages once this plan has been applied. */
+  /** Paths Breezify manages once this plan has been applied. */
   managedPaths: string[]
 }
 
@@ -139,7 +139,7 @@ export function planReadmeExport(input: {
   /** Repository path -> blob SHA at the commit being compared. */
   tree: ReadonlyMap<string, string>
   state: ReadmeSyncState
-  /** Write conflicted documents too, making Bread's version win. */
+  /** Write conflicted documents too, making Breezify's version win. */
   includeConflicts?: boolean
 }): ReadmeExportPlan {
   const { root, tree, state } = input
@@ -407,7 +407,7 @@ export function planReadmeExport(input: {
     addChild(directoryOf(path), basenameWithoutExtension(path), document.sortOrder)
   }
   // Names that still exist in the repository once this plan is applied. An
-  // order file can list things Bread does not mirror (generated API reference
+  // order file can list things Breezify does not mirror (generated API reference
   // stubs, tag folders); those entries must survive a rewrite.
   const isOrderFile = (path: string): boolean => path.endsWith(`/${README_ORDER_FILE}`)
   const surviving = new Set<string>()
@@ -457,8 +457,8 @@ export function planReadmeExport(input: {
       unchangedCount++
       continue
     }
-    // Bread's children take Bread's order, in the slots they already had;
-    // entries Bread does not mirror keep their place.
+    // Breezify's children take Breezify's order, in the slots they already had;
+    // entries Breezify does not mirror keep their place.
     const queue = [...wanted]
     const merged: string[] = []
     for (const entry of recorded?.entries ?? []) {

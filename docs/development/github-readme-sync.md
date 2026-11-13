@@ -5,7 +5,7 @@ integration reads and writes. Pushes to the repository update the workspace;
 changes made in the workspace are published back as commits. A repository that
 ReadMe has been syncing can be linked as it is, with no conversion step.
 
-This sits beside the older Bread-format link (strict `bread_document_id`
+This sits beside the older Breezify-format link (strict `breezify_document_id`
 frontmatter, pull-request publishing). A workspace has one link, in one format.
 
 Code: `apps/web/app/src/lib/github/readme/`. UI: Settings → Integrations →
@@ -40,7 +40,7 @@ Left alone in the repository, never imported, rewritten or deleted:
 
 - API reference stubs (frontmatter `api.file` / `api.operationId` /
   `api.webhook`), the empty `index.md` and the `_order.yaml` files ReadMe
-  generates for each tag. Bread builds the API reference from the definition.
+  generates for each tag. Breezify builds the API reference from the definition.
 - ReadMe's reference settings pages (`api_config: ...`).
 - `custom_blocks/`, `.html` custom pages, and anything outside the sections.
 
@@ -52,14 +52,14 @@ and when Settings is opened with a newer commit on the branch.
 - Only blobs whose SHA changed since the last sync are downloaded.
 - A page changed only on GitHub replaces the workspace copy; the previous
   version is kept in the document's history.
-- A page changed on both sides is a **conflict**: Bread keeps its version and
+- A page changed on both sides is a **conflict**: Breezify keeps its version and
   flags the document. Publishing asks before overwriting GitHub; "Use GitHub"
   takes the repository's version everywhere.
 - A renamed or moved file keeps its document (matched by identical content,
   then by file name).
 - A file deleted on GitHub removes its document, unless the document was edited
-  in Bread, in which case it is kept and flagged.
-- A document deleted in Bread is not imported again by a later push; its file
+  in Breezify, in which case it is kept and flagged.
+- A document deleted in Breezify is not imported again by a later push; its file
   is removed by the next publish.
 - A file that cannot be read (invalid YAML frontmatter, too large) is skipped
   and listed in Settings. It never fails the sync or removes a document.
@@ -68,17 +68,17 @@ Workspace → repository happens when someone publishes from the workspace's
 GitHub control.
 
 - **Commit directly** (default): one commit on the synced branch, as ReadMe
-  does. A protected branch must let the Bread GitHub App bypass its rules.
-- **Open a pull request**: changes go to a `bread/readme-sync-*` branch and one
+  does. A protected branch must let the Breezify GitHub App bypass its rules.
+- **Open a pull request**: changes go to a `breezify/readme-sync-*` branch and one
   pull request, which later publishes extend. Merging it links the new pages.
 
-A page nobody edited in Bread is never rewritten. An edited page is written as
+A page nobody edited in Breezify is never rewritten. An edited page is written as
 frontmatter (unchanged except `title`, `hidden`, and a changelog `date`) plus
 the Markdown from the editor. New folders and pages are written under `docs/`.
-Reordering rewrites `_order.yaml`, keeping entries Bread does not mirror.
+Reordering rewrites `_order.yaml`, keeping entries Breezify does not mirror.
 Folders restricted to some workspace roles are never written to GitHub.
 
-Publishing is refused while GitHub has commits Bread has not pulled yet.
+Publishing is refused while GitHub has commits Breezify has not pulled yet.
 
 ## OpenAPI
 
@@ -117,12 +117,12 @@ Definitions in `reference/` (JSON or YAML) go through the same source sync as
   the link follows one branch, and other branches are ignored.
 - ReadMe's MDX components (`<Callout>`, `<Tabs>`, `<Anchor>`, `<Image>`,
   `<Table>`) and legacy magic blocks are converted to Markdown when imported.
-  A page keeps its components in the repository until it is edited in Bread;
+  A page keeps its components in the repository until it is edited in Breezify;
   from then on it is written back as plain Markdown.
-- Bread does not create the per-operation stub pages ReadMe writes into
+- Breezify does not create the per-operation stub pages ReadMe writes into
   `reference/`, and Markdown added to a stub is not shown.
 - No per-file revert, and conflicts are resolved for the whole workspace
-  (publish with Bread winning, or "Use GitHub"), not per document.
+  (publish with Breezify winning, or "Use GitHub"), not per document.
 - Limits: 1,000 pages, 512 KB per page, 2 MB and 500 operations per definition.
 
 ## Tests
@@ -138,5 +138,5 @@ README_SYNC_FIXTURE_DIR=/path/to/checkout npx vitest run \
   src/lib/github/readme/readme-real-repository.test.ts --silent=false
 ```
 
-It asserts that after importing the repository Bread wants to change nothing in
+It asserts that after importing the repository Breezify wants to change nothing in
 it, and that editing one page changes exactly one file.

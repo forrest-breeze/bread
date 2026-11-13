@@ -4,7 +4,7 @@ import { NotionConfigSchema } from "@/lib/import/schemas";
 
 // ---------------------------------------------------------------------------
 // Notion bulk importer — REST against api.notion.com (no SDK dep).
-// One-time migration. Bread becomes canonical post-import.
+// One-time migration. Breezify becomes canonical post-import.
 //
 // Strategy:
 //   1. If page_ids[] is set, import those exactly.

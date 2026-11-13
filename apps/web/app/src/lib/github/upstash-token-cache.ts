@@ -35,7 +35,7 @@ export class UpstashTokenCache implements TokenCache {
     try {
       raw = await this.redis.get<string>(key);
     } catch (err) {
-      console.warn("[Bread] UpstashTokenCache.get failed:", err);
+      console.warn("[Breezify] UpstashTokenCache.get failed:", err);
       return null;
     }
     if (!raw) return null;
@@ -44,7 +44,7 @@ export class UpstashTokenCache implements TokenCache {
     try {
       parsed = JSON.parse(raw) as CachedToken;
     } catch (err) {
-      console.warn("[Bread] UpstashTokenCache.get parse failed:", err);
+      console.warn("[Breezify] UpstashTokenCache.get parse failed:", err);
       return null;
     }
 
@@ -68,7 +68,7 @@ export class UpstashTokenCache implements TokenCache {
     try {
       await this.redis.set(key, value, { ex });
     } catch (err) {
-      console.warn("[Bread] UpstashTokenCache.set failed:", err);
+      console.warn("[Breezify] UpstashTokenCache.set failed:", err);
     }
   }
 
@@ -92,7 +92,7 @@ export class UpstashTokenCache implements TokenCache {
         // against both to avoid an infinite loop on the numeric form.
       } while (cursor !== "0" && cursor !== 0);
     } catch (err) {
-      console.warn("[Bread] UpstashTokenCache.clear failed:", err);
+      console.warn("[Breezify] UpstashTokenCache.clear failed:", err);
     }
   }
 }

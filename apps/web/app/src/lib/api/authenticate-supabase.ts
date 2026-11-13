@@ -10,7 +10,7 @@ export interface SupabaseSessionAuth {
 /**
  * Authenticate a request using a Supabase session access token (JWT) in the
  * Authorization: Bearer header, scoped to the workspace given by the
- * `x-bread-workspace` header. This lets authenticated clients reuse a normal
+ * `x-breezify-workspace` header. This lets authenticated clients reuse a normal
  * Supabase user session for bearer-authenticated workspace routes.
  */
 export async function authenticateSupabaseSession(request: NextRequest): Promise<{
@@ -50,11 +50,11 @@ export async function authenticateSupabaseSession(request: NextRequest): Promise
   }
 
   // 3. Extract and validate the workspace slug from headers.
-  const workspaceSlug = request.headers.get("x-bread-workspace")?.trim();
+  const workspaceSlug = request.headers.get("x-breezify-workspace")?.trim();
   if (!workspaceSlug) {
     return {
       error: NextResponse.json(
-        { error: "Missing x-bread-workspace header" },
+        { error: "Missing x-breezify-workspace header" },
         { status: 400 },
       ),
     };

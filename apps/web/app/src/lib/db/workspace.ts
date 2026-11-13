@@ -13,7 +13,7 @@ export interface ActiveWorkspace {
 }
 
 /**
- * Resolves the user's active workspace by checking the `bread-workspace`
+ * Resolves the user's active workspace by checking the `breezify-workspace`
  * cookie first, then falling back to their first membership.
  *
  * Returns `null` ONLY when the user genuinely has no membership. A query
@@ -29,7 +29,7 @@ export async function getActiveWorkspace(
   // Bound the entire lookup, including PostgREST retries and fallback queries.
   const signal = AbortSignal.timeout(8000);
   const cookieStore = await cookies();
-  const preferredId = cookieStore.get("bread-workspace")?.value;
+  const preferredId = cookieStore.get("breezify-workspace")?.value;
 
   if (preferredId) {
     const { data: membership, error } = await supabase
@@ -70,7 +70,7 @@ export async function getActiveWorkspaceForUser(
   // Bound the entire lookup, including PostgREST retries and fallback queries.
   const signal = AbortSignal.timeout(8000);
   const cookieStore = await cookies();
-  const preferredId = cookieStore.get("bread-workspace")?.value;
+  const preferredId = cookieStore.get("breezify-workspace")?.value;
 
   if (preferredId) {
     const { data: membership, error } = await admin
@@ -105,7 +105,7 @@ export async function getActiveWorkspaceForUser(
  * gate on free/basic plans and for the usage dashboard.
  *
  * Returns 0 for an empty workspace. Do not feed this value directly to a
- * Stripe `quantity` field — Stripe rejects 0. Bread now hardcodes
+ * Stripe `quantity` field — Stripe rejects 0. Breezify now hardcodes
  * `quantity: 1` on checkout, so this is no longer a concern for current
  * callers, but new callers should be aware.
  */
@@ -118,7 +118,7 @@ export async function countActiveMembers(workspaceId: string): Promise<number> {
     .eq("status", "active");
 
   if (error) {
-    console.error("[Bread] countActiveMembers:", error.message);
+    console.error("[Breezify] countActiveMembers:", error.message);
     throw new Error(`Failed to count active members: ${error.message}`);
   }
 

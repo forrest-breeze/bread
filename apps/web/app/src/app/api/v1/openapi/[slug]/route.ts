@@ -18,7 +18,7 @@ import {
 //
 //   curl -X PUT "$BREEZE_DOCS_URL/api/v1/openapi/payments-api" \
 //     -H "Authorization: Bearer $BREEZE_DOCS_API_KEY" \
-//     -H "x-bread-workspace: breeze" \
+//     -H "x-breezify-workspace: breeze" \
 //     -H "Content-Type: application/json" \
 //     --data-binary @src/openapi/specs/latest/openapi.json
 //

@@ -22,7 +22,7 @@ import {
 // ---------------------------------------------------------------------------
 // Heading / body font pickers.
 //
-// Both dropdowns share one list: the Bread default (Rethink Sans), popular
+// Both dropdowns share one list: the Breezify default (Rethink Sans), popular
 // Google Fonts, and any custom fonts the workspace has added. "Add custom
 // font…" adds a family to that shared list — a Google Fonts name, or a
 // self-hosted licensed file — and applies it to the dropdown it came from.

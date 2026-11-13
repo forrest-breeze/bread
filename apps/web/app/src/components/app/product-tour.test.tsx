@@ -53,13 +53,13 @@ describe("ProductTourProvider", () => {
 
   it("opens the welcome modal for users who have not finished the tutorial", () => {
     renderTour()
-    expect(screen.getByText("Welcome to Bread")).toBeTruthy()
+    expect(screen.getByText("Welcome to Breezify")).toBeTruthy()
   })
 
   it("stays closed once the tutorial is complete", () => {
     hoisted.profile = { onboarding_completed_at: "2026-11-01T00:00:00.000Z" }
     renderTour()
-    expect(screen.queryByText("Welcome to Bread")).toBeNull()
+    expect(screen.queryByText("Welcome to Breezify")).toBeNull()
   })
 
   it("skip records completion without starting the tour", () => {
@@ -101,7 +101,7 @@ describe("ProductTourProvider", () => {
     hoisted.profile = { onboarding_completed_at: "2026-11-01T00:00:00.000Z" }
     renderTour()
     fireEvent.click(screen.getByText("replay"))
-    expect(screen.getByText("Welcome to Bread")).toBeTruthy()
+    expect(screen.getByText("Welcome to Breezify")).toBeTruthy()
     fireEvent.click(screen.getByRole("button", { name: "Skip" }))
     expect(fetchMock).not.toHaveBeenCalled()
   })

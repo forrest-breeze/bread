@@ -3,13 +3,13 @@ import { validateDslTree } from "../src/lib/portal/dsl/validate"
 import { validatePortalLayout } from "../src/lib/portal/schema"
 import type { DslNode } from "../src/lib/portal/dsl/node"
 import {
-  buildBreadDocsHomeTree,
-  type BreadDocsHomeInput,
-} from "./bread-docs-home"
+  buildBreezifyDocsHomeTree,
+  type BreezifyDocsHomeInput,
+} from "./breezify-docs-home"
 
 const SECTIONS = [
   { key: "getting-started", title: "Getting Started", icon: "graduation-cap" },
-  { key: "using-bread", title: "Using Bread", icon: "book-open" },
+  { key: "using-breezify", title: "Using Breezify", icon: "book-open" },
   { key: "integrations", title: "Integrations", icon: "puzzle" },
   { key: "publishing", title: "Publishing", icon: "send" },
   { key: "developers", title: "Developers & AI", icon: "terminal" },
@@ -20,11 +20,11 @@ const SECTIONS = [
 const DOC_PATHS = [
   "getting-started/quickstart.md",
   "getting-started/core-concepts.md",
-  "using-bread/create-and-edit-documents.md",
-  "using-bread/organize-your-knowledge-base.md",
-  "using-bread/capture-knowledge.md",
-  "using-bread/review-librarian-proposals.md",
-  "using-bread/search-and-ask-ai.md",
+  "using-breezify/create-and-edit-documents.md",
+  "using-breezify/organize-your-knowledge-base.md",
+  "using-breezify/capture-knowledge.md",
+  "using-breezify/review-librarian-proposals.md",
+  "using-breezify/search-and-ask-ai.md",
   "integrations/overview.md",
   "publishing/create-a-docs-project.md",
   "publishing/customize-and-publish.md",
@@ -35,9 +35,9 @@ const DOC_PATHS = [
   "developers/api/authentication.md",
 ]
 
-function input(overrides: Partial<BreadDocsHomeInput> = {}): BreadDocsHomeInput {
+function input(overrides: Partial<BreezifyDocsHomeInput> = {}): BreezifyDocsHomeInput {
   return {
-    base: "/p/bread/docs",
+    base: "/p/breezify/docs",
     assetOrigin: "https://app.example.com",
     folderIds: new Map(
       SECTIONS.map((section, index) => [section.key, `folder-${index}`]),
@@ -78,9 +78,9 @@ function hrefs(tree: DslNode): string[] {
   return out
 }
 
-describe("buildBreadDocsHomeTree", () => {
+describe("buildBreezifyDocsHomeTree", () => {
   it("produces a tree the portal validator accepts", () => {
-    const result = validateDslTree(buildBreadDocsHomeTree(input()))
+    const result = validateDslTree(buildBreezifyDocsHomeTree(input()))
     expect(result.ok ? null : result.error).toBeNull()
   })
 
@@ -88,7 +88,7 @@ describe("buildBreadDocsHomeTree", () => {
     const layout = validatePortalLayout({
       schemaVersion: 2,
       theme: {
-        brandName: "Bread Docs",
+        brandName: "Breezify Docs",
         tagline: "",
         logoUrl: "",
         accentColor: "#3f6212",
@@ -103,13 +103,13 @@ describe("buildBreadDocsHomeTree", () => {
         search: { enabled: true, placeholder: "Search or ask AI" },
       },
       body: [],
-      tree: buildBreadDocsHomeTree(input()),
+      tree: buildBreezifyDocsHomeTree(input()),
     })
     expect(layout.ok ? null : layout.error).toBeNull()
   })
 
   it("links only documents and sections it was given", () => {
-    const tree = buildBreadDocsHomeTree(input())
+    const tree = buildBreezifyDocsHomeTree(input())
     for (const href of hrefs(tree)) {
       expect(href).not.toContain("undefined")
     }
@@ -123,26 +123,26 @@ describe("buildBreadDocsHomeTree", () => {
 
   it("throws when a linked document was not published", () => {
     const docSlugs = new Map(input().docSlugs)
-    docSlugs.delete("using-bread/review-librarian-proposals.md")
-    expect(() => buildBreadDocsHomeTree(input({ docSlugs }))).toThrow(
+    docSlugs.delete("using-breezify/review-librarian-proposals.md")
+    expect(() => buildBreezifyDocsHomeTree(input({ docSlugs }))).toThrow(
       /document slug.*review-librarian-proposals/,
     )
   })
 
   it("omits a section visual whose asset was never shipped", () => {
     const images = collect(
-      buildBreadDocsHomeTree(input({ assets: new Set(["home-search.webp"]) })),
+      buildBreezifyDocsHomeTree(input({ assets: new Set(["home-search.webp"]) })),
       "Image",
     )
     expect(images.map((image) => String(image.props?.src))).toEqual([
       "https://app.example.com/portal/docs/home-search.webp",
     ])
     // The page still reads without them — no empty <Image> placeholders.
-    expect(collect(buildBreadDocsHomeTree(input({ assets: new Set() })), "Image")).toEqual([])
+    expect(collect(buildBreezifyDocsHomeTree(input({ assets: new Set() })), "Image")).toEqual([])
   })
 
   it("serves images from an absolute origin so proxied portals resolve them", () => {
-    const images = collect(buildBreadDocsHomeTree(input()), "Image")
+    const images = collect(buildBreezifyDocsHomeTree(input()), "Image")
     expect(images.length).toBeGreaterThan(0)
     for (const image of images) {
       expect(String(image.props?.src)).toMatch(
@@ -153,7 +153,7 @@ describe("buildBreadDocsHomeTree", () => {
   })
 
   it("keeps the curated section grid out of the generated-grid sync", () => {
-    const grids = collect(buildBreadDocsHomeTree(input()), "CategoryGrid")
+    const grids = collect(buildBreezifyDocsHomeTree(input()), "CategoryGrid")
     expect(grids).toHaveLength(1)
     // `n-categories` is the id normalize keeps in lockstep with every root
     // folder in scope, which would append the changelog feed to this list.
@@ -162,12 +162,12 @@ describe("buildBreadDocsHomeTree", () => {
   })
 
   it("omits the changelog link while that page is held back", () => {
-    const withPage = hrefs(buildBreadDocsHomeTree(input()))
-    expect(withPage).toContain("/p/bread/docs/page/changelog")
+    const withPage = hrefs(buildBreezifyDocsHomeTree(input()))
+    expect(withPage).toContain("/p/breezify/docs/page/changelog")
 
     const withoutPage = hrefs(
-      buildBreadDocsHomeTree(input({ includeChangelogPage: false })),
+      buildBreezifyDocsHomeTree(input({ includeChangelogPage: false })),
     )
-    expect(withoutPage).not.toContain("/p/bread/docs/page/changelog")
+    expect(withoutPage).not.toContain("/p/breezify/docs/page/changelog")
   })
 })

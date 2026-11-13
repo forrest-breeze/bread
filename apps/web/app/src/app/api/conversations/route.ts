@@ -63,7 +63,7 @@ export async function GET(request: Request): Promise<NextResponse> {
   const { data, error } = await query;
 
   if (error) {
-    console.error("[Bread] Failed to fetch conversations:", error.message);
+    console.error("[Breezify] Failed to fetch conversations:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch conversations" },
       { status: 500 },
@@ -129,7 +129,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to create conversation:", error.message);
+    console.error("[Breezify] Failed to create conversation:", error.message);
     return NextResponse.json(
       { error: "Failed to create conversation" },
       { status: 500 },

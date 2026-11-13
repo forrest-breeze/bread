@@ -20,18 +20,18 @@ import { parseWorkspaceExport } from "@/lib/workspace-export/format";
 
 // ---------------------------------------------------------------------------
 // Unified Import dialog. Hosts four sources behind a tab strip with logos:
-//   - Bread JSON (drop a prior export — uses /api/workspace/import + process)
+//   - Breezify JSON (drop a prior export — uses /api/workspace/import + process)
 //   - Notion       (paste an integration token)
 //   - Confluence   (Cloud creds)
 //   - Obsidian     (drop a .zip of the vault)
 //
 // Notion / Confluence / Obsidian create an import_jobs row via /api/import/jobs
 // and route to the job detail page so users can watch progress.
-// Bread-format JSON uses the existing two-step flow (insert + embedding
+// Breezify-format JSON uses the existing two-step flow (insert + embedding
 // backfill) inline in the dialog because it streams progress as it runs.
 // ---------------------------------------------------------------------------
 
-type SourceId = "bread" | "notion" | "confluence" | "obsidian";
+type SourceId = "breezify" | "notion" | "confluence" | "obsidian";
 
 interface SourceDef {
   id: SourceId;
@@ -47,8 +47,8 @@ interface SourceDef {
 
 const SOURCES: SourceDef[] = [
   {
-    id: "bread",
-    name: "Bread JSON",
+    id: "breezify",
+    name: "Breezify JSON",
     logoSrc: "/breeze-mark.png",
     logoClassName: "object-contain",
     description: "Re-import a prior workspace export.",
@@ -89,7 +89,7 @@ export function ImportDialog({
   redirectToJob = true,
   onJobStarted,
 }: ImportDialogProps): React.JSX.Element {
-  const [source, setSource] = useState<SourceId>("bread");
+  const [source, setSource] = useState<SourceId>("breezify");
   const handleJobStarted = (jobId: string): void => {
     onJobStarted?.(jobId);
   };
@@ -101,7 +101,7 @@ export function ImportDialog({
           <DialogTitle>Import</DialogTitle>
           <DialogDescription>
             Bring in existing knowledge. Each page becomes a fully editable
-            Bread document.
+            Breezify document.
           </DialogDescription>
         </DialogHeader>
 
@@ -129,8 +129,8 @@ export function ImportDialog({
         </p>
 
         <div className="pt-2">
-          {source === "bread" && (
-            <BreadJsonPanel isAdmin={isAdmin} onClose={() => onOpenChange(false)} />
+          {source === "breezify" && (
+            <BreezifyJsonPanel isAdmin={isAdmin} onClose={() => onOpenChange(false)} />
           )}
           {source === "notion" && (
             <NotionPanel
@@ -186,7 +186,7 @@ function SourceLogo({ source }: { source: SourceDef }): React.JSX.Element {
 }
 
 // ---------------------------------------------------------------------------
-// Bread JSON panel — reuses the existing /api/workspace/import flow.
+// Breezify JSON panel — reuses the existing /api/workspace/import flow.
 // ---------------------------------------------------------------------------
 
 type ImportStatus =
@@ -199,7 +199,7 @@ type ImportStatus =
 
 const PROCESS_CHUNK = 10;
 
-async function processBreadChunks(
+async function processBreezifyChunks(
   ids: string[],
   onProgress: (processed: number, errorCount: number) => void,
 ): Promise<{ processed: number; errorCount: number }> {
@@ -229,7 +229,7 @@ async function processBreadChunks(
   return { processed: processedCount, errorCount };
 }
 
-function BreadJsonPanel({
+function BreezifyJsonPanel({
   isAdmin,
   onClose,
 }: {
@@ -292,7 +292,7 @@ function BreadJsonPanel({
     const total = ids.length;
     setStatus({ kind: "processing", total, processed: 0, errorCount: 0 });
     try {
-      const { processed, errorCount } = await processBreadChunks(
+      const { processed, errorCount } = await processBreezifyChunks(
         ids,
         (p, e) => setStatus({ kind: "processing", total, processed: p, errorCount: e }),
       );
@@ -313,11 +313,11 @@ function BreadJsonPanel({
     <div className="space-y-3">
       <DropZone
         accept="application/json,.json"
-        helperText="Drop a Bread-format .json export, or click to browse."
+        helperText="Drop a Breezify-format .json export, or click to browse."
         onFile={handleFile}
         disabled={!isAdmin || status.kind === "parsing" || status.kind === "inserting" || status.kind === "processing"}
       />
-      <BreadStatusLabel status={status} />
+      <BreezifyStatusLabel status={status} />
       {status.kind === "done" && (
         <div className="flex justify-end">
           <Button size="sm" variant="outline" onClick={onClose}>
@@ -329,7 +329,7 @@ function BreadJsonPanel({
   );
 }
 
-function BreadStatusLabel({ status }: { status: ImportStatus }): React.JSX.Element | null {
+function BreezifyStatusLabel({ status }: { status: ImportStatus }): React.JSX.Element | null {
   if (status.kind === "idle") return null;
   if (status.kind === "parsing" || status.kind === "inserting") {
     return (

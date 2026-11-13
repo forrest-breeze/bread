@@ -17,7 +17,7 @@ import {
 // call means the same token encrypts to different ciphertext each time (no
 // ciphertext equality), and GCM's auth tag detects tampering on decrypt.
 //
-// Key: BREAD_TOKEN_ENC_KEY — 32 bytes, supplied as base64 (preferred,
+// Key: BREEZIFY_TOKEN_ENC_KEY — 32 bytes, supplied as base64 (preferred,
 // `openssl rand -base64 32`) or 64 hex chars. Missing/invalid key → encrypt and
 // decrypt return null (callers surface a "not configured" error / fall back),
 // never a throw. The key is intentionally NOT cached so a rotated env value
@@ -29,9 +29,9 @@ const KEY_BYTES = 32;
 const IV_BYTES = 12;
 const TAG_BYTES = 16;
 
-/** Parse BREAD_TOKEN_ENC_KEY into a 32-byte Buffer, or null if missing/invalid. */
+/** Parse BREEZIFY_TOKEN_ENC_KEY into a 32-byte Buffer, or null if missing/invalid. */
 function loadKey(): Buffer | null {
-  const raw = process.env.BREAD_TOKEN_ENC_KEY?.trim();
+  const raw = process.env.BREEZIFY_TOKEN_ENC_KEY?.trim();
   if (!raw) return null;
 
   let key: Buffer;
@@ -49,14 +49,14 @@ function loadKey(): Buffer | null {
 
 /**
  * Encrypt a token. Returns base64(iv || tag || ciphertext), or null when the
- * input is empty or BREAD_TOKEN_ENC_KEY is missing/invalid.
+ * input is empty or BREEZIFY_TOKEN_ENC_KEY is missing/invalid.
  */
 export function encryptToken(plaintext: string): string | null {
   if (!plaintext) return null;
   const key = loadKey();
   if (!key) {
     console.error(
-      "[Bread] token-crypto: BREAD_TOKEN_ENC_KEY missing or invalid (need 32 bytes as base64 or hex)",
+      "[Breezify] token-crypto: BREEZIFY_TOKEN_ENC_KEY missing or invalid (need 32 bytes as base64 or hex)",
     );
     return null;
   }
@@ -70,7 +70,7 @@ export function encryptToken(plaintext: string): string | null {
     const tag = cipher.getAuthTag();
     return Buffer.concat([iv, tag, ciphertext]).toString("base64");
   } catch (err) {
-    console.error("[Bread] token-crypto: encrypt failed:", err);
+    console.error("[Breezify] token-crypto: encrypt failed:", err);
     return null;
   }
 }
@@ -84,7 +84,7 @@ export function decryptToken(cipherB64: string): string | null {
   const key = loadKey();
   if (!key) {
     console.error(
-      "[Bread] token-crypto: BREAD_TOKEN_ENC_KEY missing or invalid (need 32 bytes as base64 or hex)",
+      "[Breezify] token-crypto: BREEZIFY_TOKEN_ENC_KEY missing or invalid (need 32 bytes as base64 or hex)",
     );
     return null;
   }
@@ -102,7 +102,7 @@ export function decryptToken(cipherB64: string): string | null {
     ]);
     return plaintext.toString("utf8");
   } catch (err) {
-    console.error("[Bread] token-crypto: decrypt failed:", err);
+    console.error("[Breezify] token-crypto: decrypt failed:", err);
     return null;
   }
 }

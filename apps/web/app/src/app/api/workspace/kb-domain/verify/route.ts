@@ -19,7 +19,7 @@ const verifyQuerySchema = z.object({
 //
 // GET ?type=custom|subdomain — fetch the workspace's configured public host and
 // confirm it resolves back to THIS workspace's portal. The proxy stamps an
-// "x-bread-portal: <slug>" header on every portal rewrite (see proxy.ts); a
+// "x-breezify-portal: <slug>" header on every portal rewrite (see proxy.ts); a
 // match means DNS + routing + TLS are all live. We only ever fetch the
 // workspace's own stored address (never arbitrary user input), over https.
 // ---------------------------------------------------------------------------
@@ -196,7 +196,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
       return NextResponse.json({ connected: true, host, reason: null } satisfies VerifyResult);
     } catch (projectError) {
-      console.error("[Bread] portal path verification:", projectError);
+      console.error("[Breezify] portal path verification:", projectError);
       return NextResponse.json(
         { error: "Failed to load portal projects" },
         { status: 500 },
@@ -240,7 +240,7 @@ async function fetchWithOneRetry(url: string): Promise<Response> {
       redirect: "manual",
       cache: "no-store",
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers: { "user-agent": "Bread-Portal-Verify/1.0" },
+      headers: { "user-agent": "Breezify-Portal-Verify/1.0" },
     });
   try {
     return await attempt();
@@ -272,8 +272,8 @@ export async function probePortalUrl({
         reason: "Redirecting away instead of staying on the configured URL.",
       };
     }
-    const marker = res.headers.get("x-bread-portal");
-    const proxyMarker = res.headers.get("x-bread-proxy");
+    const marker = res.headers.get("x-breezify-portal");
+    const proxyMarker = res.headers.get("x-breezify-proxy");
     if (
       marker === workspaceSlug &&
       (!requireReverseProxy ||
@@ -283,7 +283,7 @@ export async function probePortalUrl({
       return { connected: true, host, reason: null };
     }
     if (marker) {
-      // The host serves a Bread portal, but for a different workspace.
+      // The host serves a Breezify portal, but for a different workspace.
       return {
         connected: false,
         host,
@@ -291,7 +291,7 @@ export async function probePortalUrl({
       };
     }
     // Some hosting adapters discard response headers stamped by Next's proxy
-    // pass-through. A Bread-managed Worker still proves the route is live when
+    // pass-through. A Breezify-managed Worker still proves the route is live when
     // its marker is present AND the server-side deployment record maps this
     // exact domain/path to this workspace project. The caller computes that
     // second condition from the service-role-only deployment table.

@@ -38,7 +38,7 @@ export async function GET(
     .single();
 
   if (error || !data) {
-    console.error("[Bread] API v1 fetch document failed:", error?.message);
+    console.error("[Breezify] API v1 fetch document failed:", error?.message);
     return withCors(
       request,
       NextResponse.json({ error: "Document not found or access denied" }, { status: 404 }),

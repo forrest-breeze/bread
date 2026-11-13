@@ -44,7 +44,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("[Bread] Failed to fetch personal access tokens:", error.message);
+    console.error("[Breezify] Failed to fetch personal access tokens:", error.message);
     return NextResponse.json({ error: "Failed to fetch tokens" }, { status: 500 });
   }
 
@@ -68,8 +68,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const admin = createAdminClient();
 
   // Generate a secure raw token formatted standardly:
-  // bread_pat_<random_base62_string>
-  const rawPrefix = "bread_pat_";
+  // breezify_pat_<random_base62_string>
+  const rawPrefix = "breezify_pat_";
   // We use standard hex instead of base62 to avoid extra dependencies,
   // or simple base64url.
   const rawSecret = randomBytes(24).toString("base64url");
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error || !data) {
-    console.error("[Bread] Failed to generate personal access token:", error?.message);
+    console.error("[Breezify] Failed to generate personal access token:", error?.message);
     return NextResponse.json({ error: "Failed to create token" }, { status: 500 });
   }
 
@@ -153,7 +153,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     .eq("user_id", user.id);
 
   if (error) {
-    console.error("[Bread] Failed to revoke personal access token:", error.message);
+    console.error("[Breezify] Failed to revoke personal access token:", error.message);
     return NextResponse.json({ error: "Failed to revoke token" }, { status: 500 });
   }
 

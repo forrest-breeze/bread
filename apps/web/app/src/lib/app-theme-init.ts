@@ -1,4 +1,4 @@
-export const APP_THEME_STORAGE_KEY = "bread-theme"
+export const APP_THEME_STORAGE_KEY = "breezify-theme"
 
 /**
  * Inline script that applies the stored theme to <html> while the HTML is

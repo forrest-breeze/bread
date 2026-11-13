@@ -37,7 +37,7 @@ describe("portalDocumentToMarkdown", () => {
     )
   })
 
-  it("preserves named Bread page breaks as Markdown sections", () => {
+  it("preserves named Breezify page breaks as Markdown sections", () => {
     expect(
       portalDocumentToMarkdown(
         '<div data-type="page-break" data-name="Authentication"></div><p>Use OAuth.</p>',

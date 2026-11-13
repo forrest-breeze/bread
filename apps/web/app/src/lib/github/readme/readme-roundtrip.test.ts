@@ -152,7 +152,7 @@ describe('ReadMe-format GitHub sync: repository -> workspace', () => {
       sortOrder: 0,
       publicSlug: 'quickstart',
     })
-    // MDX the editor cannot express is flattened to Markdown in Bread...
+    // MDX the editor cannot express is flattened to Markdown in Breezify...
     expect(quickstart.content).toBe('Install the SDK.\n\n> 📘\n>\n> Sandbox keys start with `sk_test`.')
     // ...and the whole frontmatter is kept for the way back.
     expect(quickstart.metadata?.readme_frontmatter).toMatchObject({
@@ -213,14 +213,14 @@ describe('ReadMe-format GitHub sync: repository -> workspace', () => {
     await sync()
     expect(store.document('Webhooks')).toMatchObject({ content: 'Still not ready.', status: 'Draft' })
 
-    // Un-hiding on GitHub publishes it; a page unpublished in Bread stays so.
+    // Un-hiding on GitHub publishes it; a page unpublished in Breezify stays so.
     repo.push({ 'docs/guides/webhooks.md': '---\ntitle: Webhooks\nhidden: false\n---\nReady.\n' })
     await sync()
     expect(store.document('Webhooks').status).toBe('Published')
     store.document('Errors').status = 'Draft'
     repo.push({ 'reference/errors.md': '---\ntitle: Errors\n---\nMore error codes.\n' })
     await sync()
-    // Bread changed only the visibility, so GitHub's content still applies.
+    // Breezify changed only the visibility, so GitHub's content still applies.
     expect(store.document('Errors')).toMatchObject({ content: 'More error codes.', status: 'Draft' })
   })
 
@@ -251,10 +251,10 @@ describe('ReadMe-format GitHub sync: repository -> workspace', () => {
     expect(result).toMatchObject({ created: 0, removed: 0 })
   })
 
-  it('removes pages deleted on GitHub, but keeps ones edited in Bread', async () => {
+  it('removes pages deleted on GitHub, but keeps ones edited in Breezify', async () => {
     const { repo, store, sync } = harness()
     await sync()
-    store.document('Errors').content = 'Error codes, rewritten in Bread.'
+    store.document('Errors').content = 'Error codes, rewritten in Breezify.'
     repo.push({ 'reference/errors.md': null, 'custom_pages/terms.md': null })
     const result = await sync()
 
@@ -274,21 +274,21 @@ describe('ReadMe-format GitHub sync: repository -> workspace', () => {
   it('flags a conflict instead of overwriting when both sides changed a page', async () => {
     const { repo, store, sync, inspect, publish } = harness()
     await sync()
-    store.document('API keys').content = 'Edited in Bread.'
+    store.document('API keys').content = 'Edited in Breezify.'
     repo.push({
       'docs/getting-started/authentication/api-keys.md': '---\ntitle: API keys\n---\nEdited on GitHub.\n',
     })
     await sync()
-    expect(store.document('API keys').content).toBe('Edited in Bread.')
+    expect(store.document('API keys').content).toBe('Edited in Breezify.')
     expect(store.document('API keys').metadata?.github_hosted_conflict).toBe(true)
     expect(store.source.conflict_count).toBe(1)
 
     // Publishing leaves the conflicted page alone...
     expect(await inspect()).toMatchObject({ status: 'up_to_date', conflictCount: 1 })
-    // ...until someone says Bread wins.
+    // ...until someone says Breezify wins.
     await publish({ includeConflicts: true })
     expect(repo.file('docs/getting-started/authentication/api-keys.md')).toBe(
-      '---\ntitle: API keys\n---\nEdited in Bread.\n',
+      '---\ntitle: API keys\n---\nEdited in Breezify.\n',
     )
     expect(store.document('API keys').metadata?.github_hosted_conflict).toBe(false)
     expect(store.source.conflict_count).toBe(0)
@@ -297,11 +297,11 @@ describe('ReadMe-format GitHub sync: repository -> workspace', () => {
   it('lets GitHub win everywhere in replace mode', async () => {
     const { repo, store, sync } = harness()
     await sync()
-    store.document('API keys').content = 'Edited in Bread.'
+    store.document('API keys').content = 'Edited in Breezify.'
     repo.push({
       'docs/getting-started/authentication/api-keys.md': '---\ntitle: API keys\n---\nEdited on GitHub.\n',
     })
-    await sync({ mode: 'replace_bread' })
+    await sync({ mode: 'replace_breezify' })
     expect(store.document('API keys').content).toBe('Edited on GitHub.')
     expect(store.source.conflict_count).toBe(0)
   })
@@ -366,13 +366,13 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
 
     const result = await publish()
     expect(result).toMatchObject({ mode: 'direct', branch: 'main', changedFileCount: 1 })
-    expect(repo.lastMessage()).toBe('docs: update docs/getting-started/quickstart.md from Bread')
+    expect(repo.lastMessage()).toBe('docs: update docs/getting-started/quickstart.md from Breezify')
 
     const after = repo.files()
     const changed = Object.keys(after).filter((path) => after[path] !== before[path])
     expect(changed).toEqual(['docs/getting-started/quickstart.md'])
     const written = parseReadmeFile(after['docs/getting-started/quickstart.md']!)
-    // Title is Bread's; every other frontmatter key is exactly as it was.
+    // Title is Breezify's; every other frontmatter key is exactly as it was.
     expect(written.frontmatter).toEqual({
       title: 'Quick start',
       excerpt: 'Take your first payment.',
@@ -417,9 +417,9 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
     expect(repo.file('docs/guides/refunds-guide.md')).toBe(
       '---\ntitle: Refunds\nhidden: false\n---\nHow refunds work.\n',
     )
-    expect(repo.lastMessage()).toMatch(/^docs: sync 3 files from Bread\n\n- docs\/going-live\/go-live-checklist\.md/)
+    expect(repo.lastMessage()).toMatch(/^docs: sync 3 files from Breezify\n\n- docs\/going-live\/go-live-checklist\.md/)
 
-    // A later push from GitHub must not import copies of what Bread wrote.
+    // A later push from GitHub must not import copies of what Breezify wrote.
     const documents = store.liveDocuments().length
     const folders = store.folders.size
     repo.push({ 'README.md': '# changed\n' })
@@ -429,7 +429,7 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
     expect(store.folder('Going Live').metadata?.path).toBe('docs/going-live')
   })
 
-  it('never writes role-restricted Bread folders to GitHub', async () => {
+  it('never writes role-restricted Breezify folders to GitHub', async () => {
     const { repo, store, sync, inspect, publish } = harness()
     await sync()
     const internal = store.authorFolder('Internal runbooks')
@@ -462,10 +462,10 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
     expect(store.document('Errors').metadata?.canonical_repo_path).toBe('docs/guides/errors.md')
   })
 
-  it('does not bring back a page deleted in Bread, and publishes the deletion', async () => {
+  it('does not bring back a page deleted in Breezify, and publishes the deletion', async () => {
     const { repo, store, sync, inspect, publish } = harness()
     await sync()
-    store.deleteInBread('Terms')
+    store.deleteInBreezify('Terms')
 
     // An unrelated push arrives before the deletion was published.
     repo.push({ 'README.md': '# changed\n' })
@@ -482,7 +482,7 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
     expect(store.liveDocuments().map((document) => document.title)).toContain('Terms')
   })
 
-  it('treats a page whose document is gone entirely as deleted in Bread', async () => {
+  it('treats a page whose document is gone entirely as deleted in Breezify', async () => {
     const { repo, store, sync, publish } = harness()
     await sync()
     // Trashed, then the trash was emptied: no document row is left at all.
@@ -497,7 +497,7 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
   it('imports a trashed page again when GitHub changed it afterwards', async () => {
     const { repo, store, sync } = harness()
     await sync()
-    store.deleteInBread('Terms')
+    store.deleteInBreezify('Terms')
     repo.push({ 'custom_pages/terms.md': '---\ntitle: Terms\n---\nNew terms.\n' })
     await sync()
     expect(store.document('Terms').content).toBe('New terms.')
@@ -506,9 +506,9 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
   it('"Use GitHub" restores everything the repository has', async () => {
     const { store, sync } = harness()
     await sync()
-    store.deleteInBread('Terms')
+    store.deleteInBreezify('Terms')
     store.document('Errors').content = 'Unpublished edit.'
-    await sync({ mode: 'replace_bread' })
+    await sync({ mode: 'replace_breezify' })
     expect(store.document('Terms').content).toBe('The terms.')
     expect(store.document('Errors').content).toBe('Error codes.')
   })
@@ -516,7 +516,7 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
   it('refuses to publish over GitHub changes that were not pulled yet', async () => {
     const { repo, store, sync, inspect, publish } = harness()
     await sync()
-    store.document('Quickstart').content = 'Edited in Bread.'
+    store.document('Quickstart').content = 'Edited in Breezify.'
     repo.push({ 'README.md': '# changed\n' })
     expect(await inspect()).toMatchObject({ status: 'sync_required', code: 'github_sync_required' })
     await expect(publish()).rejects.toMatchObject({ code: 'github_sync_required', status: 409 })
@@ -539,7 +539,7 @@ describe('ReadMe-format GitHub sync: workspace -> repository', () => {
   it('explains a protected branch instead of failing obscurely', async () => {
     const { repo, store, sync, publish } = harness()
     await sync()
-    store.document('Quickstart').content = 'Edited in Bread.'
+    store.document('Quickstart').content = 'Edited in Breezify.'
     repo.protectedBranch = 'main'
     const error = await publish().catch((caught: unknown) => caught)
     expect(error).toBeInstanceOf(ReadmePublishError)
@@ -558,12 +558,12 @@ describe('ReadMe-format GitHub sync: pull request mode', () => {
   it('collects changes on a branch and links new pages when the PR merges', async () => {
     const { repo, store, sync, inspect, publish } = harness(undefined, { publishMode: 'pull_request' })
     await sync()
-    store.document('Quickstart').content = 'Edited in Bread.'
+    store.document('Quickstart').content = 'Edited in Breezify.'
     store.authorDocument({ title: 'Disputes', content: 'How disputes work.', status: 'Published' })
 
     const first = await publish()
     expect(first).toMatchObject({ mode: 'pull_request', pullRequestNumber: 1, changedFileCount: 2 })
-    expect(first.branch).toMatch(/^bread\/readme-sync-/)
+    expect(first.branch).toMatch(/^breezify\/readme-sync-/)
     // The synced branch is untouched until the pull request merges.
     expect(repo.file('docs/getting-started/quickstart.md')).toBe(QUICKSTART)
     expect(repo.file('docs/disputes.md', first.branch)).toBe(
@@ -626,7 +626,7 @@ describe('ReadMe-format GitHub sync: OpenAPI definitions', () => {
     )
   })
 
-  it('picks up a definition changed on GitHub and removes one deleted in Bread', async () => {
+  it('picks up a definition changed on GitHub and removes one deleted in Breezify', async () => {
     const { repo, store, sync, commitSpec } = harness()
     await sync()
     repo.push({ 'reference/payments.yaml': PETSTORE_YAML.replace('1.0.0', '1.1.0') })

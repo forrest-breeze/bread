@@ -117,7 +117,7 @@ describe("POST /api/workspace/api-keys — validation", () => {
 
   it("stores an encrypted copy of the raw key so it can be revealed later", async () => {
     mockAuthed()
-    process.env.BREAD_TOKEN_ENC_KEY = Buffer.alloc(32, 7).toString("base64")
+    process.env.BREEZIFY_TOKEN_ENC_KEY = Buffer.alloc(32, 7).toString("base64")
     const single = vi.fn().mockResolvedValue({ data: { id: "key-3" }, error: null })
     const insert = vi.fn(() => ({ select: vi.fn(() => ({ single })) }))
     vi.mocked(createAdminClient).mockReturnValue({
@@ -135,12 +135,12 @@ describe("POST /api/workspace/api-keys — validation", () => {
     expect(row.key_encrypted).not.toContain(body.key)
     expect(decryptToken(row.key_encrypted)).toBe(body.key)
 
-    delete process.env.BREAD_TOKEN_ENC_KEY
+    delete process.env.BREEZIFY_TOKEN_ENC_KEY
   })
 
-  it("still creates the key when BREAD_TOKEN_ENC_KEY is unset", async () => {
+  it("still creates the key when BREEZIFY_TOKEN_ENC_KEY is unset", async () => {
     mockAuthed()
-    delete process.env.BREAD_TOKEN_ENC_KEY
+    delete process.env.BREEZIFY_TOKEN_ENC_KEY
     const single = vi.fn().mockResolvedValue({ data: { id: "key-4" }, error: null })
     const insert = vi.fn(() => ({ select: vi.fn(() => ({ single })) }))
     vi.mocked(createAdminClient).mockReturnValue({

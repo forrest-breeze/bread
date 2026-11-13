@@ -473,7 +473,7 @@ export function PortalTranslationProvider({
       } catch (error) {
         if (active && language !== "en") setTranslationError(true)
         console.warn(
-          "[Bread] portal translation:",
+          "[Breezify] portal translation:",
           error instanceof Error ? error.message : error,
         )
       } finally {

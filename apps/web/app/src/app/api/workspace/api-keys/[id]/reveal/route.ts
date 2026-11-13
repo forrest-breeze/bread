@@ -49,7 +49,7 @@ export async function POST(
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] Failed to load API key for reveal:", error.message);
+    console.error("[Breezify] Failed to load API key for reveal:", error.message);
     return NextResponse.json({ error: "Failed to reveal API key" }, { status: 500 });
   }
   if (!data) {
@@ -70,10 +70,10 @@ export async function POST(
 
   const key = decryptToken(data.key_encrypted);
   if (!key) {
-    // Wrong/rotated BREAD_TOKEN_ENC_KEY, or tampered ciphertext. token-crypto
+    // Wrong/rotated BREEZIFY_TOKEN_ENC_KEY, or tampered ciphertext. token-crypto
     // has already logged the specific cause.
     return NextResponse.json(
-      { error: "Failed to decrypt this key. Check BREAD_TOKEN_ENC_KEY." },
+      { error: "Failed to decrypt this key. Check BREEZIFY_TOKEN_ENC_KEY." },
       { status: 500 },
     );
   }

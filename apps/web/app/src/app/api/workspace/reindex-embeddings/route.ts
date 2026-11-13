@@ -81,7 +81,7 @@ export async function POST(
 
   const { data, error, count } = await query;
   if (error) {
-    console.error("[Bread] reindex-embeddings load failed:", error.message);
+    console.error("[Breezify] reindex-embeddings load failed:", error.message);
     return NextResponse.json(
       { error: "Failed to load workspace documents" },
       { status: 500 },
@@ -117,7 +117,7 @@ export async function POST(
       updated += 1;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error("[Bread] reindex-embeddings document failed:", doc.id, message);
+      console.error("[Breezify] reindex-embeddings document failed:", doc.id, message);
       errors.push({ id: doc.id, error: message });
       // Advancing through the rest of the workspace cannot succeed while all
       // keys are cooling down. Stop immediately instead of flooding the route

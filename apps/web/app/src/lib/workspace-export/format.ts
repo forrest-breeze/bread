@@ -1,14 +1,14 @@
-import type { WorkspaceSettings } from "@bread/core";
+import type { WorkspaceSettings } from "@breezify/core";
 
 // ---------------------------------------------------------------------------
-// Strict Bread workspace export format.
+// Strict Breezify workspace export format.
 //
 // Only this shape is accepted on import. `format` + `format_version` are the
 // discriminator. Embeddings are intentionally omitted — they are regenerated
 // on import so the workspace stays in whatever vector space is current.
 // ---------------------------------------------------------------------------
 
-export const EXPORT_FORMAT = "bread-workspace-export" as const;
+export const EXPORT_FORMAT = "breezify-workspace-export" as const;
 export const EXPORT_FORMAT_VERSION = 2 as const;
 
 export type ExportScope = "workspace" | "folder";
@@ -130,7 +130,7 @@ function validateDocument(value: unknown, index: number): ExportedDocument {
 }
 
 /**
- * Validates a parsed JSON value against the Bread export format. Throws with
+ * Validates a parsed JSON value against the Breezify export format. Throws with
  * a descriptive message on any deviation. Only accepts the strict shape —
  * third-party JSON dumps will be rejected here.
  */
@@ -140,7 +140,7 @@ export function parseWorkspaceExport(value: unknown): WorkspaceExport {
   }
   if (value.format !== EXPORT_FORMAT) {
     throw new Error(
-      `Not a Bread workspace export (expected format="${EXPORT_FORMAT}")`,
+      `Not a Breezify workspace export (expected format="${EXPORT_FORMAT}")`,
     );
   }
   if (value.format_version !== EXPORT_FORMAT_VERSION) {

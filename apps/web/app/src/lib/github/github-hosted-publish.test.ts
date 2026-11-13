@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { buildBreadGitHubDraft } from "./github-hosted-publish"
+import { buildBreezifyGitHubDraft } from "./github-hosted-publish"
 
-describe("buildBreadGitHubDraft", () => {
-  it("preserves repository frontmatter while replacing the body from Bread", () => {
+describe("buildBreezifyGitHubDraft", () => {
+  it("preserves repository frontmatter while replacing the body from Breezify", () => {
     expect(
-      buildBreadGitHubDraft({
+      buildBreezifyGitHubDraft({
         repositoryContent: [
           "---",
           'title: "Old title"',
@@ -15,17 +15,17 @@ describe("buildBreadGitHubDraft", () => {
           "",
           "<Card>Old MDX body</Card>",
         ].join("\n"),
-        breadTitle: "Bread title",
-        breadMarkdown: "# Bread title\n\nAuthoritative body\n",
+        breezifyTitle: "Breezify title",
+        breezifyMarkdown: "# Breezify title\n\nAuthoritative body\n",
       }),
     ).toBe(
       [
         "---",
-        'title: "Bread title"',
+        'title: "Breezify title"',
         "description: Keep this metadata",
         "---",
         "",
-        "# Bread title",
+        "# Breezify title",
         "",
         "Authoritative body",
         "",
@@ -35,20 +35,20 @@ describe("buildBreadGitHubDraft", () => {
 
   it("does not introduce frontmatter when the repository file has none", () => {
     expect(
-      buildBreadGitHubDraft({
+      buildBreezifyGitHubDraft({
         repositoryContent: "# GitHub title\n\nOld body\n",
-        breadTitle: "Bread title",
-        breadMarkdown: "# Bread title\n\nNew body\n",
+        breezifyTitle: "Breezify title",
+        breezifyMarkdown: "# Breezify title\n\nNew body\n",
       }),
-    ).toBe("# Bread title\n\nNew body\n")
+    ).toBe("# Breezify title\n\nNew body\n")
   })
 
-  it("adds the Bread title to existing frontmatter without a title", () => {
+  it("adds the Breezify title to existing frontmatter without a title", () => {
     expect(
-      buildBreadGitHubDraft({
+      buildBreezifyGitHubDraft({
         repositoryContent: "---\ndescription: Existing\n---\n\nOld body\n",
-        breadTitle: "A: safer title",
-        breadMarkdown: "# A: safer title\n",
+        breezifyTitle: "A: safer title",
+        breezifyMarkdown: "# A: safer title\n",
       }),
     ).toBe(
       '---\ndescription: Existing\ntitle: "A: safer title"\n---\n\n# A: safer title\n',

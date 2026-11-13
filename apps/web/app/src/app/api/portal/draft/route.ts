@@ -57,7 +57,7 @@ function canManage(role: string): boolean {
 function portalEditorPaymentRequired(): NextResponse {
   return NextResponse.json(
     {
-      error: "Portal editor requires a paid plan",
+      error: "The portal editor is not enabled for this workspace",
       message: "This workspace cannot edit and publish portals.",
       code: "payment_required",
     },
@@ -105,7 +105,7 @@ async function buildDraftResponse(
 ): Promise<NextResponse> {
   const validation = validatePortalLayout(draft.spec)
   if (!validation.ok) {
-    console.error("[Bread] portal draft: stored draft invalid:", validation.error)
+    console.error("[Breezify] portal draft: stored draft invalid:", validation.error)
     return NextResponse.json({ error: "Stored draft is invalid" }, { status: 500 })
   }
   const [{ data: rawWorkspaceRow }, taxonomy, documents, divergedFromPublished] =
@@ -190,7 +190,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     )
     return await buildDraftResponse(supabase, workspace.workspace_id, draft)
   } catch (err) {
-    console.error("[Bread] portal draft GET:", err)
+    console.error("[Breezify] portal draft GET:", err)
     return NextResponse.json({ error: "Failed to load draft" }, { status: 500 })
   }
 }
@@ -231,7 +231,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     const draft = await discardDraft(workspace.workspace_id, user.id, projectSlug)
     return await buildDraftResponse(supabase, workspace.workspace_id, draft)
   } catch (err) {
-    console.error("[Bread] portal draft DELETE:", err)
+    console.error("[Breezify] portal draft DELETE:", err)
     return NextResponse.json({ error: "Failed to discard draft" }, { status: 500 })
   }
 }
@@ -302,7 +302,7 @@ export async function PUT(request: Request): Promise<NextResponse> {
     }
     return NextResponse.json(body)
   } catch (err) {
-    console.error("[Bread] portal draft PUT:", err)
+    console.error("[Breezify] portal draft PUT:", err)
     return NextResponse.json({ error: "Failed to save draft" }, { status: 500 })
   }
 }

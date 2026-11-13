@@ -23,7 +23,7 @@ const postBodySchema = z.record(z.string(), z.unknown());
 // ---------------------------------------------------------------------------
 // POST /api/workspace/import
 //
-// Accepts strictly the Bread workspace-export format. Inserts folders + docs
+// Accepts strictly the Breezify workspace-export format. Inserts folders + docs
 // into the active workspace without embeddings; the client follows up with
 // /api/workspace/import/process to backfill sections + embeddings in chunks.
 // Admin or owner role required.
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[Bread] import failed:", message);
+    console.error("[Breezify] import failed:", message);
     // Generic 500 — internal Postgres / PostgREST error messages can leak
     // column names, constraint names, or partial row data.
     return NextResponse.json(

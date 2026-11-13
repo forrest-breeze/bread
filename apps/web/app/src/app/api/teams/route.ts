@@ -35,7 +35,7 @@ export async function GET(): Promise<NextResponse> {
     .order("created_at", { ascending: true });
 
   if (error) {
-    console.error("[Bread] Failed to fetch teams:", error.message);
+    console.error("[Breezify] Failed to fetch teams:", error.message);
     return NextResponse.json({ error: "Failed to fetch teams" }, { status: 500 });
   }
 
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 409 }
       );
     }
-    console.error("[Bread] Failed to create team:", error.message);
+    console.error("[Breezify] Failed to create team:", error.message);
     return NextResponse.json({ error: "Failed to create team" }, { status: 500 });
   }
 
@@ -144,7 +144,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     .eq("workspace_id", membership.workspace_id);
 
   if (error) {
-    console.error("[Bread] Failed to delete team:", error.message);
+    console.error("[Breezify] Failed to delete team:", error.message);
     return NextResponse.json({ error: "Failed to delete team" }, { status: 500 });
   }
 

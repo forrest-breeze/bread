@@ -158,7 +158,7 @@ export function KnowledgeHome(): React.ReactElement {
       void mutate()
       router.push(`/knowledge/${created.id}`)
     } catch (error) {
-      console.error("[Bread] Failed to create document:", error)
+      console.error("[Breezify] Failed to create document:", error)
       setCreateError(true)
       setCreating(false)
     }

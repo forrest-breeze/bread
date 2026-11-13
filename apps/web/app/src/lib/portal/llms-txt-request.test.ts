@@ -121,8 +121,8 @@ describe("resolvePortalPublicUrl", () => {
       resolvePortalPublicUrl(
         headers({
           host: "help.acme.com",
-          "x-bread-portal-host": "help.acme.com",
-          "x-bread-portal-mount-path": "/",
+          "x-breezify-portal-host": "help.acme.com",
+          "x-breezify-portal-mount-path": "/",
         }),
         "acme/help",
       ),
@@ -134,9 +134,9 @@ describe("resolvePortalPublicUrl", () => {
       resolvePortalPublicUrl(
         headers({
           host: "app.example.com",
-          "x-bread-proxy": "cloudflare-worker-v1",
+          "x-breezify-proxy": "cloudflare-worker-v1",
           "x-forwarded-host": "acme.com",
-          "x-bread-base-path": "/help",
+          "x-breezify-base-path": "/help",
         }),
         "acme/help",
       ),

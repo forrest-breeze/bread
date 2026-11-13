@@ -13,7 +13,7 @@ import {
   safeSearchParams,
 } from "@/lib/validation";
 import type { TeamMember } from "@/lib/types";
-import { WorkspaceRole, canManageRole } from "@bread/core";
+import { WorkspaceRole, canManageRole } from "@breezify/core";
 import { requireRouteUser } from "@/lib/auth/route-auth";
 
 const postBodySchema = z.object({
@@ -66,7 +66,7 @@ export async function GET(): Promise<NextResponse> {
     .order("created_at", { ascending: true });
 
   if (error) {
-    console.error("[Bread] Failed to fetch team:", error.message);
+    console.error("[Breezify] Failed to fetch team:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch team" },
       { status: 500 }
@@ -87,7 +87,7 @@ export async function GET(): Promise<NextResponse> {
     : { data: [], error: null };
 
   if (profilesError) {
-    console.error("[Bread] Failed to fetch profiles:", JSON.stringify(profilesError, null, 2));
+    console.error("[Breezify] Failed to fetch profiles:", JSON.stringify(profilesError, null, 2));
   }
 
   const profilesByUserId = new Map(
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (currentMembers >= memberLimit) {
       return NextResponse.json(
         {
-          error: `Your plan is limited to ${memberLimit} active members.`,
+          error: `This workspace is limited to ${memberLimit} active members.`,
           code: "member_limit_reached",
           memberLimit,
         },
@@ -291,7 +291,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single();
 
     if (updateError) {
-      console.error("[Bread] Failed to resend invite:", updateError.message);
+      console.error("[Breezify] Failed to resend invite:", updateError.message);
       return NextResponse.json(
         { error: "Failed to resend invite" },
         { status: 500 }
@@ -319,7 +319,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           { status: 409 }
         );
       }
-      console.error("[Bread] Failed to invite member:", error.message);
+      console.error("[Breezify] Failed to invite member:", error.message);
       return NextResponse.json(
         { error: "Failed to invite member" },
         { status: 500 }
@@ -402,7 +402,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to update member role:", error.message);
+    console.error("[Breezify] Failed to update member role:", error.message);
     return NextResponse.json(
       { error: "Failed to update member role" },
       { status: 500 }
@@ -472,7 +472,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     .eq("workspace_id", userMembership.workspace_id);
 
   if (error) {
-    console.error("[Bread] Failed to remove member:", error.message);
+    console.error("[Breezify] Failed to remove member:", error.message);
     return NextResponse.json(
       { error: "Failed to remove member" },
       { status: 500 }

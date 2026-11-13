@@ -102,7 +102,7 @@ export async function GET(): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to fetch profile:", error.message);
+    console.error("[Breezify] Failed to fetch profile:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch profile" },
       { status: 500 }
@@ -127,7 +127,7 @@ export async function GET(): Promise<NextResponse> {
   const { data: owned, error: ownedError } = await getOwnedWorkspaces(supabase, user.id);
 
   if (ownedError || !owned) {
-    console.error("[Bread] Failed to fetch owned workspaces:", (ownedError as Error | null)?.message);
+    console.error("[Breezify] Failed to fetch owned workspaces:", (ownedError as Error | null)?.message);
     return NextResponse.json(
       { error: "Failed to fetch profile" },
       { status: 500 }
@@ -178,7 +178,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to update profile:", error.message);
+    console.error("[Breezify] Failed to update profile:", error.message);
     return NextResponse.json(
       { error: "Failed to update profile" },
       { status: 500 }
@@ -203,7 +203,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       if (!memberError && memberData) {
         currentRole = memberData.profile_role;
       } else if (memberError) {
-        console.error("[Bread] Failed to update workspace member role:", memberError.message);
+        console.error("[Breezify] Failed to update workspace member role:", memberError.message);
       }
     }
   }
@@ -211,7 +211,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   const { data: owned, error: ownedError } = await getOwnedWorkspaces(supabase, user.id);
 
   if (ownedError || !owned) {
-    console.error("[Bread] Failed to fetch owned workspaces:", (ownedError as Error | null)?.message);
+    console.error("[Breezify] Failed to fetch owned workspaces:", (ownedError as Error | null)?.message);
     return NextResponse.json(
       { error: "Failed to update profile" },
       { status: 500 }
@@ -244,7 +244,7 @@ export async function DELETE(): Promise<NextResponse> {
   const { data: owned, error: ownedError } = await getOwnedWorkspaces(supabase, user.id);
 
   if (ownedError || !owned) {
-    console.error("[Bread] Failed to fetch owned workspaces:", (ownedError as Error | null)?.message);
+    console.error("[Breezify] Failed to fetch owned workspaces:", (ownedError as Error | null)?.message);
     return NextResponse.json(
       { error: "Failed to validate account deletion" },
       { status: 500 }
@@ -274,7 +274,7 @@ export async function DELETE(): Promise<NextResponse> {
   const { error: authDeleteError } = await admin.auth.admin.deleteUser(user.id);
 
   if (authDeleteError) {
-    console.error("[Bread] Failed to delete auth user:", authDeleteError.message);
+    console.error("[Breezify] Failed to delete auth user:", authDeleteError.message);
     return NextResponse.json(
       { error: "Failed to delete account" },
       { status: 500 }
@@ -295,7 +295,7 @@ export async function DELETE(): Promise<NextResponse> {
       // the client finishes sign-out cleanly. Any workspace left behind
       // because someone joined in the gap is recoverable.
       console.error(
-        "[Bread] Failed to sweep orphaned workspaces after account deletion:",
+        "[Breezify] Failed to sweep orphaned workspaces after account deletion:",
         sweepError.message,
       );
     }

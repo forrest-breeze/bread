@@ -412,10 +412,10 @@ a.btn-primary {
 }
 
 /* ── Tiptap / ProseMirror Editor ──────────────────────────────────── */
-/* .bread-editor IS the .ProseMirror element (same div), so all child
-   selectors go directly off .bread-editor — no .ProseMirror nesting. */
+/* .breezify-editor IS the .ProseMirror element (same div), so all child
+   selectors go directly off .breezify-editor — no .ProseMirror nesting. */
 
-.bread-editor {
+.breezify-editor {
   min-height: 60vh;
   outline: none;
 }
@@ -423,7 +423,7 @@ a.btn-primary {
 /* Inline change highlighting (proposal review): added text is tinted green,
    removed text is shown struck-through red at the spot it was deleted, so a
    proposal's edits read like tracked changes while editing in place. */
-.bread-editor .diff-added {
+.breezify-editor .diff-added {
   background-color: rgba(16, 185, 129, 0.25);
   box-shadow: 0 -1px 0 rgba(16, 185, 129, 0.5) inset;
   border-radius: 0.2rem;
@@ -432,7 +432,7 @@ a.btn-primary {
   padding: 0.05rem 0.1rem;
 }
 
-.bread-editor .diff-deleted {
+.breezify-editor .diff-deleted {
   color: rgb(220, 38, 38);
   background-color: rgba(239, 68, 68, 0.12);
   text-decoration: line-through;
@@ -444,7 +444,7 @@ a.btn-primary {
 }
 
 /* Placeholder */
-.bread-editor [data-placeholder]::before {
+.breezify-editor [data-placeholder]::before {
   color: var(--muted-foreground);
   opacity: 0.4;
   content: attr(data-placeholder);
@@ -456,27 +456,27 @@ a.btn-primary {
 /* Inside the portal builder's preview frame a document is always editable in
    place, so editable regions carry Notion-style cues: a faint wash on the
    hovered block and the text cursor, alongside the grey placeholder text. */
-[data-preview-editor] .bread-editor[contenteditable="true"] {
+[data-preview-editor] .breezify-editor[contenteditable="true"] {
   cursor: text;
 }
 
-[data-preview-editor] .bread-editor[contenteditable="true"] > * {
+[data-preview-editor] .breezify-editor[contenteditable="true"] > * {
   border-radius: 0.25rem;
   transition: background-color 120ms ease;
 }
 
-[data-preview-editor] .bread-editor[contenteditable="true"] > *:not(pre):not(.mermaid-diagram-wrapper):hover {
+[data-preview-editor] .breezify-editor[contenteditable="true"] > *:not(pre):not(.mermaid-diagram-wrapper):hover {
   background-color: color-mix(in oklab, var(--muted) 55%, transparent);
   box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--muted) 55%, transparent);
 }
 
-[data-preview-editor] .bread-editor[contenteditable="true"] [data-placeholder]::before {
+[data-preview-editor] .breezify-editor[contenteditable="true"] [data-placeholder]::before {
   opacity: 0.55;
 }
 
 /* ── Typography ── */
 
-.bread-editor p {
+.breezify-editor p {
   margin: 0.5rem 0;
   line-height: 1.7;
   font-size: 0.875rem;
@@ -484,7 +484,7 @@ a.btn-primary {
   opacity: 0.9;
 }
 
-.bread-editor h1 {
+.breezify-editor h1 {
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -492,7 +492,7 @@ a.btn-primary {
   line-height: 1.3;
 }
 
-.bread-editor h2 {
+.breezify-editor h2 {
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -500,7 +500,7 @@ a.btn-primary {
   line-height: 1.35;
 }
 
-.bread-editor h3 {
+.breezify-editor h3 {
   font-size: 1.05rem;
   font-weight: 600;
   margin: 1rem 0 0.25rem;
@@ -508,60 +508,60 @@ a.btn-primary {
 }
 
 /* First child has no top margin */
-.bread-editor > :first-child {
+.breezify-editor > :first-child {
   margin-top: 0;
 }
 
 /* ── Lists ── */
 
-.bread-editor ul,
-.bread-editor ol {
+.breezify-editor ul,
+.breezify-editor ol {
   padding-left: 1.5rem;
   margin: 0.5rem 0;
 }
 
-.bread-editor ul {
+.breezify-editor ul {
   list-style-type: disc;
 }
 
-.bread-editor ol {
+.breezify-editor ol {
   list-style-type: decimal;
 }
 
-.bread-editor li {
+.breezify-editor li {
   margin: 0.125rem 0;
   font-size: 0.875rem;
   line-height: 1.7;
 }
 
-.bread-editor li p {
+.breezify-editor li p {
   margin: 0;
 }
 
 /* ── Task lists ── */
 
-.bread-editor ul[data-type="taskList"] {
+.breezify-editor ul[data-type="taskList"] {
   list-style: none;
   padding-left: 0;
 }
 
-.bread-editor ul[data-type="taskList"] li {
+.breezify-editor ul[data-type="taskList"] li {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
 }
 
-.bread-editor ul[data-type="taskList"] li > label {
+.breezify-editor ul[data-type="taskList"] li > label {
   flex: 0 0 auto;
   user-select: none;
   margin-top: 0.2rem;
 }
 
-.bread-editor ul[data-type="taskList"] li > div {
+.breezify-editor ul[data-type="taskList"] li > div {
   flex: 1 1 auto;
 }
 
-.bread-editor ul[data-type="taskList"] input[type="checkbox"] {
+.breezify-editor ul[data-type="taskList"] input[type="checkbox"] {
   cursor: pointer;
   width: 0.875rem;
   height: 0.875rem;
@@ -571,7 +571,7 @@ a.btn-primary {
 
 /* ── Inline code ── */
 
-.bread-editor code {
+.breezify-editor code {
   font-family: var(--font-mono);
   font-size: 0.8em;
   padding: 0.15em 0.35em;
@@ -582,7 +582,7 @@ a.btn-primary {
 
 /* ── Code blocks ── */
 
-.bread-editor pre {
+.breezify-editor pre {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1.6;
@@ -595,7 +595,7 @@ a.btn-primary {
   border: 1px solid var(--border);
 }
 
-.bread-editor pre code {
+.breezify-editor pre code {
   color: inherit;
   background: none;
   padding: 0;
@@ -605,21 +605,21 @@ a.btn-primary {
 
 /* ── Blockquote ── */
 
-.bread-editor blockquote {
+.breezify-editor blockquote {
   border-left: 2px solid var(--border);
   padding-left: 1rem;
   margin: 0.75rem 0;
   color: var(--muted-foreground);
 }
 
-.bread-editor blockquote p {
+.breezify-editor blockquote p {
   color: var(--muted-foreground);
   opacity: 1;
 }
 
 /* ── Links ── */
 
-.bread-editor a {
+.breezify-editor a {
   color: var(--primary);
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -627,13 +627,13 @@ a.btn-primary {
   transition: opacity 0.15s;
 }
 
-.bread-editor a:hover {
+.breezify-editor a:hover {
   opacity: 0.8;
 }
 
 /* ── Horizontal rule ── */
 
-.bread-editor hr {
+.breezify-editor hr {
   border: none;
   border-top: 1px solid var(--border);
   margin: 1.5rem 0;
@@ -641,8 +641,8 @@ a.btn-primary {
 
 /* ── S3-backed media ── */
 
-.bread-editor img,
-.bread-editor video {
+.breezify-editor img,
+.breezify-editor video {
   display: block;
   width: auto;
   max-width: 100%;
@@ -653,22 +653,22 @@ a.btn-primary {
   background: var(--muted);
 }
 
-.bread-editor video {
+.breezify-editor video {
   width: 100%;
   min-height: 12rem;
   max-height: 70vh;
   background: #000;
 }
 
-.bread-editor img.ProseMirror-selectednode,
-.bread-editor video.ProseMirror-selectednode {
+.breezify-editor img.ProseMirror-selectednode,
+.breezify-editor video.ProseMirror-selectednode {
   outline: 2px solid var(--primary);
   outline-offset: 3px;
 }
 
 /* ── Marks ── */
 
-.bread-editor mark {
+.breezify-editor mark {
   background-color: oklch(0.9 0.08 90);
   padding: 0.05em 0.15em;
   border-radius: 2px;
@@ -676,7 +676,7 @@ a.btn-primary {
 
 /* ── Tables ── */
 
-.bread-editor table {
+.breezify-editor table {
   width: 100%;
   margin: 1rem 0;
   border-collapse: collapse;
@@ -685,8 +685,8 @@ a.btn-primary {
   overflow-x: auto;
 }
 
-.bread-editor th,
-.bread-editor td {
+.breezify-editor th,
+.breezify-editor td {
   position: relative;
   min-width: 4rem;
   border: 1px solid var(--border);
@@ -695,35 +695,35 @@ a.btn-primary {
   vertical-align: top;
 }
 
-.bread-editor th > p,
-.bread-editor td > p {
+.breezify-editor th > p,
+.breezify-editor td > p {
   margin: 0;
 }
 
-.bread-editor th {
+.breezify-editor th {
   background: var(--muted);
   font-weight: 600;
 }
 
-.bread-editor tbody tr:nth-child(even) {
+.breezify-editor tbody tr:nth-child(even) {
   background: color-mix(in oklch, var(--muted) 40%, transparent);
 }
 
 /* Editing affordances (Tiptap table nodes). The editor view wraps each
    <table> in .tableWrapper; stored HTML on the read-only surfaces has the
    bare <table>, which keeps the display:block + overflow-x rule above. */
-.bread-editor .tableWrapper {
+.breezify-editor .tableWrapper {
   margin: 1rem 0;
   overflow-x: auto;
 }
 
-.bread-editor .tableWrapper table {
+.breezify-editor .tableWrapper table {
   display: table;
   margin: 0;
   table-layout: fixed;
 }
 
-.bread-editor .selectedCell::after {
+.breezify-editor .selectedCell::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -1002,12 +1002,12 @@ a.btn-primary {
 
 /* ── Dark mode overrides ── */
 
-.dark .bread-editor pre {
+.dark .breezify-editor pre {
   background: oklch(0.12 0 0);
   border-color: oklch(1 0 0 / 8%);
 }
 
-.dark .bread-editor mark {
+.dark .breezify-editor mark {
   background-color: oklch(0.4 0.08 60);
   color: oklch(0.95 0.03 90);
 }

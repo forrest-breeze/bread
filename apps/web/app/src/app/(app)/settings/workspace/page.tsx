@@ -47,7 +47,7 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { useWorkspace, useWorkspaces } from "@/hooks/swr"
 import { useHasHydrated } from "@/hooks/use-has-hydrated"
-import { type IngestionApprovalMode, type WorkspaceRole } from "@bread/core"
+import { type IngestionApprovalMode, type WorkspaceRole } from "@breezify/core"
 
 export default function WorkspacePage() {
   const hasHydrated = useHasHydrated()

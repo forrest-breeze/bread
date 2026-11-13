@@ -4,8 +4,8 @@ import yaml from 'js-yaml'
  * YAML frontmatter for the ReadMe repository format.
  *
  * ReadMe pages carry nested frontmatter (`metadata.title`, `next.pages`,
- * `api.file`, `link.url`, ...). Bread only interprets a few keys, but every
- * key is parsed and kept so a page edited in Bread is written back with the
+ * `api.file`, `link.url`, ...). Breezify only interprets a few keys, but every
+ * key is parsed and kept so a page edited in Breezify is written back with the
  * rest of its frontmatter intact.
  *
  * The core schema is used on purpose: it has no timestamp type, so
@@ -128,7 +128,7 @@ export function frontmatterSlug(frontmatter: ReadmeFrontmatter): string | null {
 
 /**
  * An API reference stub: a page whose content is generated from an operation
- * (or webhook) in an OpenAPI file. Bread generates these pages from the spec
+ * (or webhook) in an OpenAPI file. Breezify generates these pages from the spec
  * itself, so stubs are left alone in the repository and not imported.
  */
 export function isApiReferenceStub(frontmatter: ReadmeFrontmatter): boolean {
@@ -155,8 +155,8 @@ export function frontmatterDate(frontmatter: ReadmeFrontmatter): string | null {
 }
 
 /**
- * The frontmatter to write for a page edited in Bread. Everything the author
- * had is kept; only the fields Bread owns (title, hidden, changelog date) are
+ * The frontmatter to write for a page edited in Breezify. Everything the author
+ * had is kept; only the fields Breezify owns (title, hidden, changelog date) are
  * replaced, and each only when its value actually differs.
  */
 export function mergeReadmeFrontmatter(input: {

@@ -1,6 +1,6 @@
 # Supabase
 
-Database schema for the Breeze build (Bread). Hosted project ref: `jzpefsnshwsvxveavviz`.
+Database schema for the Breeze build (Breezify). Hosted project ref: `jzpefsnshwsvxveavviz`.
 
 ## Layout
 

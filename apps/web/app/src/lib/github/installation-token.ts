@@ -28,7 +28,7 @@ export async function getInstallationTokenCached(
 export function __resetInstallationTokenCacheForTests(): void {
   if (process.env.NODE_ENV === "production") {
     throw new Error(
-      "[Bread] __resetInstallationTokenCacheForTests is a test-only seam and must not be called in production",
+      "[Breezify] __resetInstallationTokenCacheForTests is a test-only seam and must not be called in production",
     );
   }
   __resetTokenCacheForTests();

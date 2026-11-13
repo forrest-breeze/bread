@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server"
 
-const LOCAL_URL_BASE = "https://bread.local"
+const LOCAL_URL_BASE = "https://breezify.local"
 const ALLOWED_RETURN_PATHS = ["/settings", "/knowledge", "/kb"]
 
 export function sanitizeOAuthReturnPath(

@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest"
 import { TiptapEditor, type TiptapEditorRef } from "./tiptap-editor"
 
 const placeholders = () =>
-  Array.from(document.querySelectorAll(".bread-editor [data-placeholder]")).filter(
+  Array.from(document.querySelectorAll(".breezify-editor [data-placeholder]")).filter(
     (el) => el.getAttribute("data-placeholder"),
   )
 

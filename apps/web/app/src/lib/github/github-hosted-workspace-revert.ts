@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import type { GitHubBootstrapFile } from './github-hosted-bootstrap'
 import type { PublishDiffFile } from './github-hosted-workspace-publish'
 import {
@@ -101,7 +101,7 @@ async function moveAddedDocumentToTrash(
   if (error) throw new Error(`workspace revert trash update: ${error.message}`)
   if (!data) {
     throw new HostedWorkspaceRevertError(
-      'The Bread document changed while it was being reverted. Refresh the Changes view and try again.',
+      'The Breezify document changed while it was being reverted. Refresh the Changes view and try again.',
       409,
       'document_changed',
       { document_id: document.id },
@@ -110,7 +110,7 @@ async function moveAddedDocumentToTrash(
 }
 
 /**
- * Make selected Bread files match the exact GitHub comparison head. Added
+ * Make selected Breezify files match the exact GitHub comparison head. Added
  * files move to trash; modified/removed files are atomically restored with a
  * version snapshot and expected-head protection.
  */
@@ -186,7 +186,7 @@ export async function revertHostedWorkspaceChanges(
       )
       if (!document || document.deleted_at) {
         throw new HostedWorkspaceRevertError(
-          `${path} no longer maps to an editable Bread document.`,
+          `${path} no longer maps to an editable Breezify document.`,
           409,
           'document_not_found',
           { path },
@@ -218,11 +218,11 @@ export async function revertHostedWorkspaceChanges(
             exportedFile.documentId,
           )
         : null) ??
-      (parsed.breadDocumentId
+      (parsed.breezifyDocumentId
         ? await loadDocumentById(
             admin,
             input.workspaceId,
-            parsed.breadDocumentId,
+            parsed.breezifyDocumentId,
           )
         : null) ??
       (await loadDocumentByCanonicalPath(
@@ -232,7 +232,7 @@ export async function revertHostedWorkspaceChanges(
       ))
     if (!document) {
       throw new HostedWorkspaceRevertError(
-        `${path} no longer maps to a Bread document that can be restored.`,
+        `${path} no longer maps to a Breezify document that can be restored.`,
         409,
         'document_not_found',
         { path },
@@ -250,8 +250,8 @@ export async function revertHostedWorkspaceChanges(
         sourceMetadataPatch: {
           kind: 'github_hosted_document',
           canonical_repo_path: path,
-          ...(parsed.breadDocumentId
-            ? { bread_document_id: parsed.breadDocumentId }
+          ...(parsed.breezifyDocumentId
+            ? { breezify_document_id: parsed.breezifyDocumentId }
             : {}),
           ...(parsed.date ? { published_date: parsed.date } : {}),
           github_hosted_sync: true,
@@ -260,7 +260,7 @@ export async function revertHostedWorkspaceChanges(
           github_hosted_pending_content_hash: null,
           github_hosted_pending_commit_sha: null,
           github_hosted_checkpoint_blob_sha: file.previousBlobSha,
-          github_hosted_checkpoint_mode: 'replace_bread',
+          github_hosted_checkpoint_mode: 'replace_breezify',
           repo_id: input.source.repo_id,
           repo_full_name: input.source.repo_full_name,
           path,
@@ -271,7 +271,7 @@ export async function revertHostedWorkspaceChanges(
     } catch (error) {
       if (error instanceof GitHubHostedDocumentChangedError) {
         throw new HostedWorkspaceRevertError(
-          'The Bread document changed while it was being reverted. Refresh the Changes view and try again.',
+          'The Breezify document changed while it was being reverted. Refresh the Changes view and try again.',
           409,
           'document_changed',
           { document_id: document.id, path },
@@ -302,7 +302,7 @@ export async function revertHostedWorkspaceChanges(
     })
     .is('deleted_at', null)
   if (conflictCountError) {
-    console.error('[Bread] workspace revert conflict recount failed:', conflictCountError)
+    console.error('[Breezify] workspace revert conflict recount failed:', conflictCountError)
   } else {
     const { error: sourceError } = await admin
       .from('github_hosted_docs_sources')
@@ -310,7 +310,7 @@ export async function revertHostedWorkspaceChanges(
       .eq('id', input.source.id)
       .eq('workspace_id', input.workspaceId)
     if (sourceError) {
-      console.error('[Bread] workspace revert source update failed:', sourceError)
+      console.error('[Breezify] workspace revert source update failed:', sourceError)
     }
   }
 

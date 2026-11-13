@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-// The Bread brand glyphs lead the catalog (they're what generated portals
+// The Breezify brand glyphs lead the catalog (they're what generated portals
 // ship with and they render duotone, not stock); the full lucide set is the
 // searchable long tail. Both resolve identically on the portal side.
 const GLYPH_NAMES = Object.keys(PORTAL_GLYPHS)
@@ -73,7 +73,7 @@ interface FolderIconGridProps {
 
 /**
  * Searchable icon catalog + "Automatic" reset shared by every folder-icon
- * surface (header popover, sidebar context menu). No query shows the Bread
+ * surface (header popover, sidebar context menu). No query shows the Breezify
  * glyph set; typing searches the full lucide catalog too. Selection is
  * delegated — the host closes its own popover/menu.
  */
@@ -131,7 +131,7 @@ export function FolderIconGrid({
       )}
       {!searching && (
         <div className="mt-1 px-1 text-[11px] text-muted-foreground/70">
-          Bread set — search for the full catalog.
+          Breezify set — search for the full catalog.
         </div>
       )}
       <button

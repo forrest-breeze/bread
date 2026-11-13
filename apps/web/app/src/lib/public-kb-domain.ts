@@ -160,7 +160,7 @@ export async function resolveCustomDomainSlug(
       row &&
       row.settings?.kb_public === true &&
       row.settings?.portal_address_scope !== "project" &&
-      row.settings?.portal_address_mode !== "bread"
+      row.settings?.portal_address_mode !== "breezify"
         ? row.slug
         : null
 

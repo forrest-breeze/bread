@@ -99,7 +99,7 @@ export async function updateSession(request: NextRequest) {
     } catch (err) {
       authUnavailable = isTransientAuthFailure(err);
       console.warn(
-        "[Bread] proxy auth check unavailable:",
+        "[Breezify] proxy auth check unavailable:",
         err,
       );
     }

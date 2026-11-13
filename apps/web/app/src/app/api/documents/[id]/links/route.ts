@@ -86,7 +86,7 @@ export async function GET(
 
     if (outboundRes.error || inboundRes.error) {
       console.error(
-        "[Bread] Failed to load document links:",
+        "[Breezify] Failed to load document links:",
         outboundRes.error?.message ?? inboundRes.error?.message,
       );
       return NextResponse.json(
@@ -123,7 +123,7 @@ export async function GET(
         .in("id", referencedIds);
 
       if (docsErr) {
-        console.error("[Bread] Failed to resolve linked documents:", docsErr.message);
+        console.error("[Breezify] Failed to resolve linked documents:", docsErr.message);
         return NextResponse.json(
           { error: "Failed to load document links" },
           { status: 500 },
@@ -165,7 +165,7 @@ export async function GET(
     const payload: DocumentLinksResponse = { outbound, inbound };
     return NextResponse.json(payload);
   } catch (err) {
-    console.error("[Bread] Failed to load document links:", err);
+    console.error("[Breezify] Failed to load document links:", err);
     return NextResponse.json(
       { error: "Failed to load document links" },
       { status: 500 },

@@ -16,7 +16,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
-import type { MonitoredRepoRow } from '@bread/core'
+import type { MonitoredRepoRow } from '@breezify/core'
 
 // ---------------------------------------------------------------------------
 // Module mocks
@@ -393,7 +393,7 @@ describe('POST /api/github/repos', () => {
     const body = await res.json()
 
     expect(res.status).toBe(402)
-    expect(body.error).toContain('paid plan')
+    expect(body.error).toContain('not enabled for this workspace')
   })
 
   it('returns 400 when repo_full_name is in wrong format', async () => {

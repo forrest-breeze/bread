@@ -20,8 +20,8 @@ export const DEFAULT_DOCUMENT_NAV_SORT_MODE: DocumentNavSortMode = "alphabetical
  */
 export const DEFAULT_BUILDER_DOCUMENT_SORT_MODE: DocumentNavSortMode = "custom"
 
-const STORAGE_KEY = "bread-doc-nav-sort-mode"
-const BUILDER_STORAGE_KEY = "bread-kb-builder-doc-sort-mode"
+const STORAGE_KEY = "breezify-doc-nav-sort-mode"
+const BUILDER_STORAGE_KEY = "breezify-kb-builder-doc-sort-mode"
 
 function isDocumentNavSortMode(value: string | null): value is DocumentNavSortMode {
   return DOCUMENT_NAV_SORT_OPTIONS.some((option) => option.value === value)
@@ -55,7 +55,7 @@ export function setStoredBuilderDocumentSortMode(mode: DocumentNavSortMode): voi
   window.localStorage.setItem(BUILDER_STORAGE_KEY, mode)
 }
 
-const OPEN_FOLDERS_STORAGE_KEY = "bread-doc-nav-open-folders"
+const OPEN_FOLDERS_STORAGE_KEY = "breezify-doc-nav-open-folders"
 
 export function getStoredOpenFolderIds(): Set<string> {
   if (typeof window === "undefined") return new Set()

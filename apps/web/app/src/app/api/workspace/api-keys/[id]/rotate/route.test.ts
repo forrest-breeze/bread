@@ -59,7 +59,7 @@ function mockUpdate(result: { data: unknown; error: unknown }) {
 describe("POST /api/workspace/api-keys/:id/rotate", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.BREAD_TOKEN_ENC_KEY = Buffer.alloc(32, 5).toString("base64")
+    process.env.BREEZIFY_TOKEN_ENC_KEY = Buffer.alloc(32, 5).toString("base64")
   })
 
   it("returns 401 when unauthenticated", async () => {

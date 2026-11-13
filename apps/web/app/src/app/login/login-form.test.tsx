@@ -71,7 +71,7 @@ describe('LoginForm OAuth', () => {
   });
 
   it.skipIf(!GOOGLE_SIGN_IN_ENABLED)('starts Google OAuth with the shared auth callback and preserves an invite return', async () => {
-    window.sessionStorage.setItem('bread:pending-invite', 'invite-code');
+    window.sessionStorage.setItem('breezify:pending-invite', 'invite-code');
     render(<LoginForm next="/dashboard" privatePortalLogin={false} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Continue with Google' }));
@@ -86,8 +86,8 @@ describe('LoginForm OAuth', () => {
         },
       });
     });
-    expect(window.localStorage.getItem('bread:last-login-method')).toBe('google');
-    expect(window.sessionStorage.getItem('bread:pending-invite')).toBeNull();
+    expect(window.localStorage.getItem('breezify:last-login-method')).toBe('google');
+    expect(window.sessionStorage.getItem('breezify:pending-invite')).toBeNull();
   });
 
   it.skipIf(!GOOGLE_SIGN_IN_ENABLED)('keeps the Google account chooser behavior', async () => {
@@ -116,7 +116,7 @@ describe('LoginForm OAuth', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Continue with Google' }));
 
     expect(await screen.findByText('Google sign-in is not enabled')).toBeInTheDocument();
-    expect(window.localStorage.getItem('bread:last-login-method')).toBeNull();
+    expect(window.localStorage.getItem('breezify:last-login-method')).toBeNull();
     expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
   });
 });

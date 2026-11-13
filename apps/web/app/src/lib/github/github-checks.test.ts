@@ -28,16 +28,16 @@ afterEach(() => {
 describe('createGitHubCheckRun', () => {
   it('posts the complete check-run input and returns GitHub output', async () => {
     const input: CreateGitHubCheckRunInput = {
-      name: 'Validate Bread docs',
+      name: 'Validate Breezify docs',
       head_sha: 'abc123',
-      external_id: 'bread-docs:123:abc123',
+      external_id: 'breezify-docs:123:abc123',
       status: 'completed',
       details_url: 'https://app.example.dev/checks/abc123',
       started_at: '2026-08-19T12:00:00Z',
       completed_at: '2026-08-19T12:00:02Z',
       conclusion: 'failure',
       output: {
-        title: 'Bread document validation failed',
+        title: 'Breezify document validation failed',
         summary: 'One document needs attention.',
         text: 'Fix the annotated document and push again.',
         annotations: [{
@@ -47,8 +47,8 @@ describe('createGitHubCheckRun', () => {
           start_column: 1,
           end_column: 3,
           annotation_level: 'failure',
-          message: 'Document must start with Bread frontmatter.',
-          title: 'Invalid Bread document',
+          message: 'Document must start with Breezify frontmatter.',
+          title: 'Invalid Breezify document',
           raw_details: 'Expected an opening --- delimiter.',
         }],
       },
@@ -87,7 +87,7 @@ describe('createGitHubCheckRun', () => {
     } as Response))
 
     const error = await createGitHubCheckRun(TOKEN, REPO, {
-      name: 'Validate Bread docs',
+      name: 'Validate Breezify docs',
       head_sha: 'abc123',
       status: 'queued',
     }).catch((caught: unknown) => caught)
@@ -111,8 +111,8 @@ describe('updateGitHubCheckRun', () => {
       completed_at: '2026-08-19T12:00:02Z',
       details_url: 'https://app.example.dev/checks/abc123',
       output: {
-        title: 'Bread documents are valid',
-        summary: 'All 12 Bread documents passed validation.',
+        title: 'Breezify documents are valid',
+        summary: 'All 12 Breezify documents passed validation.',
       },
     }
     const response: GitHubCheckRun = {

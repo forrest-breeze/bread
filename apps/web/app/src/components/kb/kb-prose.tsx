@@ -15,7 +15,7 @@ interface KbProseProps {
 
 /**
  * Read-only document body renderer for the knowledge-base portal. Renders the
- * stored (sanitized) HTML using the shared `.bread-editor` typography, then
+ * stored (sanitized) HTML using the shared `.breezify-editor` typography, then
  * upgrades any LaTeX nodes via KaTeX — the consumption-side counterpart to the
  * editor's `RichContentPreview`, minus the bordered ScrollArea chrome so the
  * page itself scrolls.
@@ -48,7 +48,7 @@ export const KbProse = forwardRef<HTMLDivElement, KbProseProps>(
       <div
         ref={setRefs}
         data-mermaid-host=""
-        className={cn("bread-editor", className)}
+        className={cn("breezify-editor", className)}
         dangerouslySetInnerHTML={{ __html: renderDocumentHtml(content) }}
       />
     )

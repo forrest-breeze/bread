@@ -26,7 +26,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
   }
   if (!(await isWorkspaceOnPaidTier(workspace.workspace_id))) {
     return NextResponse.json(
-      { error: 'Integrations require a paid plan.' },
+      { error: 'Integrations are not enabled for this workspace.' },
       { status: 402 },
     )
   }
@@ -40,7 +40,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(result)
   } catch (err) {
-    console.error('[Bread] POST /api/github/sweep/manual failed:', err)
+    console.error('[Breezify] POST /api/github/sweep/manual failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 503 },

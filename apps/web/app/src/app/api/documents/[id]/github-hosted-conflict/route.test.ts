@@ -44,7 +44,7 @@ vi.mock("@/lib/github/github-hosted-docs", () => ({
 vi.mock("@/lib/github/github-hosted-document-update", () => {
   class GitHubHostedDocumentChangedError extends Error {
     constructor() {
-      super("The Bread document changed while GitHub content was being applied.")
+      super("The Breezify document changed while GitHub content was being applied.")
       this.name = "GitHubHostedDocumentChangedError"
     }
   }
@@ -67,7 +67,7 @@ const DOCUMENT_ID = "550e8400-e29b-41d4-a716-446655440000"
 const WORKSPACE_ID = "650e8400-e29b-41d4-a716-446655440000"
 const REPOSITORY_DOCUMENT_ID = "750e8400-e29b-41d4-a716-446655440000"
 const REPO_ID = 1185697075
-const CANONICAL_PATH = "docs/bread-docs/getting-started.mdx"
+const CANONICAL_PATH = "docs/breezify-docs/getting-started.mdx"
 
 function queryBuilder(result: Record<string, unknown>) {
   const builder: Record<string, ReturnType<typeof vi.fn>> = {}
@@ -104,7 +104,7 @@ describe("POST /api/documents/[id]/github-hosted-conflict", () => {
     mocks.getGitHubState.mockResolvedValue({
       repository_content: "# Repository version\n",
       repository: {
-        repo_full_name: "bread-ai/bread",
+        repo_full_name: "breezify-ai/breezify",
         deploy_branch: "main",
         commit_sha: "abc123",
         blob_sha: "blob123",
@@ -125,7 +125,7 @@ describe("POST /api/documents/[id]/github-hosted-conflict", () => {
       data: {
         id: DOCUMENT_ID,
         title: "Getting started",
-        content: "# Previous Bread version\n",
+        content: "# Previous Breezify version\n",
         source_metadata: {
           kind: "github_hosted_document",
           canonical_repo_path: CANONICAL_PATH,
@@ -179,7 +179,7 @@ describe("POST /api/documents/[id]/github-hosted-conflict", () => {
         documentId: DOCUMENT_ID,
         workspaceId: WORKSPACE_ID,
         expectedTitle: "Getting started",
-        expectedContent: "# Previous Bread version\n",
+        expectedContent: "# Previous Breezify version\n",
         title: "Getting started",
         content: "# Current GitHub version\n",
         requireConflict: true,
@@ -193,7 +193,7 @@ describe("POST /api/documents/[id]/github-hosted-conflict", () => {
           github_hosted_checkpoint_blob_sha: "blob123",
           github_hosted_checkpoint_mode: "merge",
           repo_id: REPO_ID,
-          repo_full_name: "bread-ai/bread",
+          repo_full_name: "breezify-ai/breezify",
           path: CANONICAL_PATH,
           ref: "main",
           commit_sha: "abc123",
@@ -237,7 +237,7 @@ describe("POST /api/documents/[id]/github-hosted-conflict", () => {
       expect.anything(),
       expect.objectContaining({
         expectedTitle: "Getting started",
-        expectedContent: "# Previous Bread version\n",
+        expectedContent: "# Previous Breezify version\n",
         content: "# Current GitHub version\n",
         requireConflict: true,
       }),

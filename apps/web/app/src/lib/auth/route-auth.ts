@@ -107,7 +107,7 @@ export async function requireRouteUser(
       response: null,
     };
   } catch (err) {
-    console.warn("[Bread] route auth check failed transiently:", err);
+    console.warn("[Breezify] route auth check failed transiently:", err);
     return {
       user: null,
       response: NextResponse.json(

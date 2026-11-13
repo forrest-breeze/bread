@@ -6,14 +6,14 @@ export function portalLanguagePreferenceKey(
   portal: string,
   preview: boolean,
 ): string {
-  return `bread-portal-language:${preview ? "preview:" : ""}${portal}`
+  return `breezify-portal-language:${preview ? "preview:" : ""}${portal}`
 }
 
 export function portalLanguageCookieName(
   portal: string,
   preview: boolean,
 ): string {
-  return `bread_portal_language_${encodeURIComponent(
+  return `breezify_portal_language_${encodeURIComponent(
     `${preview ? "preview:" : ""}${portal}`,
   )}`
 }

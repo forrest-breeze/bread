@@ -61,11 +61,11 @@ export const PageBreak = Node.create({
       "div",
       mergeAttributes(HTMLAttributes, {
         "data-type": "page-break",
-        class: "bread-page-break",
+        class: "breezify-page-break",
       }),
       [
         "span",
-        { class: "bread-page-break__label", contenteditable: "false" },
+        { class: "breezify-page-break__label", contenteditable: "false" },
         name || "New page",
       ],
     ]

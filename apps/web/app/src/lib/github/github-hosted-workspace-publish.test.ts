@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import type {
   GitHubRepositoryCommit,
   GitHubRepositoryTree,
@@ -14,7 +14,7 @@ import {
 } from './github-hosted-workspace-publish'
 
 const targetPath = 'docs'
-const branch = 'bread/docs-docs-workspace-test'
+const branch = 'breezify/docs-docs-workspace-test'
 
 function source(
   overrides: Partial<GitHubHostedDocsSourceRow> = {},
@@ -224,12 +224,12 @@ describe('hosted workspace publish', () => {
     })
     deps.getBranchReference.mockResolvedValue({
       ref: `refs/heads/${branch}`,
-      object: { type: 'commit', sha: 'prior-bread-sha' },
+      object: { type: 'commit', sha: 'prior-breezify-sha' },
     })
     deps.getCommit.mockImplementation(async (_token, _repo, ref) =>
       ref === 'main'
         ? commit('base-sha', 'base-tree')
-        : commit('prior-bread-sha', 'branch-tree'),
+        : commit('prior-breezify-sha', 'branch-tree'),
     )
     deps.getTree.mockImplementation(async (_token, _repo, sha) =>
       sha === 'branch-tree'
@@ -242,7 +242,7 @@ describe('hosted workspace publish', () => {
         source: source({
           publish_pull_request_number: 17,
           publish_pull_request_url: 'https://github.com/acme/docs/pull/17',
-          publish_last_commit_sha: 'prior-bread-sha',
+          publish_last_commit_sha: 'prior-breezify-sha',
         }),
         files: [{ documentId: 'one', path: 'docs/setup.md', content: 'new\n' }],
         managedPaths: [],
@@ -329,7 +329,7 @@ describe('hosted workspace publish', () => {
           source: source({
             publish_pull_request_number: 17,
             publish_pull_request_url: 'https://github.com/acme/docs/pull/17',
-            publish_last_commit_sha: 'prior-bread-sha',
+            publish_last_commit_sha: 'prior-breezify-sha',
           }),
           files: [{ documentId: 'one', path: 'docs/setup.md', content: 'new\n' }],
           managedPaths: [],
@@ -473,7 +473,7 @@ describe('hosted workspace publish', () => {
     expect(deps.getTree).not.toHaveBeenCalled()
   })
 
-  it('compares an open Bread pull request branch and marks it up to date', async () => {
+  it('compares an open Breezify pull request branch and marks it up to date', async () => {
     const deps = dependencies()
     deps.findOpenPullRequest.mockResolvedValue({
       number: 17,
@@ -519,7 +519,7 @@ describe('hosted workspace publish', () => {
     })
   })
 
-  it('marks an open Bread pull request stale when its branch differs', async () => {
+  it('marks an open Breezify pull request stale when its branch differs', async () => {
     const deps = dependencies()
     deps.findOpenPullRequest.mockResolvedValue({
       number: 17,

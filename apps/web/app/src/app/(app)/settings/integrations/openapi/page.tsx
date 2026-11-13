@@ -313,7 +313,7 @@ function GitHubActionsSnippet({ workspaceSlug }: { workspaceSlug: string }): Rea
           curl --fail-with-body -sS -X PUT \\
             "${origin}/api/v1/openapi/${DEFAULT_SLUG}" \\
             -H "Authorization: Bearer \${BREEZE_DOCS_API_KEY}" \\
-            -H "x-bread-workspace: ${workspaceSlug}" \\
+            -H "x-breezify-workspace: ${workspaceSlug}" \\
             -H "Content-Type: application/json" \\
             --data-binary "@src/openapi/specs/\${VERSION}/openapi.json"`,
     [origin, workspaceSlug],

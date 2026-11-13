@@ -98,7 +98,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     try {
       queryEmbedding = await generateEmbedding(trimmed, "RETRIEVAL_QUERY");
     } catch (err) {
-      console.error("[Bread] Query embedding failed:", err);
+      console.error("[Breezify] Query embedding failed:", err);
       queryEmbedding = null;
     }
   }
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         workspace_id: workspace.workspace_id,
       });
       if (error) {
-        console.error("[Bread] Vector search failed:", error.message);
+        console.error("[Breezify] Vector search failed:", error.message);
       } else if (Array.isArray(data)) {
         vector = data as KnowledgeResult[];
       }
@@ -178,7 +178,7 @@ async function searchTitles(
     .order("updated_at", { ascending: false })
     .limit(limit);
   if (error) {
-    console.error("[Bread] Title search failed:", error.message);
+    console.error("[Breezify] Title search failed:", error.message);
     return [];
   }
   const rows = (data ?? []) as KnowledgeResult[];
@@ -206,7 +206,7 @@ async function grepContent(
     p_caller_role: workspace.role,
   });
   if (error) {
-    console.error("[Bread] Keyword search failed:", error.message);
+    console.error("[Breezify] Keyword search failed:", error.message);
     return [];
   }
   if (!Array.isArray(data)) return [];

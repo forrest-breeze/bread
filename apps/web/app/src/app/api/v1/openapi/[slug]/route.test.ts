@@ -29,7 +29,7 @@ const put = (body = "{}", headers: Record<string, string> = {}) =>
   new NextRequest("https://app.test/api/v1/openapi/payments-api", {
     method: "PUT",
     body,
-    headers: { authorization: "Bearer bread_sk_x", "x-bread-workspace": "breeze", ...headers },
+    headers: { authorization: "Bearer breezify_sk_x", "x-breezify-workspace": "breeze", ...headers },
   })
 
 function apiKey(scopes: string[], role: string) {

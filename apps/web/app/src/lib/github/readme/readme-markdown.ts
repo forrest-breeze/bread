@@ -1,14 +1,14 @@
 /**
- * ReadMe-flavored Markdown/MDX -> the plain Markdown Bread stores.
+ * ReadMe-flavored Markdown/MDX -> the plain Markdown Breezify stores.
  *
  * ReadMe pages may use MDX components (`<Callout>`, `<Image>`, `<Cards>`) and,
- * in older projects, "magic blocks" (`[block:image]{...}[/block]`). Bread's
+ * in older projects, "magic blocks" (`[block:image]{...}[/block]`). Breezify's
  * editor works on CommonMark + GFM, so the common components are rewritten to
  * their Markdown equivalents and any other component tag is dropped while its
  * inner text is kept.
  *
- * This is one-way. A page that is never edited in Bread is never rewritten in
- * the repository, so its components survive untouched; a page edited in Bread
+ * This is one-way. A page that is never edited in Breezify is never rewritten in
+ * the repository, so its components survive untouched; a page edited in Breezify
  * is written back as the plain Markdown shown in the editor.
  */
 

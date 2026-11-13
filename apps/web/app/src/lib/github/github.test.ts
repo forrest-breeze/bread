@@ -475,14 +475,14 @@ describe('listRecentClosedPullRequests', () => {
   it('lists a bounded page ordered by latest activity', async () => {
     const pullRequests = [{
       number: 172,
-      title: 'docs: Update docs from Bread',
+      title: 'docs: Update docs from Breezify',
       body: null,
       state: 'closed' as const,
       merged: true,
       user: null,
       created_at: '2026-08-13T00:00:00Z',
       updated_at: '2026-08-13T01:00:00Z',
-      head: { ref: 'bread/docs-docs-example' },
+      head: { ref: 'breezify/docs-docs-example' },
     }]
     const mockFetch = vi.fn().mockResolvedValue(mockJsonResponse(pullRequests))
     vi.stubGlobal('fetch', mockFetch)
@@ -584,7 +584,7 @@ describe('getPRComments', () => {
     await expect(getPRComments(TOKEN, REPO, PR_NUM)).rejects.toThrow()
 
     expect(errorSpy).toHaveBeenCalledWith(
-      '[Bread] GitHub API rate limit exhausted for:',
+      '[Breezify] GitHub API rate limit exhausted for:',
       expect.stringContaining('issues'),
     )
   })
@@ -794,7 +794,7 @@ describe('repository content helpers', () => {
     const mockFetch = vi.fn()
       .mockResolvedValueOnce(mockJsonResponse({}, {}, 404))
       .mockResolvedValueOnce(mockJsonResponse({
-        ref: 'refs/heads/bread/intro',
+        ref: 'refs/heads/breezify/intro',
         object: { type: 'commit', sha: 'base-commit' },
       }))
       .mockResolvedValueOnce(mockJsonResponse({
@@ -806,11 +806,11 @@ describe('repository content helpers', () => {
     vi.stubGlobal('fetch', mockFetch)
 
     await expect(
-      createRepositoryBranch(TOKEN, REPO, 'bread/intro', 'base-commit'),
+      createRepositoryBranch(TOKEN, REPO, 'breezify/intro', 'base-commit'),
     ).resolves.toMatchObject({ object: { sha: 'base-commit' } })
     await expect(
       createRepositoryPullRequest(TOKEN, REPO, {
-        head: 'bread/intro',
+        head: 'breezify/intro',
         base: 'main',
         title: 'Update intro',
         body: 'Docs update',
@@ -818,7 +818,7 @@ describe('repository content helpers', () => {
     ).resolves.toMatchObject({ number: 17 })
 
     expect(JSON.parse(mockFetch.mock.calls[1]?.[1]?.body as string)).toEqual({
-      ref: 'refs/heads/bread/intro',
+      ref: 'refs/heads/breezify/intro',
       sha: 'base-commit',
     })
   })
@@ -843,7 +843,7 @@ describe('repository content helpers', () => {
         branch: 'main',
         baseCommitSha: 'base-commit',
         baseTreeSha: 'base-tree',
-        message: 'docs: initialize from Bread',
+        message: 'docs: initialize from Breezify',
         files: [
           { path: 'docs/intro.md', content: '# Intro\n' },
           { path: 'docs/setup.md', content: '# Setup\n' },
@@ -922,13 +922,13 @@ describe('repository content helpers', () => {
 
     await expect(
       findOpenRepositoryPullRequest(TOKEN, REPO, {
-        head: 'bread/intro',
+        head: 'breezify/intro',
         base: 'main',
       }),
     ).resolves.toMatchObject({ number: 17 })
 
     expect(mockFetch.mock.calls[0]?.[0]).toContain(
-      'head=acmecorp%3Abread%2Fintro',
+      'head=acmecorp%3Abreezify%2Fintro',
     )
     expect(mockFetch.mock.calls[0]?.[0]).toContain('base=main')
   })

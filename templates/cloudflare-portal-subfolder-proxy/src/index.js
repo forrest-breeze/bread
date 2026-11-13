@@ -1,5 +1,5 @@
 const CONFIG_ERROR =
-  "This Bread proxy is not configured. Check EXPECTED_HOST, BREAD_ORIGIN, and BREAD_ROUTES (or the legacy MOUNT_PATH and BREAD_PORTAL_PATH)."
+  "This Breezify proxy is not configured. Check EXPECTED_HOST, BREEZIFY_ORIGIN, and BREEZIFY_ROUTES (or the legacy MOUNT_PATH and BREEZIFY_PORTAL_PATH)."
 
 function normalizedPath(value, { allowRoot = false } = {}) {
   const raw = String(value ?? "").trim()
@@ -61,15 +61,15 @@ export function proxyConfig(env) {
     .trim()
     .toLowerCase()
     .replace(/:\d+$/, "")
-  const breadOrigin = normalizedOrigin(env.BREAD_ORIGIN)
-  const routeMap = normalizedRouteMap(env.BREAD_ROUTES)
-  const legacyRoute = normalizedRoute(env.MOUNT_PATH, env.BREAD_PORTAL_PATH)
+  const breezifyOrigin = normalizedOrigin(env.BREEZIFY_ORIGIN)
+  const routeMap = normalizedRouteMap(env.BREEZIFY_ROUTES)
+  const legacyRoute = normalizedRoute(env.MOUNT_PATH, env.BREEZIFY_PORTAL_PATH)
   const routes = routeMap ?? (legacyRoute ? [legacyRoute] : [])
 
   if (
     !expectedHost ||
     expectedHost.includes("/") ||
-    !breadOrigin ||
+    !breezifyOrigin ||
     routes.length === 0
   ) {
     return null
@@ -77,7 +77,7 @@ export function proxyConfig(env) {
 
   return {
     expectedHost,
-    breadOrigin,
+    breezifyOrigin,
     routes,
     mountPath: routes[0].mountPath,
     portalPath: routes[0].portalPath,
@@ -125,9 +125,9 @@ export function upstreamUrlFor(requestUrl, config) {
   const route = activeRoute(requestUrl, config)
   if (!route) return null
 
-  const upstream = new URL(config.breadOrigin)
+  const upstream = new URL(config.breezifyOrigin)
   const suffix = incoming.pathname.slice(route.mountPath.length)
-  const apiPrefix = "/_bread/api/"
+  const apiPrefix = "/_breezify/api/"
 
   // Address the stable portal route directly. Going through the public mount
   // on app.example.com can hit the project's canonical-address redirect first:
@@ -145,8 +145,8 @@ export function externalLocation(location, requestUrl, config) {
   if (!location) return null
   const route = activeRoute(requestUrl, config)
   if (!route) return location
-  const target = new URL(location, config.breadOrigin)
-  if (target.origin !== config.breadOrigin.origin) return location
+  const target = new URL(location, config.breezifyOrigin)
+  if (target.origin !== config.breezifyOrigin.origin) return location
   if (
     target.pathname !== route.portalPath &&
     !target.pathname.startsWith(`${route.portalPath}/`)
@@ -165,8 +165,8 @@ export function externalLocation(location, requestUrl, config) {
 function proxyRequest(request, upstream, config) {
   const headers = new Headers(request.headers)
   headers.set("x-forwarded-host", config.expectedHost)
-  headers.set("x-bread-base-path", config.mountPath)
-  headers.set("x-bread-proxy", "cloudflare-worker-v1")
+  headers.set("x-breezify-base-path", config.mountPath)
+  headers.set("x-breezify-proxy", "cloudflare-worker-v1")
   headers.delete("cf-connecting-ip")
 
   return new Request(upstream, {
@@ -184,7 +184,7 @@ async function rewriteHtml(response, config) {
   const contentType = response.headers.get("content-type") ?? ""
   if (!contentType.includes("text/html")) return response
 
-  const assetOrigin = config.breadOrigin.origin
+  const assetOrigin = config.breezifyOrigin.origin
   const headers = new Headers(response.headers)
   headers.delete("content-length")
   headers.delete("content-encoding")
@@ -229,7 +229,7 @@ export default {
 
     const route = activeRoute(request.url, config)
     if (!route) {
-      return new Response("This Worker only serves the configured Bread path.", {
+      return new Response("This Worker only serves the configured Breezify path.", {
         status: 404,
       })
     }
@@ -241,7 +241,7 @@ export default {
           status: 301,
           headers: {
             location: legacyLocation,
-            "x-bread-proxy": "cloudflare-worker-v1",
+            "x-breezify-proxy": "cloudflare-worker-v1",
           },
         })
       }
@@ -259,15 +259,15 @@ export default {
     )
     if (location && isSelfRedirect(location, request.url)) {
       return new Response(
-        "Bread returned a circular redirect. Check BREAD_ROUTES and redeploy this Worker.",
+        "Breezify returned a circular redirect. Check BREEZIFY_ROUTES and redeploy this Worker.",
         {
           status: 502,
-          headers: { "x-bread-proxy": "cloudflare-worker-v1" },
+          headers: { "x-breezify-proxy": "cloudflare-worker-v1" },
         },
       )
     }
     if (location) response.headers.set("location", location)
-    response.headers.set("x-bread-proxy", "cloudflare-worker-v1")
+    response.headers.set("x-breezify-proxy", "cloudflare-worker-v1")
     return rewriteHtml(response, activeConfig)
   },
 }

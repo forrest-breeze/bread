@@ -58,7 +58,7 @@ import { InviteMemberDialog } from "@/components/app/invite-member-dialog"
 import { useTeamMembers, useWorkspace } from "@/hooks/swr"
 import { createClient } from "@/lib/supabase/client"
 import { cn, getInitials } from "@/lib/utils"
-import { canManageRole, type WorkspaceRole } from "@bread/core"
+import { canManageRole, type WorkspaceRole } from "@breezify/core"
 
 interface WorkspaceMembersCardProps {
   /** When set, only show the first N rows. A "See all" link appears when total members exceed it. */
@@ -144,7 +144,7 @@ export function WorkspaceMembersCard({ limit }: WorkspaceMembersCardProps) {
       })
       mutateTeam()
     } catch (err) {
-      console.error("[Bread] Failed to update role:", err)
+      console.error("[Breezify] Failed to update role:", err)
     }
   }
 
@@ -168,7 +168,7 @@ export function WorkspaceMembersCard({ limit }: WorkspaceMembersCardProps) {
       }
       mutateTeam()
     } catch (err) {
-      console.error("[Bread] Failed to resend invite:", err)
+      console.error("[Breezify] Failed to resend invite:", err)
       setResendError({ id: memberId, message: "Failed to resend invite" })
     } finally {
       setResendingId(null)
@@ -187,7 +187,7 @@ export function WorkspaceMembersCard({ limit }: WorkspaceMembersCardProps) {
       await fetch(`/api/team?id=${memberId}`, { method: "DELETE" })
       mutateTeam()
     } catch (err) {
-      console.error("[Bread] Failed to remove member:", err)
+      console.error("[Breezify] Failed to remove member:", err)
       if (prev) mutateTeam(prev, false)
     }
   }

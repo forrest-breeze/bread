@@ -92,7 +92,7 @@ async function markTourComplete(): Promise<void> {
     })
   } catch (err) {
     // Worst case the welcome modal shows again next visit.
-    console.warn("[Bread] could not save tutorial completion:", err)
+    console.warn("[Breezify] could not save tutorial completion:", err)
   }
 }
 
@@ -170,7 +170,7 @@ function WelcomeDialog({
     <Dialog open={open} onOpenChange={(next) => { if (!next) onSkip() }}>
       <DialogContent showCloseButton={false} className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Welcome to Bread</DialogTitle>
+          <DialogTitle>Welcome to Breezify</DialogTitle>
           <DialogDescription>
             This is where Breeze docs are written, reviewed and published. You&apos;re
             already in the Breeze workspace, so there&apos;s nothing to set up.

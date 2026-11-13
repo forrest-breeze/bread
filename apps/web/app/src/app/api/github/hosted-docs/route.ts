@@ -1,7 +1,7 @@
 import { after, type NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { z } from 'zod'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { requireRouteUser } from '@/lib/auth/route-auth'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -24,15 +24,15 @@ import {
 import { withGitHubRetry } from '@/lib/github/retry'
 import { isHostedWorkspacePublishBranch } from '@/lib/github/github-hosted-workspace-publish'
 import {
-  buildBreadWorkspaceExport,
-  linkBreadWorkspaceDocuments,
+  buildBreezifyWorkspaceExport,
+  linkBreezifyWorkspaceDocuments,
   MAX_HOSTED_WORKSPACE_BYTES,
   MAX_HOSTED_WORKSPACE_DOCUMENTS,
 } from '@/lib/github/github-hosted-workspace'
 import {
-  assertBreadHostedDocsFiles,
-  BreadDocsFormatError,
-  BREAD_HOSTED_DOC_MAX_BYTES,
+  assertBreezifyHostedDocsFiles,
+  BreezifyDocsFormatError,
+  BREEZIFY_HOSTED_DOC_MAX_BYTES,
 } from '@/lib/github/github-hosted-format'
 import { safeJsonBody } from '@/lib/validation'
 import { linkReadmeRepository } from '@/lib/github/readme/readme-link'
@@ -55,7 +55,7 @@ const putBodySchema = z.object({
   mode: z.enum(['merge', 'github_wins']),
   // 'readme' links a repository in the layout ReadMe's GitHub integration
   // uses. The remaining fields apply to that format only.
-  format: z.enum(['bread', 'readme']).optional(),
+  format: z.enum(['breezify', 'readme']).optional(),
   publish_mode: z.enum(['direct', 'pull_request']).optional(),
   branch: z.string().trim().max(255).nullish(),
 })
@@ -114,7 +114,7 @@ async function dispatchHostedDocsSync(
 ): Promise<void> {
   // Vercel: run inline under `after()` (see maxDuration above). The Netlify
   // background-function dispatch this used to have was removed.
-  const { source, ...breadTarget } = target
+  const { source, ...breezifyTarget } = target
   if (isReadmeFormatSource(source)) {
     await syncReadmeSource(source, {
       ref: target.ref,
@@ -123,7 +123,7 @@ async function dispatchHostedDocsSync(
     })
     return
   }
-  await syncGitHubHostedDocs(breadTarget)
+  await syncGitHubHostedDocs(breezifyTarget)
 }
 
 function scheduleHostedDocsSync(
@@ -135,7 +135,7 @@ function scheduleHostedDocsSync(
     try {
       await dispatchHostedDocsSync(target, origin)
     } catch (syncError) {
-      console.error(`[Bread] ${failureLabel}:`, syncError)
+      console.error(`[Breezify] ${failureLabel}:`, syncError)
     }
   })
 }
@@ -223,7 +223,7 @@ async function reconcileWaitingPullRequest(
   } catch (error) {
     // Keep the settings endpoint available when GitHub is temporarily down.
     // The waiting-state poll will retry this reconciliation on its next pass.
-    console.error('[Bread] hosted docs PR reconciliation failed:', error)
+    console.error('[Breezify] hosted docs PR reconciliation failed:', error)
     return source
   }
 }
@@ -270,7 +270,7 @@ async function resumeStalledHostedDocsSync(
     )
     return pendingSource
   } catch (error) {
-    console.error('[Bread] stalled hosted docs recovery could not start:', error)
+    console.error('[Breezify] stalled hosted docs recovery could not start:', error)
     return source
   }
 }
@@ -344,7 +344,7 @@ async function reconcileLatestDefaultBranchCommit(
   } catch (error) {
     // A transient provider failure must not strand the workspace in a false
     // lock. The publish-status control will surface its own retry state.
-    console.error('[Bread] hosted docs head check failed:', error)
+    console.error('[Breezify] hosted docs head check failed:', error)
     return source
   }
 }
@@ -412,7 +412,7 @@ async function reconcileWorkspacePublishPullRequest(
   } catch (error) {
     // Preserve the last-known PR pointer during transient GitHub failures. A
     // later settings poll can safely reconcile it again.
-    console.error('[Bread] workspace publish PR reconciliation failed:', error)
+    console.error('[Breezify] workspace publish PR reconciliation failed:', error)
     return source
   }
 }
@@ -501,7 +501,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       linked_document_count: linkedDocuments.length,
     })
   } catch (err) {
-    console.error('[Bread] GET /api/github/hosted-docs failed:', err)
+    console.error('[Breezify] GET /api/github/hosted-docs failed:', err)
     return NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 500 })
   }
 }
@@ -510,7 +510,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   const auth = await requireAdmin()
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!(await isWorkspaceOnPaidTier(auth.workspaceId))) {
-    return NextResponse.json({ error: 'Integrations require a paid plan.' }, { status: 402 })
+    return NextResponse.json({ error: 'Integrations are not enabled for this workspace.' }, { status: 402 })
   }
   const parsed = await safeJsonBody(request, putBodySchema)
   if (!parsed.ok) return parsed.response
@@ -629,7 +629,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       existing?.repo_id === availableRepo.id &&
       existing.paths[0] === paths[0]
     // A new root links the whole workspace to repository paths. "Use GitHub"
-    // does so again even for the same root, so every Bread document is
+    // does so again even for the same root, so every Breezify document is
     // accounted for before the sync makes GitHub the source of truth: matches
     // take GitHub's content and placement, and the rest are removed.
     const relinkWorkspace = !sameRoot || parsed.data.mode === 'github_wins'
@@ -663,16 +663,16 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     )
     if (documentEntries.length > MAX_HOSTED_WORKSPACE_DOCUMENTS) {
       return NextResponse.json(
-        { error: `This root supports at most ${MAX_HOSTED_WORKSPACE_DOCUMENTS} Bread documents.` },
+        { error: `This root supports at most ${MAX_HOSTED_WORKSPACE_DOCUMENTS} Breezify documents.` },
         { status: 413 },
       )
     }
     const oversized = documentEntries.find(
-      (entry) => (entry.size ?? 0) > BREAD_HOSTED_DOC_MAX_BYTES,
+      (entry) => (entry.size ?? 0) > BREEZIFY_HOSTED_DOC_MAX_BYTES,
     )
     if (oversized) {
       return NextResponse.json(
-        { error: `${oversized.path} exceeds the ${BREAD_HOSTED_DOC_MAX_BYTES}-byte Bread document limit.` },
+        { error: `${oversized.path} exceeds the ${BREEZIFY_HOSTED_DOC_MAX_BYTES}-byte Breezify document limit.` },
         { status: 422 },
       )
     }
@@ -693,13 +693,13 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       },
     )
     try {
-      assertBreadHostedDocsFiles(repositoryFiles)
+      assertBreezifyHostedDocsFiles(repositoryFiles)
     } catch (error) {
-      if (!(error instanceof BreadDocsFormatError)) throw error
+      if (!(error instanceof BreezifyDocsFormatError)) throw error
       return NextResponse.json(
         {
           error:
-            'The selected folder does not follow the Bread document format. ' +
+            'The selected folder does not follow the Breezify document format. ' +
             error.issues.slice(0, 3).map((issue) => `${issue.path}: ${issue.message}`).join('; '),
           format_errors: error.issues,
         },
@@ -708,7 +708,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     }
 
     if (relinkWorkspace) {
-      const exported = await buildBreadWorkspaceExport(admin, {
+      const exported = await buildBreezifyWorkspaceExport(admin, {
         workspaceId: auth.workspaceId,
         targetPath: paths[0]!,
       })
@@ -716,8 +716,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json(
           {
             error:
-              'Restricted Bread folders cannot be linked to a GitHub repository. ' +
-              'Keep those documents Bread-only before configuring this root.',
+              'Restricted Breezify folders cannot be linked to a GitHub repository. ' +
+              'Keep those documents Breezify-only before configuring this root.',
             restricted_folders: exported.restrictedFolderNames,
           },
           { status: 409 },
@@ -725,17 +725,17 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       }
       if (exported.documents.length > MAX_HOSTED_WORKSPACE_DOCUMENTS) {
         return NextResponse.json(
-          { error: `This root supports at most ${MAX_HOSTED_WORKSPACE_DOCUMENTS} Bread documents.` },
+          { error: `This root supports at most ${MAX_HOSTED_WORKSPACE_DOCUMENTS} Breezify documents.` },
           { status: 413 },
         )
       }
       if (exported.totalBytes > MAX_HOSTED_WORKSPACE_BYTES) {
         return NextResponse.json(
-          { error: 'The Bread workspace is too large to link to one GitHub root.' },
+          { error: 'The Breezify workspace is too large to link to one GitHub root.' },
           { status: 413 },
         )
       }
-      await linkBreadWorkspaceDocuments(admin, {
+      await linkBreezifyWorkspaceDocuments(admin, {
         workspaceId: auth.workspaceId,
         repoId: availableRepo.id,
         repoFullName: availableRepo.full_name,
@@ -754,7 +754,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       // The repository root is the workspace root; no container folder.
       root_folder_id: null,
       // Switching back from the readme format resets its settings.
-      format: 'bread',
+      format: 'breezify',
       publish_mode: 'pull_request',
       branch: null,
       sync_state: {},
@@ -764,7 +764,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       pending_pull_request_number: null,
       pending_pull_request_url: null,
       pending_pull_request_head: null,
-      pending_sync_mode: parsed.data.mode === 'github_wins' ? 'replace_bread' : 'merge',
+      pending_sync_mode: parsed.data.mode === 'github_wins' ? 'replace_breezify' : 'merge',
       publish_pull_request_number: null,
       publish_pull_request_url: null,
       publish_pull_request_head: null,
@@ -804,7 +804,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ source: updated })
   } catch (err) {
-    console.error('[Bread] PUT /api/github/hosted-docs failed:', err)
+    console.error('[Breezify] PUT /api/github/hosted-docs failed:', err)
     return NextResponse.json(
       {
         error:
@@ -824,7 +824,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         .eq('workspace_id', auth.workspaceId)
         .eq('publish_operation_id', configurationOperationId)
       if (releaseError) {
-        console.error('[Bread] hosted docs configuration lease release failed:', releaseError)
+        console.error('[Breezify] hosted docs configuration lease release failed:', releaseError)
       }
     }
   }
@@ -842,7 +842,7 @@ export async function DELETE(_request: NextRequest): Promise<NextResponse> {
     if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('[Bread] DELETE /api/github/hosted-docs failed:', err)
+    console.error('[Breezify] DELETE /api/github/hosted-docs failed:', err)
     return NextResponse.json({ error: 'Could not disable the hosted docs link.' }, { status: 500 })
   }
 }

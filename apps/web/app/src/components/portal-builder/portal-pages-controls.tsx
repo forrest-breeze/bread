@@ -5,17 +5,31 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
+  House,
   Pencil,
   Plus,
   Trash2,
 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { setPages } from "@/lib/portal/builder-ops"
 import {
+  PORTAL_HOME_PAGE_SLUG,
+  portalNavEntries,
   portalPagePresentation,
   type PortalLayout,
+  type PortalNavEntry,
   type PortalPage,
   type PortalPagePresentation,
 } from "@/lib/portal/schema"
@@ -150,11 +164,16 @@ export function PortalPagesControls({
   onActivePageChange,
 }: PortalPagesControlsProps): React.ReactElement {
   const pages = layout.pages ?? []
+  const entries = portalNavEntries(layout)
   const [editor, setEditor] = useState<PageEditorState | null>(null)
+  const [pendingRemoval, setPendingRemoval] = useState<PortalPage | null>(null)
 
   const slugTaken =
     editor !== null &&
-    pages.some((page) => page.id !== editor.pageId && page.slug === editor.slug)
+    (editor.slug === PORTAL_HOME_PAGE_SLUG ||
+      pages.some(
+        (page) => page.id !== editor.pageId && page.slug === editor.slug,
+      ))
   const editorValid =
     editor !== null &&
     editor.title.trim().length > 0 &&
@@ -205,27 +224,35 @@ export function PortalPagesControls({
     setEditor(null)
   }
 
+  /** Persist a combined Home + pages order. */
+  function commitEntries(next: PortalNavEntry[]): void {
+    const nextPages = next.flatMap((entry) =>
+      entry.kind === "page" ? [entry.page] : [],
+    )
+    const homePosition = next.findIndex((entry) => entry.kind === "home")
+    onLayoutChange(setPages(layout, nextPages, Math.max(0, homePosition)))
+  }
+
   function removePage(page: PortalPage): void {
-    onLayoutChange(
-      setPages(
-        layout,
-        pages.filter((candidate) => candidate.id !== page.id),
+    commitEntries(
+      entries.filter(
+        (entry) => entry.kind === "home" || entry.page.id !== page.id,
       ),
     )
     if (activePageSlug === page.slug) onActivePageChange(null)
     if (editor?.pageId === page.id) setEditor(null)
   }
 
-  function movePage(index: number, offset: -1 | 1): void {
+  function moveEntry(index: number, offset: -1 | 1): void {
     const target = index + offset
-    if (target < 0 || target >= pages.length) return
-    const next = [...pages]
+    if (target < 0 || target >= entries.length) return
+    const next = [...entries]
     const current = next[index]
     const replacement = next[target]
     if (!current || !replacement) return
     next[index] = replacement
     next[target] = current
-    onLayoutChange(setPages(layout, next))
+    commitEntries(next)
   }
 
   return (
@@ -238,43 +265,61 @@ export function PortalPagesControls({
       </div>
 
       <div className="space-y-2">
-        {pages.map((page, index) => {
-          const active = page.slug === activePageSlug
+        {/* Home is always present (never in layout.pages), so it can be
+            reordered but not edited or removed. The first entry is the
+            portal's default page, served at the root URL. */}
+        {entries.map((entry, index) => {
+          const isHome = entry.kind === "home"
+          const title = isHome ? "Home" : entry.page.title
+          const slug = isHome ? null : entry.page.slug
+          const active = slug === activePageSlug
+          const isDefault = index === 0
+          const path = isDefault
+            ? "/"
+            : `/page/${isHome ? PORTAL_HOME_PAGE_SLUG : entry.page.slug}`
+          const Icon = isHome ? House : FileText
           return (
             <div
-              key={page.id}
+              key={isHome ? "home" : entry.page.id}
               className={cn(
                 "rounded-lg border p-2",
                 active ? "border-primary/50 bg-primary/5" : "border-border",
               )}
             >
-              <div className="flex w-full items-center gap-2 rounded-md px-1 py-1 text-left">
-                <FileText className="size-4 shrink-0 text-muted-foreground" />
+              <button
+                type="button"
+                onClick={() => onActivePageChange(slug)}
+                aria-label={`Preview ${title}`}
+                className="flex w-full items-center gap-2 rounded-md px-1 py-1 text-left"
+              >
+                <Icon className="size-4 shrink-0 text-muted-foreground" />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
                     <span className="min-w-0 truncate text-sm font-medium">
-                      {page.title}
+                      {title}
                     </span>
-                    {active ? (
+                    {isDefault ? (
                       <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                        In preview
+                        Default
                       </span>
                     ) : null}
                   </span>
                   <span className="block truncate text-[11px] text-muted-foreground">
-                    {presentationLabel(portalPagePresentation(page))} · /page/
-                    {page.slug}
+                    {isHome
+                      ? "Documents"
+                      : presentationLabel(portalPagePresentation(entry.page))}{" "}
+                    · {path}
                   </span>
                 </span>
-              </div>
+              </button>
               <div className="mt-1 flex justify-end gap-1 border-t border-border/70 pt-1">
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Move ${page.title} up`}
+                  aria-label={`Move ${title} up`}
                   disabled={index === 0}
-                  onClick={() => movePage(index, -1)}
+                  onClick={() => moveEntry(index, -1)}
                 >
                   <ChevronUp />
                 </Button>
@@ -282,31 +327,35 @@ export function PortalPagesControls({
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Move ${page.title} down`}
-                  disabled={index === pages.length - 1}
-                  onClick={() => movePage(index, 1)}
+                  aria-label={`Move ${title} down`}
+                  disabled={index === entries.length - 1}
+                  onClick={() => moveEntry(index, 1)}
                 >
                   <ChevronDown />
                 </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={`Edit ${page.title}`}
-                  onClick={() => beginEdit(page)}
-                >
-                  <Pencil />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={`Remove ${page.title}`}
-                  onClick={() => removePage(page)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 />
-                </Button>
+                {entry.kind === "page" ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Edit ${title}`}
+                      onClick={() => beginEdit(entry.page)}
+                    >
+                      <Pencil />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Remove ${title}`}
+                      onClick={() => setPendingRemoval(entry.page)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 />
+                    </Button>
+                  </>
+                ) : null}
               </div>
             </div>
           )
@@ -367,7 +416,9 @@ export function PortalPagesControls({
             </div>
             {slugTaken ? (
               <p className="text-[11px] text-destructive">
-                Another page already uses this path.
+                {editor.slug === PORTAL_HOME_PAGE_SLUG
+                  ? "This path is reserved for Home."
+                  : "Another page already uses this path."}
               </p>
             ) : editor.slug && !PAGE_SLUG_RE.test(editor.slug) ? (
               <p className="text-[11px] text-destructive">
@@ -435,6 +486,37 @@ export function PortalPagesControls({
           Add page
         </Button>
       )}
+      <AlertDialog
+        open={pendingRemoval !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemoval(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete {pendingRemoval?.title ?? "this page"}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              The page, its presentation and its assigned docs are removed from
+              this portal, and its URL stops resolving once you publish. Docs
+              themselves are not deleted. Home stays available.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => {
+                if (pendingRemoval) removePage(pendingRemoval)
+                setPendingRemoval(null)
+              }}
+            >
+              Delete page
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

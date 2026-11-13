@@ -10,7 +10,7 @@ import { syncGitHubRepository } from '@/lib/github/github-repo-ingest'
 import { withGitHubRetry } from '@/lib/github/retry'
 import { deactivateGitHubRepositoryIndex } from '@/lib/github/github-repo-cleanup'
 import { safeJsonBody, safeSearchParams } from '@/lib/validation'
-import type { MonitoredRepoRow } from '@bread/core'
+import type { MonitoredRepoRow } from '@breezify/core'
 
 const postBodySchema = z.object({
   repo_full_name: z
@@ -73,7 +73,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ repos: (data ?? []) as MonitoredRepoRow[] })
   } catch (err) {
-    console.error('[Bread] GET /api/github/repos failed:', err)
+    console.error('[Breezify] GET /api/github/repos failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 500 },
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   if (!(await isWorkspaceOnPaidTier(auth.workspaceId))) {
     return NextResponse.json(
-      { error: 'Integrations require a paid plan.' },
+      { error: 'Integrations are not enabled for this workspace.' },
       { status: 402 },
     )
   }
@@ -178,13 +178,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           ref: ghRepo.default_branch,
         })
       } catch (err) {
-        console.error('[Bread] GitHub repo backfill failed:', err)
+        console.error('[Breezify] GitHub repo backfill failed:', err)
       }
     })
 
     return NextResponse.json({ repo: data as MonitoredRepoRow })
   } catch (err) {
-    console.error('[Bread] POST /api/github/repos failed:', err)
+    console.error('[Breezify] POST /api/github/repos failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 500 },
@@ -208,7 +208,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   const resume = parsed.data.action === 'resume_indexing'
   if (resume && !(await isWorkspaceOnPaidTier(auth.workspaceId))) {
     return NextResponse.json(
-      { error: 'Integrations require a paid plan.' },
+      { error: 'Integrations are not enabled for this workspace.' },
       { status: 402 },
     )
   }
@@ -244,14 +244,14 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
             repoId: repo.repo_id,
           })
         } catch (err) {
-          console.error('[Bread] GitHub repo resume failed:', err)
+          console.error('[Breezify] GitHub repo resume failed:', err)
         }
       })
     }
 
     return NextResponse.json({ repo })
   } catch (err) {
-    console.error('[Bread] PATCH /api/github/repos failed:', err)
+    console.error('[Breezify] PATCH /api/github/repos failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 500 },
@@ -292,7 +292,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('[Bread] DELETE /api/github/repos failed:', err)
+    console.error('[Breezify] DELETE /api/github/repos failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 500 },

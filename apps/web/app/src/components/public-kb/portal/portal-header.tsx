@@ -4,6 +4,8 @@ import {
   DEFAULT_PORTAL_HEADER_ITEM_ORDER,
   DEFAULT_PORTAL_LANGUAGE_PLACEMENT,
   isSafeHref,
+  PORTAL_HOME_PAGE_SLUG,
+  portalNavEntries,
   type HeaderBlock,
   type PortalPage,
   type PortalTheme,
@@ -19,7 +21,7 @@ import type { PortalPreviewThemeMode } from "@/lib/portal/preview-theme-message"
 // Global portal chrome: brand mark + name (left), centered search (center),
 // configured nav links + CTA (right). Server component; the only client island
 // is the theme toggle. Empty nav/CTA render blank on customer portals; only the
-// first-party Bread workspace falls back to the Bread marketing links (nav/CTA
+// first-party Breezify workspace falls back to the Breezify marketing links (nav/CTA
 // aren't workspace-configurable yet — Phase 3).
 const DEFAULT_NAV_LINKS: PortalTheme["navLinks"] = []
 
@@ -42,6 +44,7 @@ export function PortalHeader({
   showThemeToggle = true,
   previewThemeMode,
   pages = [],
+  homePosition = 0,
   activePageSlug = null,
   previewProjectSlug,
   isFirstParty = false,
@@ -56,6 +59,8 @@ export function PortalHeader({
   showThemeToggle?: boolean
   previewThemeMode?: PortalPreviewThemeMode
   pages?: PortalPage[]
+  /** Home's slot among `pages`; the first slot is served at the portal root. */
+  homePosition?: number
   /** A page slug selects that section; home and ordinary docs/folders select Home. */
   activePageSlug?: string | null
   /** Defined only in the authenticated preview iframe. */
@@ -74,7 +79,7 @@ export function PortalHeader({
   // gate here — keeps this safe once nav/cta become configurable (Phase 3).
   const configuredLinks = theme.navLinks.filter((link) => isSafeHref(link.href))
   // Customer portals render blank nav/CTA when unconfigured; only the first-party
-  // Bread portal falls back to the Bread marketing links.
+  // Breezify portal falls back to the Breezify marketing links.
   const navLinks =
     configuredLinks.length > 0
       ? configuredLinks
@@ -107,10 +112,19 @@ export function PortalHeader({
   }
   const homeHref =
     previewThemeMode !== undefined ? previewHref() : publicBase
+  const navEntries = portalNavEntries({ pages, homePosition })
+  const defaultEntry = navEntries[0]
   const pageHref = (pageSlug: string): string =>
     previewThemeMode !== undefined
       ? previewHref(pageSlug)
-      : publicPortalHref(publicBase, `/page/${pageSlug}`)
+      : defaultEntry?.kind === "page" && defaultEntry.page.slug === pageSlug
+        ? publicBase
+        : publicPortalHref(publicBase, `/page/${pageSlug}`)
+  // Home sits at the root only while it holds the first slot.
+  const homeNavHref =
+    previewThemeMode !== undefined || defaultEntry?.kind !== "page"
+      ? homeHref
+      : publicPortalHref(publicBase, `/page/${PORTAL_HOME_PAGE_SLUG}`)
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
@@ -233,25 +247,17 @@ export function PortalHeader({
           data-portal-page-nav
           className="flex min-h-12 items-end gap-8 overflow-x-auto border-t border-border/70 px-6 text-sm font-medium sm:px-8"
         >
-          <HoverPrefetchLink
-            href={homeHref}
-            disableHoverPrefetch={previewThemeMode !== undefined}
-            aria-current={activePageSlug === null ? "page" : undefined}
-            className={cn(
-              "flex h-12 shrink-0 items-center border-b-2 transition-colors",
-              activePageSlug === null
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground",
-            )}
-          >
-            Documents
-          </HoverPrefetchLink>
-          {pages.map((page) => {
-            const active = activePageSlug === page.slug
+          {navEntries.map((entry) => {
+            const active =
+              entry.kind === "home"
+                ? activePageSlug === null
+                : activePageSlug === entry.page.slug
             return (
               <HoverPrefetchLink
-                key={page.id}
-                href={pageHref(page.slug)}
+                key={entry.kind === "home" ? "home" : entry.page.id}
+                href={
+                  entry.kind === "home" ? homeNavHref : pageHref(entry.page.slug)
+                }
                 disableHoverPrefetch={previewThemeMode !== undefined}
                 aria-current={active ? "page" : undefined}
                 className={cn(
@@ -261,7 +267,7 @@ export function PortalHeader({
                     : "border-transparent text-muted-foreground hover:text-foreground",
                 )}
               >
-                {page.title}
+                {entry.kind === "home" ? "Documents" : entry.page.title}
               </HoverPrefetchLink>
             )
           })}

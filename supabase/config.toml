@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "Bread"
+project_id = "Breezify"
 
 [api]
 enabled = true
@@ -243,7 +243,7 @@ otp_expiry = 3600
 # user = "resend"
 # pass = "env(RESEND_API_KEY)"
 # admin_email = "noreply@your-verified-domain.com"
-# sender_name = "Bread"
+# sender_name = "Breezify"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, vi } from 'vitest'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import type { GitHubAvailableRepo } from '@/lib/github/types'
 import {
   buildHostedDocsFolderTree,
@@ -18,8 +18,8 @@ import {
 
 const availableRepo: GitHubAvailableRepo = {
   id: 1185697075,
-  name: 'bread',
-  full_name: 'example-org/bread-docs',
+  name: 'breezify',
+  full_name: 'example-org/breezify-docs',
   private: true,
 }
 
@@ -27,7 +27,7 @@ const hostedSource: GitHubHostedDocsSourceRow = {
   id: 'source-row-1',
   workspace_id: 'workspace-1',
   installation_id: 11,
-  repo_full_name: 'example-org/bread-docs',
+  repo_full_name: 'example-org/breezify-docs',
   repo_id: 1185697075,
   paths: ['docs/product'],
   root_folder_id: 'folder-1',
@@ -61,7 +61,7 @@ vi.mock('@/hooks/swr', () => ({
       linked_folder: mockSource
         ? {
             id: 'folder-1',
-            display_name: 'Bread Docs',
+            display_name: 'Breezify Docs',
             visibility: 'workspace',
             required_role: null,
           }
@@ -76,8 +76,8 @@ vi.mock('@/hooks/swr', () => ({
   useFolders: () => ({
     data: [{
       id: '550e8400-e29b-41d4-a716-446655440000',
-      name: 'bread-docs',
-      display_name: 'Bread Docs',
+      name: 'breezify-docs',
+      display_name: 'Breezify Docs',
       kind: 'user',
       parent_folder_id: null,
       visibility: 'workspace',
@@ -149,7 +149,7 @@ describe('buildHostedDocsFolderTree', () => {
     expect(screen.getByText('GitHub docs root')).not.toBeNull()
     expect(screen.getByText(/one repository folder as the root/i)).not.toBeNull()
     expect(screen.getByText('Current root')).not.toBeNull()
-    expect(screen.getByText('example-org/bread-docs/docs/product')).not.toBeNull()
+    expect(screen.getByText('example-org/breezify-docs/docs/product')).not.toBeNull()
     expect(screen.getByText(/disable the link before choosing or creating/i)).not.toBeNull()
     expect(screen.queryByRole('combobox')).toBeNull()
     expect(screen.queryByText('Select an existing folder')).toBeNull()
@@ -162,8 +162,8 @@ describe('buildHostedDocsFolderTree', () => {
       ...hostedSource,
       sync_status: 'disabled',
       pending_pull_request_number: 172,
-      pending_pull_request_url: 'https://github.com/example-org/bread-docs/pull/172',
-      pending_pull_request_head: 'bread/docs-docs-example',
+      pending_pull_request_url: 'https://github.com/example-org/breezify-docs/pull/172',
+      pending_pull_request_head: 'breezify/docs-docs-example',
     }
     render(<GithubHostedDocsCard repositories={[availableRepo]} />)
 
@@ -181,12 +181,12 @@ describe('buildHostedDocsFolderTree', () => {
     render(<GithubHostedDocsCard repositories={[availableRepo]} />)
 
     expect(screen.getByText('Syncing root')).not.toBeNull()
-    expect(screen.getByText(/bread is activating this root/i)).not.toBeNull()
+    expect(screen.getByText(/breezify is activating this root/i)).not.toBeNull()
     expect(screen.queryByText('Select an existing folder')).toBeNull()
     expect(screen.queryByText('Create a new folder')).toBeNull()
   })
 
-  it('creates a new root from the complete Bread tree through a pull request', async () => {
+  it('creates a new root from the complete Breezify tree through a pull request', async () => {
     mockSource = null
     const user = userEvent.setup()
     render(
@@ -282,13 +282,13 @@ describe('buildHostedDocsFolderTree', () => {
     })
   })
 
-  it('uses a pull request when Bread is the initial authority', async () => {
+  it('uses a pull request when Breezify is the initial authority', async () => {
     mockSource = null
     const user = userEvent.setup()
     render(<GithubHostedDocsCard repositories={[availableRepo]} />)
 
     await user.click(screen.getByRole('radio', { name: 'docs' }))
-    await user.click(screen.getByRole('radio', { name: /use bread/i }))
+    await user.click(screen.getByRole('radio', { name: /use breezify/i }))
     await user.click(screen.getByRole('button', { name: 'Link selected folder' }))
     await user.click(screen.getByRole('button', { name: 'Open pull request' }))
 

@@ -48,7 +48,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           userId = userData.user.id;
         }
       } catch (err) {
-        console.error("[Bread] workspaces API: Supabase session lookup failed:", err);
+        console.error("[Breezify] workspaces API: Supabase session lookup failed:", err);
       }
     }
 
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .neq("status", "invited"); // Only include active memberships
 
     if (error) {
-      console.error("[Bread] Failed to fetch workspaces:", error.message);
+      console.error("[Breezify] Failed to fetch workspaces:", error.message);
       return NextResponse.json(
         { error: "Failed to fetch workspaces" },
         { status: 500 }
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ workspaces: formatted });
   } catch (err) {
-    console.error("[Bread] Unexpected error in workspaces API:", err);
+    console.error("[Breezify] Unexpected error in workspaces API:", err);
     return NextResponse.json(
       { error: "Service temporarily unavailable" },
       { status: 503 }

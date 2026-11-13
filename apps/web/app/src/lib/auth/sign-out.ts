@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { clearBreadSwrCache } from "@/components/swr-provider";
+import { clearBreezifySwrCache } from "@/components/swr-provider";
 
 /**
  * Sign the current browser out and land on /login.
@@ -29,6 +29,6 @@ export async function signOutAndRedirect(): Promise<void> {
   } catch {
     // Local sign-out must not hinge on the network — clear and leave regardless.
   }
-  clearBreadSwrCache();
+  clearBreezifySwrCache();
   window.location.href = "/api/auth/signout";
 }

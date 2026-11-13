@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
 import {
-  buildBreadWorkspaceExport,
-  linkBreadWorkspaceDocuments,
+  buildBreezifyWorkspaceExport,
+  linkBreezifyWorkspaceDocuments,
 } from './github-hosted-workspace'
 
 function thenable<T>(value: T, extra: Record<string, unknown> = {}) {
@@ -13,7 +13,7 @@ function thenable<T>(value: T, extra: Record<string, unknown> = {}) {
   }
 }
 
-describe('buildBreadWorkspaceExport', () => {
+describe('buildBreezifyWorkspaceExport', () => {
   it('keeps whole-workspace export behavior when no hosted root is provided', async () => {
     const folders = [
       {
@@ -113,7 +113,7 @@ describe('buildBreadWorkspaceExport', () => {
       throw new Error(`Unexpected table: ${table}`)
     })
 
-    const result = await buildBreadWorkspaceExport(
+    const result = await buildBreezifyWorkspaceExport(
       { from } as never,
       { workspaceId: 'workspace-1', targetPath: 'docs' },
     )
@@ -129,7 +129,7 @@ describe('buildBreadWorkspaceExport', () => {
 
   it('uses repository companions for stable paths/frontmatter and managed deletions', async () => {
     const documentId = '00000000-0000-4000-8000-000000000001'
-    const breadDocumentId = '00000000-0000-4000-8000-000000000099'
+    const breezifyDocumentId = '00000000-0000-4000-8000-000000000099'
     const syncedContent = 'Current instructions.'
     const syncedContentHash = createHash('sha256')
       .update(syncedContent)
@@ -162,7 +162,7 @@ describe('buildBreadWorkspaceExport', () => {
       source_metadata: {
         canonical_repo_path: 'docs/old/setup.mdx',
         repo_id: 42,
-        bread_document_id: breadDocumentId,
+        breezify_document_id: breezifyDocumentId,
         github_hosted_content_hash: syncedContentHash,
       },
       public_slug: null,
@@ -173,7 +173,7 @@ describe('buildBreadWorkspaceExport', () => {
         content: [
           '---',
           'title: "Setup"',
-          `bread_document_id: ${JSON.stringify(breadDocumentId)}`,
+          `breezify_document_id: ${JSON.stringify(breezifyDocumentId)}`,
           'date: "2026-08-17T17:00:00.000Z"',
           '---',
           '',
@@ -226,7 +226,7 @@ describe('buildBreadWorkspaceExport', () => {
       throw new Error(`Unexpected table: ${table}`)
     })
 
-    const result = await buildBreadWorkspaceExport(
+    const result = await buildBreezifyWorkspaceExport(
       { from } as never,
       {
         workspaceId: 'workspace-1',
@@ -238,9 +238,9 @@ describe('buildBreadWorkspaceExport', () => {
 
     expect(result.files[0]?.path).toBe('docs/old/setup.mdx')
     expect(result.files[0]?.documentId).toBe(documentId)
-    expect(result.files[0]?.breadDocumentId).toBe(breadDocumentId)
+    expect(result.files[0]?.breezifyDocumentId).toBe(breezifyDocumentId)
     expect(result.files[0]?.content).toContain(
-      `bread_document_id: ${JSON.stringify(breadDocumentId)}`,
+      `breezify_document_id: ${JSON.stringify(breezifyDocumentId)}`,
     )
     // The date survives the export. Here it comes from the repository file
     // (the document row carries no updated_at), which is the fallback path;
@@ -257,7 +257,7 @@ describe('buildBreadWorkspaceExport', () => {
     const folders = [
       {
         id: 'hosted-root',
-        display_name: 'Bread Docs',
+        display_name: 'Breezify Docs',
         parent_folder_id: null,
         kind: 'user',
         content: null,
@@ -284,7 +284,7 @@ describe('buildBreadWorkspaceExport', () => {
       },
       {
         id: 'help-center',
-        display_name: 'Bread Help Center',
+        display_name: 'Breezify Help Center',
         parent_folder_id: 'hosted-root',
         kind: 'user',
         content: null,
@@ -308,7 +308,7 @@ describe('buildBreadWorkspaceExport', () => {
         content: 'Developer setup.',
         source: 'docs',
         source_metadata: {
-          canonical_repo_path: 'docs/bread-docs/developers/setup.mdx',
+          canonical_repo_path: 'docs/breezify-docs/developers/setup.mdx',
           repo_id: 42,
         },
         public_slug: null,
@@ -320,7 +320,7 @@ describe('buildBreadWorkspaceExport', () => {
         content: 'Contact us.',
         source: 'docs',
         source_metadata: {
-          canonical_repo_path: 'docs/bread-docs/help-center/contact.md',
+          canonical_repo_path: 'docs/breezify-docs/help-center/contact.md',
           repo_id: 42,
         },
         public_slug: null,
@@ -393,11 +393,11 @@ describe('buildBreadWorkspaceExport', () => {
       throw new Error(`Unexpected table: ${table}`)
     })
 
-    const result = await buildBreadWorkspaceExport(
+    const result = await buildBreezifyWorkspaceExport(
       { from } as never,
       {
         workspaceId: 'workspace-1',
-        targetPath: 'docs/bread-docs',
+        targetPath: 'docs/breezify-docs',
         repoId: 42,
         hostedRootFolderId: 'hosted-root',
       },
@@ -410,23 +410,23 @@ describe('buildBreadWorkspaceExport', () => {
       '00000000-0000-4000-8000-000000000006',
     ])
     expect(result.files.map((file) => file.path)).toEqual([
-      'docs/bread-docs/developers/sdks/node-sdk.md',
-      'docs/bread-docs/developers/setup.mdx',
-      'docs/bread-docs/help-center/contact.md',
-      'docs/bread-docs/help-center/faq.md',
+      'docs/breezify-docs/developers/sdks/node-sdk.md',
+      'docs/breezify-docs/developers/setup.mdx',
+      'docs/breezify-docs/help-center/contact.md',
+      'docs/breezify-docs/help-center/faq.md',
     ])
     expect(result.restrictedFolderNames).toEqual([])
   })
 
   it('links an exported external identity without changing the internal row id', async () => {
     const documentId = '00000000-0000-4000-8000-000000000001'
-    const breadDocumentId = '00000000-0000-4000-8000-000000000099'
+    const breezifyDocumentId = '00000000-0000-4000-8000-000000000099'
     const workspaceEq = vi.fn().mockResolvedValue({ error: null })
     const documentEq = vi.fn().mockReturnValue({ eq: workspaceEq })
     const update = vi.fn().mockReturnValue({ eq: documentEq })
     const from = vi.fn().mockReturnValue({ update })
 
-    await linkBreadWorkspaceDocuments(
+    await linkBreezifyWorkspaceDocuments(
       { from } as never,
       {
         workspaceId: 'workspace-1',
@@ -437,7 +437,7 @@ describe('buildBreadWorkspaceExport', () => {
         exported: {
           files: [{
             documentId,
-            breadDocumentId,
+            breezifyDocumentId,
             path: 'docs/setup.md',
             content: '',
           }],
@@ -461,7 +461,7 @@ describe('buildBreadWorkspaceExport', () => {
     expect(update).toHaveBeenCalledWith({
       source_metadata: expect.objectContaining({
         canonical_repo_path: 'docs/setup.md',
-        bread_document_id: breadDocumentId,
+        breezify_document_id: breezifyDocumentId,
       }),
     })
     expect(documentEq).toHaveBeenCalledWith('id', documentId)

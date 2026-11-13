@@ -3,7 +3,6 @@ import type { StoredFooter, StoredHeader } from "@/lib/portal/schema";
 import type {
   PortalAddressMode,
   PortalAddressScope,
-  PortalChromeScope,
 } from "@/lib/workspace-settings";
 
 // ---------------------------------------------------------------------------
@@ -182,33 +181,6 @@ export async function updateWorkspacePortalVisibility(
     };
   }
   return { ok: true, isPublic };
-}
-
-/**
- * Set whether portal projects share one workspace header/footer
- * (`portal_chrome_scope`). Settings are merged server-side, so the other
- * settings keys are preserved.
- */
-export async function updateWorkspacePortalChromeScope(
-  scope: PortalChromeScope,
-): Promise<UpdateIdentifierResult> {
-  const res = await fetch("/api/workspace", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ settings: { portal_chrome_scope: scope } }),
-  });
-  const body = (await res.json().catch(() => ({}))) as
-    | WorkspaceWithRole
-    | { error?: string };
-  if (!res.ok) {
-    return {
-      ok: false,
-      error:
-        (body as { error?: string }).error ??
-        "Couldn't update the portal header and footer scope.",
-    };
-  }
-  return { ok: true, workspace: body as WorkspaceWithRole };
 }
 
 /**

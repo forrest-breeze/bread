@@ -47,8 +47,8 @@ interface PortalThemeControlsProps {
   onLayoutChange: (layout: PortalLayout) => void
   /** The workspace's logo, shown as the default when the project sets none. */
   workspaceLogoUrl?: string
-  /** Enterprise entitlement for removing the Bread footer credit. */
-  canRemoveBreadBranding?: boolean
+  /** Enterprise entitlement for removing the Breezify footer credit. */
+  canRemoveBreezifyBranding?: boolean
   className?: string
 }
 
@@ -432,7 +432,7 @@ export function PortalThemeControls({
   layout,
   onLayoutChange,
   workspaceLogoUrl,
-  canRemoveBreadBranding = false,
+  canRemoveBreezifyBranding = false,
   className,
 }: PortalThemeControlsProps): React.ReactElement {
   const [error, setError] = useState<string | null>(null)
@@ -864,12 +864,12 @@ export function PortalThemeControls({
         ) : null}
       </section>
 
-      {canRemoveBreadBranding ? (
+      {canRemoveBreezifyBranding ? (
         <div className="flex items-start justify-between gap-3 rounded-lg border border-border bg-muted/30 p-3">
           <div className="min-w-0 space-y-1">
-            <Label htmlFor="portal-powered-by">Show Powered by Bread</Label>
+            <Label htmlFor="portal-powered-by">Show Powered by Breezify</Label>
             <p className="text-[11px] leading-relaxed text-muted-foreground">
-              Controls the Bread credit in the public portal footer.
+              Controls the Breezify credit in the public portal footer.
             </p>
           </div>
           <Switch
@@ -883,7 +883,7 @@ export function PortalThemeControls({
                 setError(err instanceof Error ? err.message : "Operation failed")
               }
             }}
-            aria-label="Show Powered by Bread"
+            aria-label="Show Powered by Breezify"
           />
         </div>
       ) : null}

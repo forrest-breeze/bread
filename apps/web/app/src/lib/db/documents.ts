@@ -47,7 +47,7 @@ export async function createWorkspaceDocument({
     .single();
 
   if (error) {
-    throw new Error(`[Bread] Failed to create document: ${error.message}`);
+    throw new Error(`[Breezify] Failed to create document: ${error.message}`);
   }
 
   fireIngestFromText(data.id as string, content);
@@ -90,7 +90,7 @@ export async function updateWorkspaceDocument({
     .single();
 
   if (error) {
-    throw new Error(`[Bread] Failed to update document: ${error.message}`);
+    throw new Error(`[Breezify] Failed to update document: ${error.message}`);
   }
 
   if (content !== undefined) {

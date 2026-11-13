@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { generateInviteCode } from "@/app/api/workspace/route";
 import { safeJsonBody, safeSearchParams } from "@/lib/validation";
 import type { InviteLinkRow } from "@/lib/types";
-import { WorkspaceRole, canManageRole } from "@bread/core";
+import { WorkspaceRole, canManageRole } from "@breezify/core";
 import { requireRouteUser } from "@/lib/auth/route-auth";
 
 const workspaceRoleEnum = z.enum([
@@ -78,7 +78,7 @@ export async function GET(): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to create invite link:", error.message);
+    console.error("[Breezify] Failed to create invite link:", error.message);
     return NextResponse.json({ error: "Failed to create invite link" }, { status: 500 });
   }
 
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to regenerate invite link:", error.message);
+    console.error("[Breezify] Failed to regenerate invite link:", error.message);
     return NextResponse.json({ error: "Failed to regenerate invite link" }, { status: 500 });
   }
 
@@ -189,7 +189,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] Failed to update invite link role:", error.message);
+    console.error("[Breezify] Failed to update invite link role:", error.message);
     return NextResponse.json({ error: "Failed to update invite link" }, { status: 500 });
   }
 
@@ -227,7 +227,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     .eq("workspace_id", membership.workspace_id);
 
   if (error) {
-    console.error("[Bread] Failed to revoke invite link:", error.message);
+    console.error("[Breezify] Failed to revoke invite link:", error.message);
     return NextResponse.json({ error: "Failed to revoke invite link" }, { status: 500 });
   }
 

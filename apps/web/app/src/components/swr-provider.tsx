@@ -8,13 +8,13 @@ import { clearStoredOpenFolderIds } from "@/lib/document-nav-preferences"
 // Bumping the suffix invalidates cached entries from previous app versions
 // (e.g. when payload shapes change). Keep in sync when breaking cache-shape
 // changes land.
-const CACHE_KEY = "bread-swr-cache:v3"
+const CACHE_KEY = "breezify-swr-cache:v3"
 
 // The user id the persisted cache belongs to. The cache keys (e.g. "/api/profile")
 // are not user-scoped, so without this stamp a different user logging into the
 // same browser would restore the previous user's data. On mount we compare this
 // to the authenticated user and purge if they differ. See cross-user-cache-leak.
-const CACHE_OWNER_KEY = "bread-swr-cache-owner"
+const CACHE_OWNER_KEY = "breezify-swr-cache-owner"
 
 // Keys containing ephemeral session data that shouldn't be persisted across
 // browser sessions. Everything else — including documents, folders, topics,
@@ -89,14 +89,14 @@ function purgeUserScopedClientState(broadcast: boolean): void {
   if (typeof document !== "undefined") {
     // Drop the active-workspace cookie so the next user falls back to their own
     // first membership instead of a workspace id they may not belong to.
-    document.cookie = "bread-workspace=; path=/; max-age=0; samesite=lax"
+    document.cookie = "breezify-workspace=; path=/; max-age=0; samesite=lax"
   }
   if (broadcast) {
     try {
       // Storage events only fire in *other* tabs, so this wakes up any sibling
       // tabs that might be holding the previous user's cache.
-      localStorage.setItem("bread-signout", String(Date.now()))
-      localStorage.removeItem("bread-signout")
+      localStorage.setItem("breezify-signout", String(Date.now()))
+      localStorage.removeItem("breezify-signout")
     } catch {
       // Storage unavailable.
     }
@@ -108,7 +108,7 @@ function purgeUserScopedClientState(broadcast: boolean): void {
  * tab that initiates sign-out) so the next user does not see cached data from
  * the previous session. Sibling tabs are cleared via the broadcast signal.
  */
-export function clearBreadSwrCache(): void {
+export function clearBreezifySwrCache(): void {
   purgeUserScopedClientState(true)
 }
 
@@ -118,7 +118,7 @@ export function clearBreadSwrCache(): void {
  * localStorage cache, owner stamp, drafts, and the active-workspace cookie. A
  * sibling tab must NOT re-clear those origin-wide values — in a multi-tab
  * account switch the newly logged-in tab has already written a fresh
- * `bread-workspace` cookie, and deleting it here would silently drop the
+ * `breezify-workspace` cookie, and deleting it here would silently drop the
  * sibling's subsequent requests back to the user's first-membership workspace.
  */
 function clearInMemorySwrCache(): void {
@@ -215,7 +215,7 @@ export function SWRProvider({
     // NOT touch those here — re-deleting the workspace cookie would clobber a
     // workspace the newly logged-in tab just selected.
     const handleStorage = (event: StorageEvent): void => {
-      if (event.key === "bread-signout") {
+      if (event.key === "breezify-signout") {
         clearInMemorySwrCache()
       }
     }

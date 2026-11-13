@@ -39,7 +39,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         : error instanceof PortalProxyConfigurationError
           ? 400
           : 502;
-    console.error("[Bread] Cloudflare deploy:", error);
+    console.error("[Breezify] Cloudflare deploy:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Cloudflare deployment failed" },
       { status },

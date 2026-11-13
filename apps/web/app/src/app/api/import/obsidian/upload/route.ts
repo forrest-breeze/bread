@@ -64,7 +64,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
 
   if (error) {
-    console.error("[Bread] obsidian upload failed:", error.message);
+    console.error("[Breezify] obsidian upload failed:", error.message);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 

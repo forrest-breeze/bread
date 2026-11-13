@@ -1,4 +1,4 @@
-# `@bread/app` — the docs hosting app
+# `@breezify/app` — the docs hosting app
 
 Docs hosting: an editor for documents and folders, GitHub-hosted docs sync, published
 portals with search, custom domains (including sub-folder mounts through the Cloudflare
@@ -101,7 +101,7 @@ Required:
 | `NEXT_PUBLIC_APP_URL` | The deployed URL, e.g. `https://<project>.vercel.app`. |
 | `CRON_SECRET` | `openssl rand -hex 32`. Only if the cron workflows run. |
 
-Optional: `BREAD_TOKEN_ENC_KEY` (needed to connect token-based integrations),
+Optional: `BREEZIFY_TOKEN_ENC_KEY` (needed to connect token-based integrations),
 the `GITHUB_APP_*` set (GitHub docs sync), `LOGIN_ACCESS_CODE`.
 
 GitHub docs sync replaces ReadMe's GitHub integration: it reads and writes the

@@ -45,10 +45,10 @@ export function restrictedBootstrapFolderNames(input: {
 }
 
 export interface BootstrapDocument {
-  /** Internal Bread database row identity. */
+  /** Internal Breezify database row identity. */
   id: string
   /** Stable identity declared by the hosted repository frontmatter. */
-  breadDocumentId?: string | null
+  breezifyDocumentId?: string | null
   title: string
   folderId: string
   /** Optional taxonomy root to omit from this document's repository path. */
@@ -78,10 +78,10 @@ export interface BootstrapDocument {
 }
 
 export interface GitHubBootstrapFile {
-  /** Internal Bread database row identity used to link the exported file. */
+  /** Internal Breezify database row identity used to link the exported file. */
   documentId: string | null
   /** Stable identity emitted in the repository frontmatter. */
-  breadDocumentId?: string | null
+  breezifyDocumentId?: string | null
   path: string
   content: string
 }
@@ -160,7 +160,7 @@ export function githubHostedDocsPullRequestTitle(
   targetPath: string,
   targetExists: boolean,
 ): string {
-  return `docs: ${targetExists ? 'Update' : 'Create'} ${targetPath} from Bread`
+  return `docs: ${targetExists ? 'Update' : 'Create'} ${targetPath} from Breezify`
 }
 
 export function githubHostedDocsBranchPrefix(targetPath: string): string {
@@ -170,7 +170,7 @@ export function githubHostedDocsBranchPrefix(targetPath: string): string {
     .replace(/-{2,}/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 40) || 'docs'
-  return `bread/docs-${segment}-`
+  return `breezify/docs-${segment}-`
 }
 
 function relativeFolderChain(
@@ -219,7 +219,7 @@ function uniqueFilePath(
   }
 }
 
-const BREAD_DOCUMENT_ID_PATTERN =
+const BREEZIFY_DOCUMENT_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 function preservedFrontmatterLines(
@@ -234,7 +234,7 @@ function preservedFrontmatterLines(
   if (lines.length !== 2 && lines.length !== 3) return null
 
   const titleMatch = /^title: (.+)$/.exec(lines[0]!)
-  const idMatch = /^bread_document_id: (.+)$/.exec(lines[1]!)
+  const idMatch = /^breezify_document_id: (.+)$/.exec(lines[1]!)
   if (!titleMatch || !idMatch) return null
   try {
     const title = JSON.parse(titleMatch[1]!) as unknown
@@ -244,9 +244,9 @@ function preservedFrontmatterLines(
       !title.trim() ||
       lines[0] !== `title: ${JSON.stringify(title)}` ||
       typeof id !== 'string' ||
-      !BREAD_DOCUMENT_ID_PATTERN.test(id) ||
+      !BREEZIFY_DOCUMENT_ID_PATTERN.test(id) ||
       id !== expectedDocumentId ||
-      lines[1] !== `bread_document_id: ${JSON.stringify(id)}`
+      lines[1] !== `breezify_document_id: ${JSON.stringify(id)}`
     ) {
       return null
     }
@@ -271,7 +271,7 @@ function preservedFrontmatterLines(
 /**
  * The `date:` frontmatter line for a timestamp, or null when there isn't a
  * usable one. Normalized to the exact ISO form the format validator requires,
- * so a file Bread writes round-trips through its own parser unchanged.
+ * so a file Breezify writes round-trips through its own parser unchanged.
  */
 function frontmatterDateLine(updatedAt: string | null | undefined): string | null {
   if (!updatedAt) return null
@@ -292,26 +292,26 @@ function sameDateInstant(
 
 function documentFileContent(document: BootstrapDocument): {
   content: string
-  breadDocumentId: string
+  breezifyDocumentId: string
 } {
   const title = document.title.trim() || 'Untitled'
   const body = document.contentMarkdown.trim()
   const explicitDocumentId =
-    typeof document.breadDocumentId === 'string' &&
-    BREAD_DOCUMENT_ID_PATTERN.test(document.breadDocumentId)
-      ? document.breadDocumentId
+    typeof document.breezifyDocumentId === 'string' &&
+    BREEZIFY_DOCUMENT_ID_PATTERN.test(document.breezifyDocumentId)
+      ? document.breezifyDocumentId
       : null
-  const breadDocumentId = explicitDocumentId ?? document.id
+  const breezifyDocumentId = explicitDocumentId ?? document.id
   const preserved = preservedFrontmatterLines(
     document.repositoryContent,
-    breadDocumentId,
+    breezifyDocumentId,
   )
   const repositoryDateIsCurrent =
     !document.publishedAt ||
     sameDateInstant(document.publishedAt, preserved?.dateValue)
   // A GitHub sync that no one edited must be byte-for-byte clean. Besides
   // avoiding whitespace/MDX churn, this retains the repository's exact date
-  // spelling instead of manufacturing a Bread-authored change.
+  // spelling instead of manufacturing a Breezify-authored change.
   if (
     document.repositoryContentIsCurrent === true &&
     preserved?.title === title &&
@@ -319,7 +319,7 @@ function documentFileContent(document: BootstrapDocument): {
     document.repositoryContent
   ) {
     return {
-      breadDocumentId,
+      breezifyDocumentId,
       content: document.repositoryContent,
     }
   }
@@ -329,15 +329,15 @@ function documentFileContent(document: BootstrapDocument): {
     (repositoryDateIsCurrent ? preserved?.date : null) ??
     publishedDateLine ??
     preserved?.date ??
-    // updated_at is only a migration fallback for Bread-authored documents.
+    // updated_at is only a migration fallback for Breezify-authored documents.
     // A linked repository file with no date must remain undated.
     (document.repositoryContent ? null : frontmatterDateLine(document.updatedAt))
   return {
-    breadDocumentId,
+    breezifyDocumentId,
     content: [
       '---',
       `title: ${JSON.stringify(title)}`,
-      `bread_document_id: ${JSON.stringify(breadDocumentId)}`,
+      `breezify_document_id: ${JSON.stringify(breezifyDocumentId)}`,
       ...(dateLine ? [dateLine] : []),
       '---',
       '',
@@ -360,7 +360,7 @@ export function buildGitHubBootstrapFiles(input: {
 
   const byId = new Map(input.folders.map((folder) => [folder.id, folder]))
   const root = byId.get(input.rootFolderId)
-  if (!root) throw new Error('The selected Bread folder is unavailable.')
+  if (!root) throw new Error('The selected Breezify folder is unavailable.')
 
   const usedPaths = new Set<string>()
   const files: GitHubBootstrapFile[] = []
@@ -467,7 +467,7 @@ export function buildGitHubBootstrapFiles(input: {
     const rendered = documentFileContent(document)
     files.push({
       documentId: document.id,
-      breadDocumentId: rendered.breadDocumentId,
+      breezifyDocumentId: rendered.breezifyDocumentId,
       path,
       content: rendered.content,
     })

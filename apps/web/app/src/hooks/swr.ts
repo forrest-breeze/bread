@@ -16,7 +16,7 @@ import type {
   ImportJobItemRow,
   ImportJobRow,
   MonitoredRepoRow,
-} from "@bread/core"
+} from "@breezify/core"
 import type { GitHubAvailableRepo } from "@/lib/github/types"
 import type { PortalLayout } from "@/lib/portal/schema"
 import type { PortalScopeEntry } from "@/lib/public-kb"
@@ -79,9 +79,11 @@ export interface WorkspaceWithRole extends WorkspaceRow {
   user_role: WorkspaceRole
   /** Whether the plan includes the visual portal editor (Basic+). */
   portal_editor_enabled?: boolean
-  /** Whether the plan includes the AI portal builder (Business/Enterprise). */
+  /** Whether the AI portal builder is available (currently always off). */
   portal_ai_builder_enabled?: boolean
-  /** Whether the plan includes multilingual public portals (Business/Enterprise). */
+  /** Whether the visitor "Ask AI" assistant is available (ANTHROPIC_API_KEY set). */
+  portal_assistant_enabled?: boolean
+  /** Whether portal machine translation is available (ANTHROPIC_API_KEY set). */
   portal_translations_enabled?: boolean
   /** Whether the plan includes portal reporting (Business/Enterprise). */
   portal_reporting_enabled?: boolean
@@ -89,7 +91,7 @@ export interface WorkspaceWithRole extends WorkspaceRow {
   portal_reporting_max_days?: number | null
   /** Max portal projects for the plan. null means uncapped. */
   portal_project_limit?: number | null
-  /** Whether the plan can remove Bread branding from the public portal. */
+  /** Whether the plan can remove Breezify branding from the public portal. */
   portal_branding_removal_enabled?: boolean
 }
 
@@ -270,15 +272,17 @@ export interface WorkspaceListItem extends WorkspaceRow {
   user_role: WorkspaceRole
   /** Whether the plan includes the visual portal editor (Basic+). */
   portal_editor_enabled?: boolean
-  /** Whether the plan includes the AI portal builder (Business/Enterprise). */
+  /** Whether the AI portal builder is available (currently always off). */
   portal_ai_builder_enabled?: boolean
+  /** Whether the visitor "Ask AI" assistant is available (ANTHROPIC_API_KEY set). */
+  portal_assistant_enabled?: boolean
   /** Whether the plan includes portal reporting (Business/Enterprise). */
   portal_reporting_enabled?: boolean
   /** Max reporting lookback in days. null means uncapped by app presets. */
   portal_reporting_max_days?: number | null
   /** Max portal projects for the plan. null means uncapped. */
   portal_project_limit?: number | null
-  /** Whether the plan can remove Bread branding from the public portal. */
+  /** Whether the plan can remove Breezify branding from the public portal. */
   portal_branding_removal_enabled?: boolean
 }
 

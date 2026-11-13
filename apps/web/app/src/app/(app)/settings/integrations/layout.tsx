@@ -144,7 +144,7 @@ export default function IntegrationsLayout({
       <div>
         <h1 className="text-xl font-semibold">Integrations</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Connect Bread to the tools your team already uses.
+          Connect Breezify to the tools your team already uses.
         </p>
       </div>
 

@@ -163,7 +163,7 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           source.conflict_count > 0
-            ? { conflict_resolution: "bread" }
+            ? { conflict_resolution: "breezify" }
           : {},
         ),
       })
@@ -380,7 +380,7 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
         >
           {publishStatus?.message ??
             (exactStatusUnavailable
-              ? "Bread could not compare the workspace with GitHub."
+              ? "Breezify could not compare the workspace with GitHub."
               : "Resolve the publishing issue before trying again.")}
         </p>
       ) : null}
@@ -402,7 +402,7 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
         <p className="flex items-start gap-1.5 px-1 pt-1 text-[11px] leading-4 text-amber-700 dark:text-amber-400">
           <AlertTriangle className="mt-0.5 size-3 shrink-0" />
           {source.conflict_count} conflict
-          {source.conflict_count === 1 ? "" : "s"} will keep the Bread
+          {source.conflict_count === 1 ? "" : "s"} will keep the Breezify
           {" "}version.
         </p>
       ) : null}
@@ -423,13 +423,13 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
             <AlertDialogDescription>
               {directCommit ? (
                 <>
-                  Bread will compare all linked documents in{" "}
+                  Breezify will compare all linked documents in{" "}
                   {source.repo_full_name} and commit every saved change straight
                   to the {source.branch ?? "default"} branch.
                 </>
               ) : (
                 <>
-                  Bread will compare all linked documents in{" "}
+                  Breezify will compare all linked documents in{" "}
                   {source.repo_full_name} and put every saved change into{" "}
                   {pullRequest ? "the open" : "one"} pull request. The{" "}
                   {source.branch ?? "default"} branch will not change until that
@@ -445,7 +445,7 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
               <p>
                 {source.conflict_count} linked document
                 {source.conflict_count === 1 ? " has" : "s have"} changes in
-                both GitHub and Bread. This {directCommit ? "commit will write" : "pull request will propose"} the Bread
+                both GitHub and Breezify. This {directCommit ? "commit will write" : "pull request will propose"} the Breezify
                 versions for those files. Review those conflicts before continuing.
               </p>
             </div>

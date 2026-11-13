@@ -2,7 +2,7 @@ import { createHmac, createPrivateKey, createSign, timingSafeEqual, type KeyObje
 import { buildRedis } from '@/lib/upstash'
 import { GitHubApiError } from './retry'
 import type { GitHubAvailableRepo } from './types'
-import type { GitHubFileCommit } from '@bread/core'
+import type { GitHubFileCommit } from '@breezify/core'
 
 /**
  * Where the GitHub App private key lives when it is too large for a Lambda env
@@ -876,7 +876,7 @@ export async function createRepositoryFilesCommit(
   return commit
 }
 
-/** Open a pull request from a Bread edit branch to the deployment branch. */
+/** Open a pull request from a Breezify edit branch to the deployment branch. */
 export async function createRepositoryPullRequest(
   token: string,
   repoFullName: string,
@@ -1084,7 +1084,7 @@ async function fetchAllPages<T>(baseUrl: string, token: string): Promise<T[]> {
     if (!res.ok) {
       const remaining = res.headers.get('X-RateLimit-Remaining')
       if (remaining !== null && parseInt(remaining, 10) === 0) {
-        console.error('[Bread] GitHub API rate limit exhausted for:', baseUrl)
+        console.error('[Breezify] GitHub API rate limit exhausted for:', baseUrl)
       }
       const body = await readErrorBody(res)
       throw new GitHubApiError(

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { validateBreadHostedDocsFiles } from './github-hosted-format'
+import { validateBreezifyHostedDocsFiles } from './github-hosted-format'
 
 function doc(
   path: string,
@@ -11,7 +11,7 @@ function doc(
     content: [
       '---',
       `title: ${JSON.stringify(title)}`,
-      `bread_document_id: ${JSON.stringify(id)}`,
+      `breezify_document_id: ${JSON.stringify(id)}`,
       '---',
       '',
       `# ${title}`,
@@ -22,9 +22,9 @@ function doc(
   }
 }
 
-describe('Bread hosted docs format', () => {
+describe('Breezify hosted docs format', () => {
   it('accepts the exact exported document format', () => {
-    expect(validateBreadHostedDocsFiles([
+    expect(validateBreezifyHostedDocsFiles([
       doc(
         'docs/getting-started.md',
         'Getting Started',
@@ -34,13 +34,13 @@ describe('Bread hosted docs format', () => {
   })
 
   it('rejects missing metadata and title drift', () => {
-    const issues = validateBreadHostedDocsFiles([{
+    const issues = validateBreezifyHostedDocsFiles([{
       path: 'docs/setup.md',
       content: '---\ntitle: "Setup"\n---\n\n# Install\n',
     }])
 
     expect(issues.map((issue) => issue.message)).toEqual([
-      'frontmatter must contain title, bread_document_id, and an optional date',
+      'frontmatter must contain title, breezify_document_id, and an optional date',
     ])
   })
 
@@ -50,7 +50,7 @@ describe('Bread hosted docs format', () => {
       content: [
         '---',
         'title: "Portal pages"',
-        'bread_document_id: "00000000-0000-4000-8000-000000000002"',
+        'breezify_document_id: "00000000-0000-4000-8000-000000000002"',
         'date: "2026-08-17T17:00:00Z"',
         '---',
         '',
@@ -61,16 +61,16 @@ describe('Bread hosted docs format', () => {
       ].join('\n'),
     }
 
-    expect(validateBreadHostedDocsFiles([dated])).toEqual([])
+    expect(validateBreezifyHostedDocsFiles([dated])).toEqual([])
     // The dated shape must not slip past the duplicate-identity scan.
     expect(
-      validateBreadHostedDocsFiles([
+      validateBreezifyHostedDocsFiles([
         dated,
         doc('docs/b.md', 'B', '00000000-0000-4000-8000-000000000002'),
       ]),
     ).toContainEqual({
       path: 'docs/b.md',
-      message: `reuses bread_document_id from ${dated.path}`,
+      message: `reuses breezify_document_id from ${dated.path}`,
     })
   })
 
@@ -80,7 +80,7 @@ describe('Bread hosted docs format', () => {
       content: [
         '---',
         'title: "Entry"',
-        'bread_document_id: "00000000-0000-4000-8000-000000000003"',
+        'breezify_document_id: "00000000-0000-4000-8000-000000000003"',
         third,
         '---',
         '',
@@ -90,14 +90,14 @@ describe('Bread hosted docs format', () => {
     })
 
     expect(
-      validateBreadHostedDocsFiles([frontmatter('date: "not-a-date"')]).map(
+      validateBreezifyHostedDocsFiles([frontmatter('date: "not-a-date"')]).map(
         (issue) => issue.message,
       ),
     ).toEqual([
       'the optional third frontmatter line must be a quoted ISO 8601 date',
     ])
     expect(
-      validateBreadHostedDocsFiles([frontmatter('author: "Ada"')]).map(
+      validateBreezifyHostedDocsFiles([frontmatter('author: "Ada"')]).map(
         (issue) => issue.message,
       ),
     ).toEqual([
@@ -107,12 +107,12 @@ describe('Bread hosted docs format', () => {
 
   it('rejects duplicate document identities', () => {
     const id = '00000000-0000-4000-8000-000000000001'
-    expect(validateBreadHostedDocsFiles([
+    expect(validateBreezifyHostedDocsFiles([
       doc('docs/a.md', 'A', id),
       doc('docs/b.md', 'B', id),
     ])).toContainEqual({
       path: 'docs/b.md',
-      message: 'reuses bread_document_id from docs/a.md',
+      message: 'reuses breezify_document_id from docs/a.md',
     })
   })
 })

@@ -67,7 +67,7 @@ function mockKeyRow(result: { data: unknown; error: unknown }): {
 describe("POST /api/workspace/api-keys/:id/reveal", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.BREAD_TOKEN_ENC_KEY = ENC_KEY
+    process.env.BREEZIFY_TOKEN_ENC_KEY = ENC_KEY
   })
 
   it("returns 401 when unauthenticated", async () => {
@@ -99,7 +99,7 @@ describe("POST /api/workspace/api-keys/:id/reveal", () => {
 
   it("returns the decrypted secret", async () => {
     mockAuthed()
-    const secret = "bread_sk_abc123"
+    const secret = "breezify_sk_abc123"
     mockKeyRow({ data: { key_encrypted: encryptToken(secret) }, error: null })
 
     const res = await call()
@@ -118,12 +118,12 @@ describe("POST /api/workspace/api-keys/:id/reveal", () => {
 
   it("returns 500 when the encryption key no longer decrypts the row", async () => {
     mockAuthed()
-    const stale = encryptToken("bread_sk_abc123")
+    const stale = encryptToken("breezify_sk_abc123")
     mockKeyRow({ data: { key_encrypted: stale }, error: null })
-    process.env.BREAD_TOKEN_ENC_KEY = Buffer.alloc(32, 9).toString("base64")
+    process.env.BREEZIFY_TOKEN_ENC_KEY = Buffer.alloc(32, 9).toString("base64")
 
     const res = await call()
     expect(res.status).toBe(500)
-    expect((await res.json()).error).toMatch(/BREAD_TOKEN_ENC_KEY/)
+    expect((await res.json()).error).toMatch(/BREEZIFY_TOKEN_ENC_KEY/)
   })
 })

@@ -36,7 +36,7 @@ export async function GET(): Promise<NextResponse> {
     .limit(HOME_DOCUMENT_LIMIT)
 
   if (error) {
-    console.error("[Bread] Failed to fetch document home feed:", error.message)
+    console.error("[Breezify] Failed to fetch document home feed:", error.message)
     return NextResponse.json(
       { error: "Failed to fetch documents" },
       { status: 500 },

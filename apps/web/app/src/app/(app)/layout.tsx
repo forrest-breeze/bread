@@ -25,7 +25,7 @@ function isTransientMembershipFailure(err: unknown): boolean {
 }
 
 export const metadata: Metadata = {
-  title: { template: "%s", default: "Bread" },
+  title: { template: "%s", default: "Breezify" },
 }
 
 export default async function DashboardLayout({

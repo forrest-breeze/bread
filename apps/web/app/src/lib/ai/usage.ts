@@ -75,10 +75,10 @@ export async function recordAiUsage(params: {
       outcome: params.outcome ?? "success",
     });
     if (error) {
-      console.error("[Bread] recordAiUsage insert failed:", error.message);
+      console.error("[Breezify] recordAiUsage insert failed:", error.message);
     }
   } catch (err) {
-    console.error("[Bread] recordAiUsage:", err);
+    console.error("[Breezify] recordAiUsage:", err);
   }
 }
 
@@ -102,7 +102,7 @@ export async function getMonthlyAiSpendUsd(
     .not("model", "is", null)
     .gte("created_at", monthStart.toISOString());
   if (error) {
-    console.error("[Bread] getMonthlyAiSpendUsd:", error.message);
+    console.error("[Breezify] getMonthlyAiSpendUsd:", error.message);
     return 0;
   }
   return (data ?? []).reduce(

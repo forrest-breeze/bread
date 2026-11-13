@@ -44,7 +44,7 @@ export async function DELETE(): Promise<NextResponse> {
         // The managed Worker and routes are already gone. Finish deleting the
         // encrypted local credential even if Cloudflare's revoke endpoint is
         // temporarily unavailable; the app can no longer use the token.
-        console.error("[Bread] Cloudflare token revoke after cleanup:", error);
+        console.error("[Breezify] Cloudflare token revoke after cleanup:", error);
       }
     }
     const admin = createAdminClient();
@@ -60,7 +60,7 @@ export async function DELETE(): Promise<NextResponse> {
     if (connectionError) throw connectionError;
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[Bread] Cloudflare disconnect:", error);
+    console.error("[Breezify] Cloudflare disconnect:", error);
     return NextResponse.json(
       { error: "Cloudflare could not be disconnected safely" },
       { status: 502 },

@@ -24,7 +24,7 @@ describe("TiptapEditor Mermaid controls", () => {
   it("renders imported Markdown Mermaid fences in the editor", async () => {
     const { container } = render(<TiptapEditor content={'```mermaid\nsequenceDiagram\nA->>B: Ping\n```'} />)
     await waitFor(() => expect(container.querySelector(".mermaid-svg svg")).not.toBeNull())
-    expect(container.querySelector(".bread-editor > pre")).toBeNull()
+    expect(container.querySelector(".breezify-editor > pre")).toBeNull()
   })
 
   it.each(["mermaid", "plaintext"])("renders imported %s code in the reading view", async (language) => {
@@ -55,9 +55,9 @@ describe("TiptapEditor Mermaid controls", () => {
     )
 
     await waitFor(() => {
-      expect(document.querySelector(".bread-editor")).not.toBeNull()
+      expect(document.querySelector(".breezify-editor")).not.toBeNull()
     })
-    const editor = document.querySelector<HTMLElement>(".bread-editor")
+    const editor = document.querySelector<HTMLElement>(".breezify-editor")
     expect(editor).not.toBeNull()
     if (!editor) return
 
@@ -84,9 +84,9 @@ describe("TiptapEditor Mermaid controls", () => {
     render(<TiptapEditor content="" />)
 
     await waitFor(() => {
-      expect(document.querySelector(".bread-editor")).not.toBeNull()
+      expect(document.querySelector(".breezify-editor")).not.toBeNull()
     })
-    const editor = document.querySelector<HTMLElement>(".bread-editor")
+    const editor = document.querySelector<HTMLElement>(".breezify-editor")
     expect(editor).not.toBeNull()
     if (!editor) return
 

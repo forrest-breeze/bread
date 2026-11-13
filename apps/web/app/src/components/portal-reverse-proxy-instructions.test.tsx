@@ -95,7 +95,7 @@ describe("PortalReverseProxyInstructions", () => {
       deployment: {
         status: "connected",
         domain: "customer.com",
-        scriptName: "bread-portal-123",
+        scriptName: "breezify-portal-123",
         deployedAt: "2026-07-28T01:00:00.000Z",
         lastError: null,
         needsDeploy: false,
@@ -122,7 +122,7 @@ describe("PortalReverseProxyInstructions", () => {
       deployment: {
         status: "connected",
         domain: "customer.com",
-        scriptName: "bread-portal-123",
+        scriptName: "breezify-portal-123",
         deployedAt: "2026-07-28T01:00:00.000Z",
         lastError: null,
         needsDeploy: true,

@@ -23,7 +23,7 @@ function appOrigin(): string | null {
   }
 }
 
-const ALLOW_HEADERS = "Authorization, Content-Type, x-bread-workspace, x-idempotency-key";
+const ALLOW_HEADERS = "Authorization, Content-Type, x-breezify-workspace, x-idempotency-key";
 const ALLOW_METHODS = "GET, POST, OPTIONS";
 
 export function corsHeaders(request: NextRequest): Record<string, string> {

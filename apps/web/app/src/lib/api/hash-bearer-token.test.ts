@@ -41,7 +41,7 @@ describe('hashBearerToken — null paths', () => {
 
 describe('hashBearerToken — hashing', () => {
   it('returns the SHA-256 hex digest of the token when present', () => {
-    const token = 'bread_sk_ABCDEFGHIJKLMNOPQRSTUVWX'
+    const token = 'breezify_sk_ABCDEFGHIJKLMNOPQRSTUVWX'
     const hash = hashBearerToken(req(`Bearer ${token}`))
     expect(hash).toBe(sha256Hex(token))
     expect(hash).toMatch(/^[0-9a-f]{64}$/)
@@ -50,7 +50,7 @@ describe('hashBearerToken — hashing', () => {
   it('accepts a case-insensitive "bearer" prefix', () => {
     // Per RFC 7235 the auth scheme is case-insensitive. We do not want to lock
     // callers out because they capitalised differently than usual.
-    const token = 'bread_sk_case_test'
+    const token = 'breezify_sk_case_test'
     const upper = hashBearerToken(req(`BEARER ${token}`))
     const lower = hashBearerToken(req(`bearer ${token}`))
     const mixed = hashBearerToken(req(`BeArEr ${token}`))
@@ -61,15 +61,15 @@ describe('hashBearerToken — hashing', () => {
   })
 
   it('is deterministic across invocations on the same token', () => {
-    const token = 'bread_sk_determinism_check'
+    const token = 'breezify_sk_determinism_check'
     expect(hashBearerToken(req(`Bearer ${token}`))).toBe(
       hashBearerToken(req(`Bearer ${token}`)),
     )
   })
 
   it('produces different hashes for different tokens', () => {
-    const a = hashBearerToken(req('Bearer bread_sk_alpha'))
-    const b = hashBearerToken(req('Bearer bread_sk_beta'))
+    const a = hashBearerToken(req('Bearer breezify_sk_alpha'))
+    const b = hashBearerToken(req('Bearer breezify_sk_beta'))
     expect(a).not.toBe(b)
   })
 
@@ -77,7 +77,7 @@ describe('hashBearerToken — hashing', () => {
     // Some HTTP clients send "Bearer \t<token>" with multiple whitespace chars.
     // The helper's regex matches \s+, so the parsed token should be the raw
     // value without leading whitespace.
-    const token = 'bread_sk_tabtest'
+    const token = 'breezify_sk_tabtest'
     const hash = hashBearerToken(req(`Bearer \t${token}`))
     expect(hash).toBe(sha256Hex(token))
   })

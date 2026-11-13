@@ -184,7 +184,7 @@ export default async function PortalPreviewPage({
         documents={apiReferenceData ?? []}
         activeDocRef={doc ?? null}
         endpointHref={pageDocumentPreviewHref}
-        canRemoveBreadBranding={entitlements.portalBrandingRemoval}
+        canRemoveBreezifyBranding={entitlements.portalBrandingRemoval}
         preview
       />
     ) : selectedPage && selectedPresentation === "changelog" ? (
@@ -198,7 +198,7 @@ export default async function PortalPreviewPage({
         documents={pageData.documents}
         activeDocument={changelogDocument ?? undefined}
         entryHref={pageDocumentPreviewHref}
-        canRemoveBreadBranding={entitlements.portalBrandingRemoval}
+        canRemoveBreezifyBranding={entitlements.portalBrandingRemoval}
         preview
       />
     ) : firstDocument ? (
@@ -210,7 +210,7 @@ export default async function PortalPreviewPage({
         publishedLayout={draftLayout}
         refId={doc ?? firstDocument.slug ?? firstDocument.id}
         previewData={pageData}
-        canRemoveBreadBranding={entitlements.portalBrandingRemoval}
+        canRemoveBreezifyBranding={entitlements.portalBrandingRemoval}
         preview
       />
     ) : (
@@ -223,8 +223,8 @@ export default async function PortalPreviewPage({
       published={draftLayout}
       base={previewBase}
       hrefBase={hrefBase}
-      askAiEnabled={entitlements.portalAiBuilder}
-      canRemoveBreadBranding={entitlements.portalBrandingRemoval}
+      askAiEnabled={entitlements.portalAssistant}
+      canRemoveBreezifyBranding={entitlements.portalBrandingRemoval}
       translationsEnabled={entitlements.portalTranslations}
       navigationPages={navigationPages}
       preferredLanguage={

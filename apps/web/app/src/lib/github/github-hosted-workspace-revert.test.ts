@@ -44,7 +44,7 @@ function conflictCountBuilder() {
 }
 
 describe('revertHostedWorkspaceChanges', () => {
-  it('moves a newly added Bread document to trash with an updated-at guard', async () => {
+  it('moves a newly added Breezify document to trash with an updated-at guard', async () => {
     const document = {
       id: documentId,
       title: 'New page',
@@ -102,8 +102,8 @@ describe('revertHostedWorkspaceChanges', () => {
   it('atomically restores a modified document from the compared GitHub blob', async () => {
     const current = {
       id: documentId,
-      title: 'Bread title',
-      content: 'Bread body',
+      title: 'Breezify title',
+      content: 'Breezify body',
       source_metadata: { canonical_repo_path: 'docs/page.md' },
       deleted_at: null,
       updated_at: '2026-08-29T12:00:00.000Z',
@@ -124,7 +124,7 @@ describe('revertHostedWorkspaceChanges', () => {
     const previous = [
       '---',
       'title: "GitHub title"',
-      `bread_document_id: "${documentId}"`,
+      `breezify_document_id: "${documentId}"`,
       '---',
       '',
       '# GitHub title',
@@ -141,13 +141,13 @@ describe('revertHostedWorkspaceChanges', () => {
         exportedFiles: [{
           documentId,
           path: 'docs/page.md',
-          content: 'Bread body',
+          content: 'Breezify body',
         }],
         diffFiles: [{
           path: 'docs/page.md',
           status: 'modified',
           previous,
-          next: 'Bread body',
+          next: 'Breezify body',
           previousBlobSha: 'blob-old',
         }],
         selectedPaths: ['docs/page.md'],
@@ -165,8 +165,8 @@ describe('revertHostedWorkspaceChanges', () => {
       admin,
       expect.objectContaining({
         documentId,
-        expectedTitle: 'Bread title',
-        expectedContent: 'Bread body',
+        expectedTitle: 'Breezify title',
+        expectedContent: 'Breezify body',
         title: 'GitHub title',
         sourceMetadataPatch: expect.objectContaining({
           canonical_repo_path: 'docs/page.md',

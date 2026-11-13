@@ -15,7 +15,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
-import type { GitHubIntegrationRow } from '@bread/core'
+import type { GitHubIntegrationRow } from '@breezify/core'
 
 // ---------------------------------------------------------------------------
 // Module mocks

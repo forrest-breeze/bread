@@ -16,7 +16,7 @@ type LastLoginMethod = OAuthLoginMethod | 'email';
 // true once the Breeze Google OAuth client is configured in Supabase.
 export const GOOGLE_SIGN_IN_ENABLED = false;
 
-const LAST_LOGIN_METHOD_STORAGE_KEY = 'bread:last-login-method';
+const LAST_LOGIN_METHOD_STORAGE_KEY = 'breezify:last-login-method';
 const lastLoginMethodListeners = new Set<() => void>();
 
 function readLastLoginMethodSnapshot(): LastLoginMethod | null {
@@ -66,7 +66,7 @@ function rememberLastLoginMethod(method: LastLoginMethod): void {
 interface LoginFormProps {
   /** Server-sanitized post-login destination (relative path or validated portal URL). */
   next: string;
-  /** Render the private-portal locked copy instead of the Bread default. */
+  /** Render the private-portal locked copy instead of the Breezify default. */
   privatePortalLogin: boolean;
   /** Hide authentication methods until the server verifies the access code. */
   accessRequired?: boolean;
@@ -181,7 +181,7 @@ export function LoginForm({
     setLoading(true);
     const supabase = createClient();
 
-    const pendingInvite = sessionStorage.getItem('bread:pending-invite');
+    const pendingInvite = sessionStorage.getItem('breezify:pending-invite');
     const postLoginNext = pendingInvite ? `/join?code=${pendingInvite}` : next;
     const origin = window.location.origin;
 
@@ -235,7 +235,7 @@ export function LoginForm({
     setLoading(true);
 
     const supabase = createClient();
-    const pendingInvite = sessionStorage.getItem('bread:pending-invite');
+    const pendingInvite = sessionStorage.getItem('breezify:pending-invite');
     const postLoginNext = pendingInvite ? `/join?code=${pendingInvite}` : next;
     const origin = window.location.origin;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -259,7 +259,7 @@ export function LoginForm({
       return;
     }
 
-    sessionStorage.removeItem('bread:pending-invite');
+    sessionStorage.removeItem('breezify:pending-invite');
     rememberLastLoginMethod(provider);
   };
 
@@ -293,7 +293,7 @@ export function LoginForm({
             className="text-3xl font-semibold tracking-tight logo-font"
             style={{ color: '#111', marginBottom: '0.25rem' }}
           >
-            {privatePortalLogin ? 'This portal is locked' : 'Bread'}
+            {privatePortalLogin ? 'This portal is locked' : 'Breezify'}
           </h1>
 
           {/* Subtitle */}

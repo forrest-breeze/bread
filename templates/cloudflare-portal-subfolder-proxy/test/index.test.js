@@ -11,8 +11,8 @@ import {
 const env = {
   EXPECTED_HOST: "customer.com",
   MOUNT_PATH: "/blog",
-  BREAD_ORIGIN: "https://app.example.com",
-  BREAD_PORTAL_PATH: "/p/acme/blog",
+  BREEZIFY_ORIGIN: "https://app.example.com",
+  BREEZIFY_PORTAL_PATH: "/p/acme/blog",
 }
 
 test("maps the exact mount and its descendants without swallowing similar paths", () => {
@@ -28,7 +28,7 @@ test("maps the exact mount and its descendants without swallowing similar paths"
   )
   assert.equal(
     upstreamUrlFor(
-      "https://customer.com/blog/_bread/api/search?q=one",
+      "https://customer.com/blog/_breezify/api/search?q=one",
       config,
     )?.toString(),
     "https://app.example.com/api/public/search?q=one",
@@ -40,8 +40,8 @@ test("maps the exact mount and its descendants without swallowing similar paths"
 test("maps multiple workspace projects from one route bundle", () => {
   const config = proxyConfig({
     EXPECTED_HOST: "portal.northwind.test",
-    BREAD_ORIGIN: "https://app.example.com",
-    BREAD_ROUTES: JSON.stringify({
+    BREEZIFY_ORIGIN: "https://app.example.com",
+    BREEZIFY_ROUTES: JSON.stringify({
       "/manuals": "/p/northwind/developer-guide",
       "/support": "/p/northwind/customer-care",
     }),
@@ -135,7 +135,7 @@ test("301s a legacy blog URL before fetching the portal", async (t) => {
   assert.equal(fetched, false)
 })
 
-test("rewrites Bread redirects back to the customer mount", () => {
+test("rewrites Breezify redirects back to the customer mount", () => {
   const config = proxyConfig(env)
   assert.ok(config)
   assert.equal(
@@ -202,7 +202,7 @@ test("rewrites portal assets without relying on HTMLRewriter", async (t) => {
 
 test("rejects an incomplete or root-mount configuration", () => {
   assert.equal(proxyConfig({ ...env, MOUNT_PATH: "/" }), null)
-  assert.equal(proxyConfig({ ...env, BREAD_PORTAL_PATH: "/docs" }), null)
+  assert.equal(proxyConfig({ ...env, BREEZIFY_PORTAL_PATH: "/docs" }), null)
   assert.equal(proxyConfig({ ...env, EXPECTED_HOST: "" }), null)
-  assert.equal(proxyConfig({ ...env, BREAD_ROUTES: "not json" }), null)
+  assert.equal(proxyConfig({ ...env, BREEZIFY_ROUTES: "not json" }), null)
 })

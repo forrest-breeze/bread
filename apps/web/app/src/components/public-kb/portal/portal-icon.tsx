@@ -18,7 +18,7 @@ export function isRenderablePortalIconName(name: string): boolean {
 }
 
 // Resolves a portal icon name with the same precedence as the server-side
-// dsl/icon.tsx: Bread brand glyphs (components/icons/portal-glyphs.tsx)
+// dsl/icon.tsx: Breezify brand glyphs (components/icons/portal-glyphs.tsx)
 // first, then the open lucide set (code-split per icon via
 // dynamic-lucide-icon.tsx), with the file-text mark as the universal fallback
 // for unknown names. This is a client boundary because the open lucide catalog

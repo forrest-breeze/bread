@@ -79,7 +79,7 @@ export async function POST(
     .insert(rows);
 
   if (insertError) {
-    console.error("[Bread] Failed to insert messages:", insertError.message);
+    console.error("[Breezify] Failed to insert messages:", insertError.message);
     return NextResponse.json(
       { error: "Failed to save messages" },
       { status: 500 },
@@ -158,7 +158,7 @@ export async function DELETE(
     .order("id", { ascending: true });
 
   if (readError) {
-    console.error("[Bread] Failed to read messages:", readError.message);
+    console.error("[Breezify] Failed to read messages:", readError.message);
     return NextResponse.json(
       { error: "Failed to truncate messages" },
       { status: 500 },
@@ -178,7 +178,7 @@ export async function DELETE(
     .in("id", doomed);
 
   if (deleteError) {
-    console.error("[Bread] Failed to delete messages:", deleteError.message);
+    console.error("[Breezify] Failed to delete messages:", deleteError.message);
     return NextResponse.json(
       { error: "Failed to truncate messages" },
       { status: 500 },

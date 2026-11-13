@@ -15,6 +15,7 @@ import {
   findApiReferenceSection,
 } from "@/lib/portal/api-reference-model"
 import type { PortalLayout, PortalPage } from "@/lib/portal/schema"
+import { portalDefaultPage } from "@/lib/portal/schema"
 import {
   publicPortalHref,
   withPublicPortalBase,
@@ -30,7 +31,7 @@ interface PortalApiReferenceViewProps {
   publishedLayout: PortalLayout | null
   taxonomy: PublicTaxonomy
   documents: PublicDocWithContent[]
-  canRemoveBreadBranding: boolean
+  canRemoveBreezifyBranding: boolean
   /**
    * Endpoint addressed by the URL (public slug or id). null renders the first
    * endpoint — what the reference's own root URL serves. Callers resolve
@@ -54,7 +55,7 @@ export async function PortalApiReferenceView({
   publishedLayout,
   taxonomy,
   documents,
-  canRemoveBreadBranding,
+  canRemoveBreezifyBranding,
   activeDocRef = null,
   endpointHref,
   preview = false,
@@ -91,12 +92,12 @@ export async function PortalApiReferenceView({
   const hrefFor = (docSlug: string | null): string =>
     endpointHref
       ? endpointHref(docSlug)
-      : publicPortalHref(
-          hrefBase,
-          docSlug
-            ? `/page/${page.slug}/${docSlug}`
-            : `/page/${page.slug}`,
-        )
+      : docSlug
+        ? publicPortalHref(hrefBase, `/page/${page.slug}/${docSlug}`)
+        : // The default page's root is the portal root.
+          portalDefaultPage(publishedLayout)?.id === page.id
+          ? hrefBase
+          : publicPortalHref(hrefBase, `/page/${page.slug}`)
   const items = sections.map((section, index) => ({
     id: section.id,
     slug: section.slug,
@@ -136,7 +137,7 @@ export async function PortalApiReferenceView({
         editable={preview}
         updated={updated}
         footer={footer}
-        allowPoweredByRemoval={canRemoveBreadBranding}
+        allowPoweredByRemoval={canRemoveBreezifyBranding}
         brandLogoUrl={theme.logoUrl || null}
         brandDarkLogoUrl={theme.darkLogoUrl || null}
         brandAccentColor={theme.accentColor}

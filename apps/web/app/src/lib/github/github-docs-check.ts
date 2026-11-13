@@ -22,9 +22,9 @@ import {
   normalizeHostedDocsPaths,
 } from './github-hosted-docs'
 import {
-  BREAD_HOSTED_DOC_MAX_BYTES,
-  validateBreadHostedDocsFiles,
-  type BreadDocsFormatIssue,
+  BREEZIFY_HOSTED_DOC_MAX_BYTES,
+  validateBreezifyHostedDocsFiles,
+  type BreezifyDocsFormatIssue,
 } from './github-hosted-format'
 import {
   MAX_HOSTED_WORKSPACE_BYTES,
@@ -33,7 +33,7 @@ import {
 import { getTokenCache } from './token-cache-factory'
 import { withGitHubRetry } from './retry'
 
-export const BREAD_DOCS_CHECK_NAME = 'Validate Bread docs'
+export const BREEZIFY_DOCS_CHECK_NAME = 'Validate Breezify docs'
 
 const BLOB_FETCH_CONCURRENCY = 6
 const MAX_ANNOTATIONS = 50
@@ -42,7 +42,7 @@ const MAX_REPORTED_ISSUES = 20
 const MAX_REPORTED_ROOTS = 20
 
 function docsCheckExternalId(info: GitHubDocsCheckInfo): string {
-  return `bread-docs:${info.repoId}:${info.headSha}`
+  return `breezify-docs:${info.repoId}:${info.headSha}`
 }
 
 export interface GitHubDocsCheckInfo {
@@ -170,7 +170,7 @@ export function extractGitHubDocsCheckInfo(
   const checkRun = asRecord(payload.check_run)
   const app = asRecord(checkRun?.app)
   if (
-    checkRun?.name !== BREAD_DOCS_CHECK_NAME ||
+    checkRun?.name !== BREEZIFY_DOCS_CHECK_NAME ||
     positiveSafeInteger(app?.id) !== configuredAppId
   ) {
     return null
@@ -189,10 +189,10 @@ async function loadLinkedRoots(
     .eq('installation_id', info.installationId)
     .eq('repo_id', info.repoId)
   if (error) {
-    throw new Error('Unable to look up linked Bread documentation roots.')
+    throw new Error('Unable to look up linked Breezify documentation roots.')
   }
 
-  // The check enforces the strict Bread frontmatter. A ReadMe-format link has
+  // The check enforces the strict Breezify frontmatter. A ReadMe-format link has
   // no such contract, so it is treated as not linked for this check.
   const rows = ((data ?? []) as LinkedSourceRow[]).filter(
     (row) => (row as { format?: unknown }).format !== 'readme',
@@ -216,14 +216,14 @@ function sanitizeAnnotationMessage(message: string): string {
 }
 
 function issueAnnotations(
-  issues: BreadDocsFormatIssue[],
+  issues: BreezifyDocsFormatIssue[],
 ): GitHubCheckAnnotation[] {
   return issues.slice(0, MAX_ANNOTATIONS).map((issue) => ({
     path: issue.path,
     start_line: 1,
     end_line: 1,
     annotation_level: 'failure',
-    title: 'Invalid Bread document',
+    title: 'Invalid Breezify document',
     message: sanitizeAnnotationMessage(issue.message),
   }))
 }
@@ -239,7 +239,7 @@ function markdownInlineCode(value: string): string {
   return `${fence}${padding}${escaped}${padding}${fence}`
 }
 
-function issueDetailLines(issues: BreadDocsFormatIssue[]): string[] {
+function issueDetailLines(issues: BreezifyDocsFormatIssue[]): string[] {
   const reported = issues.slice(0, MAX_REPORTED_ISSUES)
   const grouped = new Map<string, string[]>()
   for (const issue of reported) {
@@ -259,12 +259,12 @@ function issueDetailLines(issues: BreadDocsFormatIssue[]): string[] {
   return lines
 }
 
-function validationFailure(issues: BreadDocsFormatIssue[]): DocsCheckFailure {
+function validationFailure(issues: BreezifyDocsFormatIssue[]): DocsCheckFailure {
   const annotations = issueAnnotations(issues)
   const affectedFiles = new Set(issues.map((issue) => issue.path)).size
   const hiddenAnnotations = issues.length - annotations.length
   return new DocsCheckFailure({
-    title: 'Bread document validation failed',
+    title: 'Breezify document validation failed',
     summary:
       `${issues.length} ${issues.length === 1 ? 'issue' : 'issues'} found in ` +
       `${affectedFiles} ${affectedFiles === 1 ? 'document' : 'documents'}.`,
@@ -283,7 +283,7 @@ function validationFailure(issues: BreadDocsFormatIssue[]): DocsCheckFailure {
 
 function structuralFailure(summary: string): DocsCheckFailure {
   return new DocsCheckFailure({
-    title: 'Bread document validation failed',
+    title: 'Breezify document validation failed',
     summary,
   })
 }
@@ -303,8 +303,8 @@ function successOutput(
   roots: string[],
 ): GitHubCheckOutput {
   const documentLabel = validated.documentCount === 1
-    ? 'Bread document'
-    : 'Bread documents'
+    ? 'Breezify document'
+    : 'Breezify documents'
   const rootLabel = roots.length === 1 ? 'linked root' : 'linked roots'
   const rootLines = roots
     .slice(0, MAX_REPORTED_ROOTS)
@@ -314,7 +314,7 @@ function successOutput(
   }
 
   return {
-    title: 'Bread documents are valid',
+    title: 'Breezify documents are valid',
     summary:
       `Validated ${validated.documentCount} ${documentLabel} across ` +
       `${roots.length} ${rootLabel} at this commit. ` +
@@ -324,16 +324,16 @@ function successOutput(
       '',
       '- ✅ **Repository scope:** Every linked root exists as a directory, and GitHub returned a complete repository tree.',
       `- ✅ **File content:** ${validated.documentCount} Markdown/MDX ${validated.documentCount === 1 ? 'document was' : 'documents were'} decoded completely as valid UTF-8 text without NUL or replacement characters.`,
-      '- ✅ **Frontmatter:** Required `title` and `bread_document_id` fields use the expected order and quoting; optional `date` values are quoted and parseable.',
+      '- ✅ **Frontmatter:** Required `title` and `breezify_document_id` fields use the expected order and quoting; optional `date` values are quoted and parseable.',
       '- ✅ **Document identity:** Every document ID is a valid UUID and is unique across the linked roots.',
       '- ✅ **Title structure:** Each document starts with an H1 matching its frontmatter title.',
-      `- ✅ **Size limits:** ${validated.documentCount} ${validated.documentCount === 1 ? 'document is' : 'documents are'} within the ${MAX_HOSTED_WORKSPACE_DOCUMENTS}-document limit; each is at most ${formatByteSize(BREAD_HOSTED_DOC_MAX_BYTES)}; ${formatByteSize(validated.totalBytes)} scanned of the ${formatByteSize(MAX_HOSTED_WORKSPACE_BYTES)} combined limit.`,
+      `- ✅ **Size limits:** ${validated.documentCount} ${validated.documentCount === 1 ? 'document is' : 'documents are'} within the ${MAX_HOSTED_WORKSPACE_DOCUMENTS}-document limit; each is at most ${formatByteSize(BREEZIFY_HOSTED_DOC_MAX_BYTES)}; ${formatByteSize(validated.totalBytes)} scanned of the ${formatByteSize(MAX_HOSTED_WORKSPACE_BYTES)} combined limit.`,
       '',
       '### Linked roots',
       '',
       ...rootLines,
       '',
-      'Only `.md` and `.mdx` files beneath these roots are checked. Bread does not lint links, prose, or general Markdown/MDX syntax.',
+      'Only `.md` and `.mdx` files beneath these roots are checked. Breezify does not lint links, prose, or general Markdown/MDX syntax.',
     ].join('\n'),
   }
 }
@@ -383,10 +383,10 @@ function decodeBlob(entryPath: string, blob: GitHubBlob): string {
       message: 'must be returned by GitHub as base64-encoded content',
     }])
   }
-  if (blob.size > BREAD_HOSTED_DOC_MAX_BYTES) {
+  if (blob.size > BREEZIFY_HOSTED_DOC_MAX_BYTES) {
     throw validationFailure([{
       path: entryPath,
-      message: `exceeds the ${BREAD_HOSTED_DOC_MAX_BYTES}-byte Bread sync limit`,
+      message: `exceeds the ${BREEZIFY_HOSTED_DOC_MAX_BYTES}-byte Breezify sync limit`,
     }])
   }
 
@@ -405,12 +405,12 @@ function decodeBlob(entryPath: string, blob: GitHubBlob): string {
   const bytes = Buffer.from(encoded, 'base64')
   if (
     bytes.byteLength !== blob.size ||
-    bytes.byteLength > BREAD_HOSTED_DOC_MAX_BYTES
+    bytes.byteLength > BREEZIFY_HOSTED_DOC_MAX_BYTES
   ) {
     throw validationFailure([{
       path: entryPath,
-      message: bytes.byteLength > BREAD_HOSTED_DOC_MAX_BYTES
-        ? `exceeds the ${BREAD_HOSTED_DOC_MAX_BYTES}-byte Bread sync limit`
+      message: bytes.byteLength > BREEZIFY_HOSTED_DOC_MAX_BYTES
+        ? `exceeds the ${BREEZIFY_HOSTED_DOC_MAX_BYTES}-byte Breezify sync limit`
         : 'could not be decoded completely from GitHub',
     }])
   }
@@ -465,7 +465,7 @@ async function validateCommit(
   >>,
 ): Promise<ValidationResult> {
   if (roots.length === 0) {
-    throw structuralFailure('The linked Bread documentation root is not configured correctly.')
+    throw structuralFailure('The linked Breezify documentation root is not configured correctly.')
   }
 
   const commit = await deps.retry(() =>
@@ -476,7 +476,7 @@ async function validateCommit(
   )
   if (tree.truncated) {
     throw structuralFailure(
-      'GitHub returned an incomplete repository tree, so Bread could not validate every document.',
+      'GitHub returned an incomplete repository tree, so Breezify could not validate every document.',
     )
   }
 
@@ -484,7 +484,7 @@ async function validateCommit(
     const rootEntry = tree.tree.find((entry) => entry.path === root)
     if (rootEntry?.type !== 'tree') {
       throw structuralFailure(
-        'A linked Bread documentation root is missing or is not a directory at this commit.',
+        'A linked Breezify documentation root is missing or is not a directory at this commit.',
       )
     }
   }
@@ -494,7 +494,7 @@ async function validateCommit(
     .sort((left, right) => left.path.localeCompare(right.path))
   if (entries.length > MAX_HOSTED_WORKSPACE_DOCUMENTS) {
     throw structuralFailure(
-      `This commit contains more than ${MAX_HOSTED_WORKSPACE_DOCUMENTS} linked Bread documents.`,
+      `This commit contains more than ${MAX_HOSTED_WORKSPACE_DOCUMENTS} linked Breezify documents.`,
     )
   }
 
@@ -506,17 +506,17 @@ async function validateCommit(
   )
   if (missingSize) {
     throw structuralFailure(
-      'GitHub did not report a safe size for every linked Bread document.',
+      'GitHub did not report a safe size for every linked Breezify document.',
     )
   }
 
   const oversized = entries.find(
-    (entry) => entry.size! > BREAD_HOSTED_DOC_MAX_BYTES,
+    (entry) => entry.size! > BREEZIFY_HOSTED_DOC_MAX_BYTES,
   )
   if (oversized) {
     throw validationFailure([{
       path: oversized.path,
-      message: `exceeds the ${BREAD_HOSTED_DOC_MAX_BYTES}-byte Bread sync limit`,
+      message: `exceeds the ${BREEZIFY_HOSTED_DOC_MAX_BYTES}-byte Breezify sync limit`,
     }])
   }
 
@@ -526,7 +526,7 @@ async function validateCommit(
   )
   if (reportedBytes > MAX_HOSTED_WORKSPACE_BYTES) {
     throw structuralFailure(
-      `The linked Bread documents exceed the ${MAX_HOSTED_WORKSPACE_BYTES}-byte workspace limit.`,
+      `The linked Breezify documents exceed the ${MAX_HOSTED_WORKSPACE_BYTES}-byte workspace limit.`,
     )
   }
 
@@ -542,28 +542,28 @@ async function validateCommit(
       decodedBytes += Buffer.byteLength(content, 'utf8')
       if (decodedBytes > MAX_HOSTED_WORKSPACE_BYTES) {
         throw structuralFailure(
-          `The linked Bread documents exceed the ${MAX_HOSTED_WORKSPACE_BYTES}-byte workspace limit.`,
+          `The linked Breezify documents exceed the ${MAX_HOSTED_WORKSPACE_BYTES}-byte workspace limit.`,
         )
       }
       return { path: entry.path, content }
     },
   )
-  const issues = validateBreadHostedDocsFiles(files)
+  const issues = validateBreezifyHostedDocsFiles(files)
   if (issues.length > 0) throw validationFailure(issues)
   return { documentCount: files.length, totalBytes: reportedBytes }
 }
 
 function internalFailureOutput(): GitHubCheckOutput {
   return {
-    title: 'Bread document validation could not finish',
-    summary: 'Bread could not safely complete validation for this commit.',
-    text: 'Re-run the check. If it fails again, reconnect the repository from Bread settings.',
+    title: 'Breezify document validation could not finish',
+    summary: 'Breezify could not safely complete validation for this commit.',
+    text: 'Re-run the check. If it fails again, reconnect the repository from Breezify settings.',
   }
 }
 
 function logInternalFailure(stage: string, error: unknown): void {
   const status = (error as { status?: unknown })?.status
-  console.error('[Bread] GitHub docs check internal failure:', {
+  console.error('[Breezify] GitHub docs check internal failure:', {
     stage,
     errorType: error instanceof Error ? error.name : typeof error,
     ...(typeof status === 'number' ? { status } : {}),
@@ -589,7 +589,7 @@ function stopUnsafeCreateRetry(error: unknown): never {
 }
 
 /**
- * Create and complete one App-owned check for the linked Bread docs roots at
+ * Create and complete one App-owned check for the linked Breezify docs roots at
  * an exact Git commit. Unlinked repositories are intentionally ignored before
  * an installation token is minted or a check run is created.
  */
@@ -614,7 +614,7 @@ export async function handleGitHubDocsCheck(
 
   let token = await retry(() => getToken(info.installationId))
   const createInput: Parameters<typeof createGitHubCheckRun>[2] = {
-    name: BREAD_DOCS_CHECK_NAME,
+    name: BREEZIFY_DOCS_CHECK_NAME,
     head_sha: info.headSha,
     external_id: docsCheckExternalId(info),
     status: 'in_progress',

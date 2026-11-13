@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dialog"
 import { RichContentPreview } from "@/components/app/rich-content-preview"
 import { DiffStat, TextDiffViewer } from "@/components/app/text-diff-viewer"
-import type { DocumentVersionRow, GitHubFileCommit } from "@bread/core"
+import type { DocumentVersionRow, GitHubFileCommit } from "@breezify/core"
 
 function formatVersionDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -474,7 +474,7 @@ export function VersionHistoryPanel({
         {isGitHubDocument && (
           <div className="border-b bg-muted/20 px-4 py-2">
             <h3 className="text-xs font-semibold text-muted-foreground">
-              Bread snapshots
+              Breezify snapshots
             </h3>
           </div>
         )}
@@ -513,7 +513,7 @@ export function VersionHistoryPanel({
                 className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-muted/50 transition-colors"
                 onClick={() => setExpandedId(isExpanded ? null : version.id)}
                 aria-expanded={isExpanded}
-                aria-controls={`bread-history-${version.id}`}
+                aria-controls={`breezify-history-${version.id}`}
               >
                 {isExpanded ? (
                   <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
@@ -532,7 +532,7 @@ export function VersionHistoryPanel({
 
               {isExpanded && (
                 <div
-                  id={`bread-history-${version.id}`}
+                  id={`breezify-history-${version.id}`}
                   className="px-4 pb-3 space-y-2"
                 >
                   <div className="flex rounded-md border border-border p-0.5">

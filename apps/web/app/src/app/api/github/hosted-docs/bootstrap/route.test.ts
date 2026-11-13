@@ -1,4 +1,4 @@
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { NextRequest } from 'next/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -30,15 +30,15 @@ vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: vi.fn(() => ({ from: mocks.from, rpc: mocks.rpc })),
 }))
 vi.mock('@/lib/github/github-hosted-bootstrap', () => ({
-  githubHostedDocsBranchPrefix: () => 'bread/docs-docs-',
-  githubHostedDocsPullRequestTitle: () => 'Create docs from Bread',
+  githubHostedDocsBranchPrefix: () => 'breezify/docs-docs-',
+  githubHostedDocsPullRequestTitle: () => 'Create docs from Breezify',
   normalizeBootstrapTargetPath: (path: string) => path,
 }))
 vi.mock('@/lib/github/github-hosted-format', () => ({
-  assertBreadHostedDocsFiles: vi.fn(),
+  assertBreezifyHostedDocsFiles: vi.fn(),
 }))
 vi.mock('@/lib/github/github-hosted-workspace', () => ({
-  buildBreadWorkspaceExport: mocks.buildExport,
+  buildBreezifyWorkspaceExport: mocks.buildExport,
   MAX_HOSTED_WORKSPACE_BYTES: 8 * 1024 * 1024,
   MAX_HOSTED_WORKSPACE_DOCUMENTS: 500,
 }))
@@ -176,7 +176,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
       tree: [{ path: 'docs', mode: '040000', type: 'tree', sha: 'docs-tree' }],
     })
     mocks.createBranch.mockResolvedValue({
-      ref: 'refs/heads/bread/docs-docs-test',
+      ref: 'refs/heads/breezify/docs-docs-test',
       object: { type: 'commit', sha: 'base-sha' },
     })
     mocks.createFilesCommit.mockResolvedValue({
@@ -187,7 +187,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
       number: 18,
       html_url: 'https://github.com/acme/docs/pull/18',
       state: 'open',
-      title: 'Create docs from Bread',
+      title: 'Create docs from Breezify',
     })
   })
 
@@ -203,7 +203,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
         source({
           publish_pull_request_number: 17,
           publish_pull_request_url: 'https://github.com/acme/docs/pull/17',
-          publish_pull_request_head: 'bread/docs-docs-workspace-open',
+          publish_pull_request_head: 'breezify/docs-docs-workspace-open',
           publish_operation_id: 'lease-from-db',
           publish_operation_started_at: '2026-08-18T12:01:00.000Z',
         }),
@@ -242,7 +242,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
       last_sync_at: null,
       pending_pull_request_number: null,
       pending_pull_request_url: null,
-      pending_pull_request_head: 'bread/docs-docs-test',
+      pending_pull_request_head: 'breezify/docs-docs-test',
     })
     const updated = source({
       root_folder_id: null,
@@ -252,7 +252,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
       last_sync_at: null,
       pending_pull_request_number: 18,
       pending_pull_request_url: 'https://github.com/acme/docs/pull/18',
-      pending_pull_request_head: 'bread/docs-docs-test',
+      pending_pull_request_head: 'breezify/docs-docs-test',
     })
     const provisionalSourceBuilder = updateBuilder(provisional)
     const finalSourceBuilder = updateBuilder(updated)
@@ -284,7 +284,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
         pending_pull_request_number: null,
         pending_pull_request_url: null,
         pending_pull_request_head: expect.stringMatching(
-          /^bread\/docs-docs-/,
+          /^breezify\/docs-docs-/,
         ),
         publish_pull_request_number: null,
         publish_pull_request_url: null,
@@ -341,7 +341,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
       last_sync_at: null,
       pending_pull_request_number: null,
       pending_pull_request_url: null,
-      pending_pull_request_head: 'bread/docs-docs-test',
+      pending_pull_request_head: 'breezify/docs-docs-test',
     })
     const updated = source({
       root_folder_id: null,
@@ -351,7 +351,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
       last_sync_at: null,
       pending_pull_request_number: 18,
       pending_pull_request_url: 'https://github.com/acme/docs/pull/18',
-      pending_pull_request_head: 'bread/docs-docs-test',
+      pending_pull_request_head: 'breezify/docs-docs-test',
     })
     const provisionalSourceBuilder = insertBuilder(provisional)
     const finalSourceBuilder = updateBuilder(updated)
@@ -381,7 +381,7 @@ describe('POST /api/github/hosted-docs/bootstrap reconfiguration safety', () => 
         pending_pull_request_number: null,
         pending_pull_request_url: null,
         pending_pull_request_head: expect.stringMatching(
-          /^bread\/docs-docs-/,
+          /^breezify\/docs-docs-/,
         ),
         publish_operation_id: null,
         publish_operation_started_at: null,

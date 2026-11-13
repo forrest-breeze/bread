@@ -2,9 +2,9 @@ import "server-only";
 
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
 
-export const LOGIN_ACCESS_COOKIE = "bread-login-access";
+export const LOGIN_ACCESS_COOKIE = "breezify-login-access";
 
-const LOGIN_ACCESS_COOKIE_MESSAGE = "bread-login-access:v1";
+const LOGIN_ACCESS_COOKIE_MESSAGE = "breezify-login-access:v1";
 
 export function getLoginAccessCode(): string | null {
   const code =

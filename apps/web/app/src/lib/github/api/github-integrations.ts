@@ -2,7 +2,7 @@ import type {
   GitHubHostedDocsSourceRow,
   GitHubIntegrationRow,
   MonitoredRepoRow,
-} from "@bread/core"
+} from "@breezify/core"
 import type { GitHubHostedDocsTree } from "@/lib/github/types"
 
 export async function deleteGithubIntegration(): Promise<{ error?: string }> {
@@ -111,7 +111,7 @@ export async function saveGithubHostedDocsSource(input: {
   rootPath: string
   mode: "merge" | "github_wins"
   /** "readme" links a repository in the layout ReadMe's GitHub sync uses. */
-  format?: "bread" | "readme"
+  format?: "breezify" | "readme"
   /** ReadMe format only: commit directly, or collect changes in a pull request. */
   publishMode?: "direct" | "pull_request"
   /** ReadMe format only: branch to sync. Empty follows the default branch. */

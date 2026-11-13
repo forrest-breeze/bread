@@ -71,7 +71,7 @@ async function authorize(
       }
     }
   } catch (error) {
-    console.error("[Bread] portal domain route project lookup:", error)
+    console.error("[Breezify] portal domain route project lookup:", error)
     return {
       ok: false,
       response: NextResponse.json(
@@ -104,7 +104,7 @@ export async function GET(
     .maybeSingle()
 
   if (error) {
-    console.error("[Bread] portal domain route GET:", error.message)
+    console.error("[Breezify] portal domain route GET:", error.message)
     return NextResponse.json(
       { error: "Failed to load the project address" },
       { status: 500 },
@@ -173,7 +173,7 @@ export async function PUT(
         { status: 409 },
       )
     }
-    console.error("[Bread] portal domain route PUT:", error.message)
+    console.error("[Breezify] portal domain route PUT:", error.message)
     return NextResponse.json(
       { error: "Failed to save the project address" },
       { status: 500 },
@@ -204,7 +204,7 @@ export async function DELETE(
     .eq("project_slug", auth.slug)
 
   if (error) {
-    console.error("[Bread] portal domain route DELETE:", error.message)
+    console.error("[Breezify] portal domain route DELETE:", error.message)
     return NextResponse.json(
       { error: "Failed to remove the project address" },
       { status: 500 },

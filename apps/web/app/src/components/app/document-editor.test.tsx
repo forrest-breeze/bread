@@ -501,7 +501,7 @@ describe("DocumentEditor publishing", () => {
       editable: true,
       repository: {
         repo_id: 1,
-        repo_full_name: "example-org/bread-docs",
+        repo_full_name: "example-org/breezify-docs",
         file_path: "docs/example.md",
         deploy_branch: "main",
         commit_sha: "commit-1",
@@ -542,7 +542,7 @@ describe("DocumentEditor GitHub fallback", () => {
     const user = userEvent.setup()
     harness.doc = {
       ...harness.baseDoc,
-      title: "example-org/bread-docs/docs/example.md",
+      title: "example-org/breezify-docs/docs/example.md",
       content: "# Cached repository content",
       source: "GitHub",
       source_metadata: {
@@ -573,16 +573,16 @@ describe("DocumentEditor GitHub fallback", () => {
     expect(harness.mutateGitHubState).toHaveBeenCalledTimes(1)
   })
 
-  it("leaves linked Bread documents to workspace-level publishing", async () => {
+  it("leaves linked Breezify documents to workspace-level publishing", async () => {
     harness.doc = {
       ...harness.baseDoc,
       title: "Setup",
-      content: "Hosted Bread content",
+      content: "Hosted Breezify content",
       source: "docs",
       source_metadata: {
         kind: "github_hosted_document",
         canonical_repo_path: "docs/product/setup.mdx",
-        repo_full_name: "example-org/bread-docs",
+        repo_full_name: "example-org/breezify-docs",
         repository_document_id: "raw-repository-doc-1",
       },
     }
@@ -598,13 +598,13 @@ describe("DocumentEditor GitHub fallback", () => {
     const user = userEvent.setup()
     harness.doc = {
       ...harness.baseDoc,
-      title: "Bread setup",
-      content: "Bread instructions",
+      title: "Breezify setup",
+      content: "Breezify instructions",
       source: "docs",
       source_metadata: {
         kind: "github_hosted_document",
         canonical_repo_path: "docs/product/setup.mdx",
-        repo_full_name: "example-org/bread-docs",
+        repo_full_name: "example-org/breezify-docs",
         repository_document_id: "raw-repository-doc-1",
         github_hosted_conflict: true,
       },
@@ -613,7 +613,7 @@ describe("DocumentEditor GitHub fallback", () => {
       editable: true,
       repository: {
         repo_id: 1185697075,
-        repo_full_name: "example-org/bread-docs",
+        repo_full_name: "example-org/breezify-docs",
         file_path: "docs/product/setup.mdx",
         deploy_branch: "main",
         commit_sha: "commit-2",
@@ -633,17 +633,17 @@ describe("DocumentEditor GitHub fallback", () => {
     renderEditor()
 
     expect(
-      await screen.findByText("GitHub and Bread both changed"),
+      await screen.findByText("GitHub and Breezify both changed"),
     ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Review conflict" }))
     expect(
       screen.getByRole("heading", {
-        name: "Resolve GitHub and Bread changes",
+        name: "Resolve GitHub and Breezify changes",
       }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole("button", {
-        name: "Keep Bread for workspace publish",
+        name: "Keep Breezify for workspace publish",
       }),
     ).toBeInTheDocument()
 

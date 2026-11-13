@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { WebhookSource } from "@bread/core";
+import type { WebhookSource } from "@breezify/core";
 
 const KNOWN_SOURCES: ReadonlySet<WebhookSource> = new Set([
   "github",

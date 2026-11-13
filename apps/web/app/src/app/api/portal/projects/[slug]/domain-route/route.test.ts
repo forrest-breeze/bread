@@ -154,7 +154,7 @@ describe("project domain route API", () => {
     )
   })
 
-  it("allows Bread's apex only for a path-mounted route", async () => {
+  it("allows Breezify's apex only for a path-mounted route", async () => {
     vi.stubEnv("NEXT_PUBLIC_PUBLIC_KB_BASE_DOMAIN", "example.com")
 
     const pathResponse = await PUT(

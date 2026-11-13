@@ -32,7 +32,7 @@ function canManage(role: string): boolean {
 function portalEditorPaymentRequired(): NextResponse {
   return NextResponse.json(
     {
-      error: "Portal editor requires a paid plan",
+      error: "The portal editor is not enabled for this workspace",
       message: "This workspace cannot publish portals.",
       code: "payment_required",
     },
@@ -110,19 +110,19 @@ export async function POST(request: Request): Promise<NextResponse> {
       try {
         await discardDraft(workspace.workspace_id, user.id, projectSlug)
       } catch (err) {
-        console.error("[Bread] portal rollback: draft resync failed:", err)
+        console.error("[Breezify] portal rollback: draft resync failed:", err)
       }
     }
 
     const validation = validatePortalLayout(row.spec)
     if (!validation.ok) {
-      console.error("[Bread] portal publish: published row invalid:", validation.error)
+      console.error("[Breezify] portal publish: published row invalid:", validation.error)
       return NextResponse.json({ error: "Published layout is invalid" }, { status: 500 })
     }
     const body: PublishResponse = { version: row.version, spec: validation.data }
     return NextResponse.json(body)
   } catch (err) {
-    console.error("[Bread] portal publish:", err)
+    console.error("[Breezify] portal publish:", err)
     return NextResponse.json({ error: "Failed to publish portal" }, { status: 500 })
   }
 }

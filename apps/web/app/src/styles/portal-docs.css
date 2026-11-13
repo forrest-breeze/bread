@@ -2,7 +2,7 @@
  * Docs-grade reading styles for the PUBLIC knowledge-base portal only.
  *
  * Scoped entirely under `.portal-docs-prose` so it is fully isolated from the
- * in-app editor (`.bread-editor` in index.css) — the two never share a rule.
+ * in-app editor (`.breezify-editor` in index.css) — the two never share a rule.
  * This is the roomier documentation scale: ~16px body, 1.75 line-height, clear
  * heading hierarchy, and styled lists/quotes/tables. The reading measure is set
  * by the article container, not here. Code blocks are server-highlighted by

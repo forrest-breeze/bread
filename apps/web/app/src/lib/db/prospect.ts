@@ -104,6 +104,6 @@ export async function markProspectWorkspaceConverted(
       })
       .eq("id", workspaceId)
   } catch (err) {
-    console.error("[Bread] markProspectWorkspaceConverted:", err)
+    console.error("[Breezify] markProspectWorkspaceConverted:", err)
   }
 }

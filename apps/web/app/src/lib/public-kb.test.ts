@@ -240,7 +240,7 @@ function expectedWorkspace(slug: string, isPublic: boolean) {
     isPublic,
     customDomain: "",
     portalAddressScope: "workspace",
-    portalAddressMode: "bread",
+    portalAddressMode: "breezify",
     portalChromeScope: "workspace",
     header: null,
     branding: {
@@ -681,28 +681,28 @@ describe("public document producer document_type allowlist", () => {
       {
         id: "doc-heading",
         public_slug: "connecting-integrations",
-        title: "Connecting Integrations in Bread",
+        title: "Connecting Integrations in Breezify",
         source: null,
         document_type: "source",
       },
       {
         id: "doc-section",
         public_slug: "getting-started",
-        title: "Getting Started with Bread",
+        title: "Getting Started with Breezify",
         source: null,
         document_type: "source",
       },
       {
         id: "doc-markdown",
         public_slug: "security",
-        title: "Security and Data Handling in Bread",
+        title: "Security and Data Handling in Breezify",
         source: null,
         document_type: "source",
       },
       {
         id: "doc-list",
-        public_slug: "what-is-bread",
-        title: "What is Bread?",
+        public_slug: "what-is-breezify",
+        title: "What is Breezify?",
         source: null,
         document_type: "source",
       },
@@ -713,25 +713,25 @@ describe("public document producer document_type allowlist", () => {
         data: [
           {
             document_id: "doc-heading",
-            title: "Connecting Integrations in Bread",
-            line_text: "# Connecting Integrations in Bread",
+            title: "Connecting Integrations in Breezify",
+            line_text: "# Connecting Integrations in Breezify",
           },
           {
             document_id: "doc-section",
-            title: "Getting Started with Bread",
+            title: "Getting Started with Breezify",
             line_text: "## 2. Connect an Integration",
           },
           {
             document_id: "doc-markdown",
-            title: "Security and Data Handling in Bread",
+            title: "Security and Data Handling in Breezify",
             line_text:
-              "When you connect Slack, tokens are **encrypted at rest** and `bread-mcp` works.",
+              "When you connect Slack, tokens are **encrypted at rest** and `breezify-mcp` works.",
           },
           {
             document_id: "doc-list",
-            title: "What is Bread?",
+            title: "What is Breezify?",
             line_text:
-              "- **Slack** — connect via OAuth; `@bread` captures a conversation into the KB.",
+              "- **Slack** — connect via OAuth; `@breezify` captures a conversation into the KB.",
           },
         ],
         error: null,
@@ -748,8 +748,8 @@ describe("public document producer document_type allowlist", () => {
     expect(hits.map((hit) => hit.snippet)).toEqual([
       "",
       "2. Connect an Integration",
-      "When you connect Slack, tokens are encrypted at rest and bread-mcp works.",
-      "Slack — connect via OAuth; @bread captures a conversation into the KB.",
+      "When you connect Slack, tokens are encrypted at rest and breezify-mcp works.",
+      "Slack — connect via OAuth; @breezify captures a conversation into the KB.",
     ])
   })
 
@@ -759,7 +759,7 @@ describe("public document producer document_type allowlist", () => {
       {
         id: "doc-body",
         public_slug: "connecting-integrations",
-        title: "Connecting Integrations in Bread",
+        title: "Connecting Integrations in Breezify",
         source: null,
         document_type: "source",
       },
@@ -780,7 +780,7 @@ describe("public document producer document_type allowlist", () => {
       {
         id: "doc-snippet",
         public_slug: "security",
-        title: "Security and Data Handling in Bread",
+        title: "Security and Data Handling in Breezify",
         source: null,
         document_type: "source",
       },
@@ -791,7 +791,7 @@ describe("public document producer document_type allowlist", () => {
         data: [
           {
             document_id: "doc-body",
-            title: "Connecting Integrations in Bread",
+            title: "Connecting Integrations in Breezify",
             line_text:
               "Every integration embeds everything for semantic and workspace search.",
           },
@@ -802,14 +802,14 @@ describe("public document producer document_type allowlist", () => {
           },
           {
             document_id: "doc-snippet",
-            title: "Security and Data Handling in Bread",
+            title: "Security and Data Handling in Breezify",
             line_text: "Workspace isolation and row-level security",
           },
           {
             document_id: "doc-title",
             title: "Workspaces, Roles, and Permissions",
             line_text:
-              "Bread organizes your team's operational knowledge into workspaces.",
+              "Breezify organizes your team's operational knowledge into workspaces.",
           },
         ],
         error: null,
@@ -1111,12 +1111,12 @@ describe("searchPublicForQuestion", () => {
   }
 
   it("falls back to keyword retrieval and ranks docs hit by more keywords first", async () => {
-    const admin = adminForQuestion({ bread: [DOC_A, DOC_B], portal: [DOC_B] })
+    const admin = adminForQuestion({ breezify: [DOC_A, DOC_B], portal: [DOC_B] })
     hoisted.createAdminClient.mockReturnValue(admin)
 
     const hits = await searchPublicForQuestion(
       "ws-1",
-      "explain what does the bread portal do",
+      "explain what does the breezify portal do",
       8,
     )
 
@@ -1124,16 +1124,16 @@ describe("searchPublicForQuestion", () => {
     const patterns = admin.rpc.mock.calls.map(
       (call) => (call[1] as { p_pattern: string }).p_pattern,
     )
-    expect(patterns).toEqual(["explain what does the bread portal do", "bread", "portal"])
+    expect(patterns).toEqual(["explain what does the breezify portal do", "breezify", "portal"])
     // doc-b matched both keywords, doc-a only one.
     expect(hits.map((h) => h.id)).toEqual(["doc-b", "doc-a"])
   })
 
   it("short-circuits on a direct phrase hit without keyword fan-out", async () => {
-    const admin = adminForQuestion({ bread: [DOC_A] })
+    const admin = adminForQuestion({ breezify: [DOC_A] })
     hoisted.createAdminClient.mockReturnValue(admin)
 
-    const hits = await searchPublicForQuestion("ws-1", "bread", 8)
+    const hits = await searchPublicForQuestion("ws-1", "breezify", 8)
 
     expect(hits.map((h) => h.id)).toEqual(["doc-a"])
     expect(admin.rpc).toHaveBeenCalledTimes(1)

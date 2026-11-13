@@ -3,7 +3,7 @@ import {
   renderLlmsTxt,
   type LlmsTxtDocument,
   type LlmsTxtSection,
-} from "@bread/core"
+} from "@breezify/core"
 import type {
   PublicDocSummary,
   PublicFolderSummary,
@@ -194,7 +194,7 @@ function buildPortalLlmsDocument(
     title: input.name,
     summary: input.tagline?.trim() || `${input.name} knowledge base`,
     details: [
-      `${total === 1 ? "1 published document" : `${total} published documents`}, maintained in Bread and published at ${portalUrl}.`,
+      `${total === 1 ? "1 published document" : `${total} published documents`}, maintained in Breezify and published at ${portalUrl}.`,
     ],
     sections: [
       ...sections,
@@ -243,7 +243,7 @@ export function buildPortalLlmsFullTxt(input: PortalLlmsFullInput): string {
   const header = [
     `# ${llmsTxtOneLine(input.name) || "Knowledge base"}`,
     `> ${llmsTxtOneLine(input.tagline || `${input.name} knowledge base`)}`,
-    `Every published document from ${portalUrl}, as markdown. Maintained in Bread.`,
+    `Every published document from ${portalUrl}, as markdown. Maintained in Breezify.`,
   ]
   if (input.omittedCount && input.omittedCount > 0) {
     header.push(

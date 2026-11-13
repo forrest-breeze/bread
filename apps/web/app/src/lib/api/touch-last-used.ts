@@ -39,7 +39,7 @@ export function touchLastUsed(
     .eq(column, hash)
     .then(({ error }) => {
       if (error) {
-        console.error(`[Bread] ${table} last_used_at update failed:`, error)
+        console.error(`[Breezify] ${table} last_used_at update failed:`, error)
       }
     })
 }

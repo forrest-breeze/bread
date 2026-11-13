@@ -55,7 +55,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] Failed to resolve document ref:", error.message);
+    console.error("[Breezify] Failed to resolve document ref:", error.message);
     return NextResponse.json(
       { error: "Failed to resolve document" },
       { status: 500 },

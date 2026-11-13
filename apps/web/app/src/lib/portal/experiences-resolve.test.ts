@@ -29,13 +29,13 @@ function makeAdmin(rowForSlug: (slug: string) => unknown) {
 const PUBLISHED_ROW = {
   id: "f1e2d3c4-b5a6-4789-9012-3456789abcde",
   workspace_id: "d44b116a-99ce-4cbf-ab04-d395266d6a62",
-  slug: "bread-help",
+  slug: "breezify-help",
   scope: ["a992906c-d30d-498b-8c3a-1fd22e0bd397"],
   // Minimal valid PortalLayout (validatePortalLayout must accept it).
   spec: {
     schemaVersion: 1,
     theme: {
-      brandName: "Bread Help Center",
+      brandName: "Breezify Help Center",
       tagline: "",
       logoUrl: "",
       accentColor: "#2f5520",
@@ -77,9 +77,9 @@ describe("resolvePublishedProjectBySlug", () => {
 
   it("resolves a published project: workspace + scope + validated layout", async () => {
     adminMock.current = makeAdmin((slug) =>
-      slug === "bread-help" ? PUBLISHED_ROW : null,
+      slug === "breezify-help" ? PUBLISHED_ROW : null,
     )
-    const project = await resolvePublishedProjectBySlug("bread-help")
+    const project = await resolvePublishedProjectBySlug("breezify-help")
     expect(project).not.toBeNull()
     expect(project?.experienceId).toBe("f1e2d3c4-b5a6-4789-9012-3456789abcde")
     expect(project?.workspaceId).toBe("d44b116a-99ce-4cbf-ab04-d395266d6a62")
@@ -89,7 +89,7 @@ describe("resolvePublishedProjectBySlug", () => {
 
   it("returns null when no published project owns the slug (workspace fallback path)", async () => {
     adminMock.current = makeAdmin(() => null)
-    expect(await resolvePublishedProjectBySlug("bread")).toBeNull()
+    expect(await resolvePublishedProjectBySlug("breezify")).toBeNull()
   })
 
   it("returns a null layout (but still resolves the project) when the stored spec is invalid", async () => {
@@ -97,14 +97,14 @@ describe("resolvePublishedProjectBySlug", () => {
       ...PUBLISHED_ROW,
       spec: { schemaVersion: 1 }, // missing theme/header/body
     }))
-    const project = await resolvePublishedProjectBySlug("bread-help")
-    expect(project?.slug).toBe("bread-help")
+    const project = await resolvePublishedProjectBySlug("breezify-help")
+    expect(project?.slug).toBe("breezify-help")
     expect(project?.layout).toBeNull()
   })
 
   it("preserves an empty scope so a project with no remaining roots stays closed", async () => {
     adminMock.current = makeAdmin(() => ({ ...PUBLISHED_ROW, scope: [] }))
-    const project = await resolvePublishedProjectBySlug("bread-help")
+    const project = await resolvePublishedProjectBySlug("breezify-help")
     expect(project?.scope).toEqual([])
   })
 
@@ -123,7 +123,7 @@ describe("resolvePublishedProjectBySlug", () => {
     ]
     adminMock.current = makeAdmin(() => ({ ...PUBLISHED_ROW, scope }))
 
-    const project = await resolvePublishedProjectBySlug("bread-help")
+    const project = await resolvePublishedProjectBySlug("breezify-help")
 
     expect(project?.scope).toEqual(scope)
   })
@@ -136,19 +136,19 @@ describe("resolveDefaultPublishedProjectByWorkspace", () => {
 
   it("prefers the canonical workspace-slug default project", async () => {
     const admin = makeAdmin((slug) =>
-      slug === "bread"
-        ? { ...PUBLISHED_ROW, slug: "bread", scope: null }
+      slug === "breezify"
+        ? { ...PUBLISHED_ROW, slug: "breezify", scope: null }
         : null,
     )
     adminMock.current = admin
 
     const project = await resolveDefaultPublishedProjectByWorkspace(
       "d44b116a-99ce-4cbf-ab04-d395266d6a62",
-      "bread",
+      "breezify",
     )
 
-    expect(project?.slug).toBe("bread")
-    expect(admin.requestedSlugs).toEqual(["bread"])
+    expect(project?.slug).toBe("breezify")
+    expect(admin.requestedSlugs).toEqual(["breezify"])
   })
 
   it("falls back to the legacy docs slug for workspace-root routes", async () => {
@@ -161,11 +161,11 @@ describe("resolveDefaultPublishedProjectByWorkspace", () => {
 
     const project = await resolveDefaultPublishedProjectByWorkspace(
       "d44b116a-99ce-4cbf-ab04-d395266d6a62",
-      "bread",
+      "breezify",
     )
 
     expect(project?.slug).toBe("docs")
-    expect(admin.requestedSlugs).toEqual(["bread", "docs"])
+    expect(admin.requestedSlugs).toEqual(["breezify", "docs"])
   })
 
   it("returns null when neither stored default project exists", async () => {
@@ -175,10 +175,10 @@ describe("resolveDefaultPublishedProjectByWorkspace", () => {
     await expect(
       resolveDefaultPublishedProjectByWorkspace(
         "d44b116a-99ce-4cbf-ab04-d395266d6a62",
-        "bread",
+        "breezify",
       ),
     ).resolves.toBeNull()
-    expect(admin.requestedSlugs).toEqual(["bread", "docs"])
+    expect(admin.requestedSlugs).toEqual(["breezify", "docs"])
   })
 
   it("ignores a stale primary-project setting: only the root and legacy docs slugs are tried", async () => {
@@ -188,8 +188,8 @@ describe("resolveDefaultPublishedProjectByWorkspace", () => {
     adminMock.current = admin
 
     await expect(
-      resolveDefaultPublishedProjectByWorkspace("d44b116a-99ce-4cbf-ab04-d395266d6a62", "bread"),
+      resolveDefaultPublishedProjectByWorkspace("d44b116a-99ce-4cbf-ab04-d395266d6a62", "breezify"),
     ).resolves.toBeNull()
-    expect(admin.requestedSlugs).toEqual(["bread", "docs"])
+    expect(admin.requestedSlugs).toEqual(["breezify", "docs"])
   })
 })

@@ -141,7 +141,8 @@ beforeEach(() => {
   })
   mocks.getPortalWorkspaceById.mockResolvedValue({ kind: "workspace", workspace })
   mocks.getPortalEntitlementsForWorkspace.mockResolvedValue({
-    portalAiBuilder: true,
+    portalAiBuilder: false,
+    portalAssistant: true,
     portalBrandingRemoval: true,
     portalTranslations: true,
   })
@@ -179,7 +180,7 @@ describe("PortalPreviewPage", () => {
       base: "acme/guides",
       hrefBase: "/p/acme/guides",
       askAiEnabled: true,
-      canRemoveBreadBranding: true,
+      canRemoveBreezifyBranding: true,
       translationsEnabled: true,
       preferredLanguage: null,
       preview: { themeMode: "dark", projectSlug: "guides" },

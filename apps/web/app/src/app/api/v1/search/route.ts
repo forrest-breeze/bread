@@ -39,7 +39,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       request,
       NextResponse.json(
         {
-          error: "Semantic search requires a paid plan. Use /api/v1/grep on the Free plan.",
+          error: "Semantic search is not enabled for this workspace. Use /api/v1/grep instead.",
           code: "payment_required",
         },
         { status: 402 },
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const text = formatForLLM(results, budgetTokens);
     return withCors(request, NextResponse.json({ text, results }));
   } catch (err) {
-    console.error("[Bread] Sectioned search failed:", err);
+    console.error("[Breezify] Sectioned search failed:", err);
     return withCors(request, NextResponse.json({ error: "Search failed" }, { status: 500 }));
   }
 }

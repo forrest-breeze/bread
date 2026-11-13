@@ -1,7 +1,7 @@
 #!/usr/bin/env -S npx tsx
 import { normalizeDocumentTabs } from "../src/lib/document-tabs"
 // =============================================================================
-// import-llms-docs.ts — mirror an external docs site into a Bread workspace.
+// import-llms-docs.ts — mirror an external docs site into a Breezify workspace.
 //
 // Reads a site's `llms.txt` index (the convention ReadMe, Mintlify and others
 // publish) and the raw Markdown each entry links to, converts it into the

@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { resolveGitHubHostedDocsActivation } from './github-hosted-docs-activation'
 
 const source: GitHubHostedDocsSourceRow = {
   id: 'source-1',
   workspace_id: 'workspace-1',
   installation_id: 11,
-  repo_full_name: 'example-org/bread-docs',
+  repo_full_name: 'example-org/breezify-docs',
   repo_id: 1185697075,
   paths: ['docs'],
   root_folder_id: null,
@@ -17,8 +17,8 @@ const source: GitHubHostedDocsSourceRow = {
   last_sync_at: null,
   last_sync_error: null,
   pending_pull_request_number: 172,
-  pending_pull_request_url: 'https://github.com/example-org/bread-docs/pull/172',
-  pending_pull_request_head: 'bread/docs-docs-example',
+  pending_pull_request_url: 'https://github.com/example-org/breezify-docs/pull/172',
+  pending_pull_request_head: 'breezify/docs-docs-example',
   publish_pull_request_number: null,
   publish_pull_request_url: null,
   publish_pull_request_head: null,
@@ -33,14 +33,14 @@ const source: GitHubHostedDocsSourceRow = {
 
 const mergedPullRequest = {
   number: 172,
-  html_url: 'https://github.com/example-org/bread-docs/pull/172',
-  title: 'docs: Update docs from Bread',
+  html_url: 'https://github.com/example-org/breezify-docs/pull/172',
+  title: 'docs: Update docs from Breezify',
   body: null,
   state: 'closed' as const,
   merged: true,
   merged_at: '2026-08-13T00:10:00Z',
   merge_commit_sha: 'bf962c8',
-  head: { ref: 'bread/docs-docs-example' },
+  head: { ref: 'breezify/docs-docs-example' },
   user: null,
   created_at: '2026-08-13T00:00:00Z',
   updated_at: '2026-08-13T00:10:00Z',
@@ -63,7 +63,7 @@ describe('resolveGitHubHostedDocsActivation', () => {
     })
     expect(getPR).toHaveBeenCalledWith(
       'token',
-      'example-org/bread-docs',
+      'example-org/breezify-docs',
       172,
     )
   })

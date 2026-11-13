@@ -80,7 +80,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       .eq("kind", "topic")
       .in("id", allIds);
     if (foundError) {
-      console.error("[Bread] folders/merge: topic lookup failed:", foundError.message);
+      console.error("[Breezify] folders/merge: topic lookup failed:", foundError.message);
       return NextResponse.json({ error: "Failed to merge topics" }, { status: 500 });
     }
     if (!found || found.length !== allIds.length) {
@@ -99,13 +99,13 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
     );
     if (mergeError) {
-      console.error("[Bread] folders/merge: rpc failed:", mergeError.message);
+      console.error("[Breezify] folders/merge: rpc failed:", mergeError.message);
       return NextResponse.json({ error: "Failed to merge topics" }, { status: 500 });
     }
 
     return NextResponse.json(result as TopicMergeResult);
   } catch (err) {
-    console.error("[Bread] folders/merge:", err);
+    console.error("[Breezify] folders/merge:", err);
     return NextResponse.json({ error: "Failed to merge topics" }, { status: 500 });
   }
 }

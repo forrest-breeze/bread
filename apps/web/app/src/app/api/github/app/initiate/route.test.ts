@@ -66,7 +66,7 @@ function getRedirectUrl(response: Response): URL {
 describe('GET /api/github/app/initiate', () => {
   beforeEach(() => {
     vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://example.com')
-    vi.stubEnv('GITHUB_APP_SLUG', 'bread-dev')
+    vi.stubEnv('GITHUB_APP_SLUG', 'breezify-dev')
     vi.stubEnv('GITHUB_WEBHOOK_SECRET', 'test-webhook-secret')
     vi.mocked(isWorkspaceOnPaidTier).mockResolvedValue(true)
   })
@@ -81,7 +81,7 @@ describe('GET /api/github/app/initiate', () => {
     const location = getRedirectUrl(res)
 
     expect(location.origin + location.pathname).toBe(
-      'https://github.com/apps/bread-dev/installations/new',
+      'https://github.com/apps/breezify-dev/installations/new',
     )
     expect(location.searchParams.has('state')).toBe(true)
   })

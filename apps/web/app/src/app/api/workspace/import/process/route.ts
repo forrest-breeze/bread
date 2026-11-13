@@ -76,7 +76,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .eq("workspace_id", workspace.workspace_id);
 
   if (docsRes.error) {
-    console.error("[Bread] import/process: load docs failed:", docsRes.error.message);
+    console.error("[Breezify] import/process: load docs failed:", docsRes.error.message);
     return NextResponse.json(
       { error: "Failed to load documents" },
       { status: 500 },
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       processed.push(doc.id);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error("[Bread] import/process doc failed:", doc.id, message);
+      console.error("[Breezify] import/process doc failed:", doc.id, message);
       errors.push({ id: doc.id, error: message });
     }
   }

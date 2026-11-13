@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     if (currentError) {
       console.error(
-        "[Bread] kb-domain: failed to load current settings:",
+        "[Breezify] kb-domain: failed to load current settings:",
         currentError.message,
       );
       return NextResponse.json(
@@ -110,7 +110,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
           { status: 409 },
         );
       }
-      console.error("[Bread] kb-domain: update failed:", error.message);
+      console.error("[Breezify] kb-domain: update failed:", error.message);
       return NextResponse.json(
         { error: "Failed to update custom domain" },
         { status: 500 },
@@ -119,7 +119,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ kb_custom_domain: domain });
   } catch (err) {
-    console.error("[Bread] kb-domain:", err);
+    console.error("[Breezify] kb-domain:", err);
     return NextResponse.json(
       { error: "Failed to update custom domain" },
       { status: 500 },
@@ -153,7 +153,7 @@ export async function DELETE(): Promise<NextResponse> {
 
     if (currentError) {
       console.error(
-        "[Bread] kb-domain: failed to load current settings:",
+        "[Breezify] kb-domain: failed to load current settings:",
         currentError.message,
       );
       return NextResponse.json(
@@ -178,7 +178,7 @@ export async function DELETE(): Promise<NextResponse> {
       .eq("id", membership.workspace_id);
 
     if (error) {
-      console.error("[Bread] kb-domain: clear failed:", error.message);
+      console.error("[Breezify] kb-domain: clear failed:", error.message);
       return NextResponse.json(
         { error: "Failed to clear custom domain" },
         { status: 500 },
@@ -187,7 +187,7 @@ export async function DELETE(): Promise<NextResponse> {
 
     return NextResponse.json({ kb_custom_domain: null });
   } catch (err) {
-    console.error("[Bread] kb-domain:", err);
+    console.error("[Breezify] kb-domain:", err);
     return NextResponse.json(
       { error: "Failed to clear custom domain" },
       { status: 500 },

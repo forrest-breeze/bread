@@ -17,8 +17,8 @@ import {
 import { withGitHubRetry } from './retry'
 import { portalDocumentToMarkdown } from '@/lib/portal/portal-doc-markdown'
 import {
-  assertBreadHostedDocsFiles,
-  BreadDocsFormatError,
+  assertBreezifyHostedDocsFiles,
+  BreezifyDocsFormatError,
 } from './github-hosted-format'
 import { applyGitHubHostedDocumentUpdate } from './github-hosted-document-update'
 import {
@@ -49,7 +49,7 @@ export async function refreshHostedDocumentIndex(
       // Indexing remains best-effort, but hosted sync must await each bounded
       // batch. Fire-and-forget work accumulated across a large repository and
       // could terminate the serverless worker before it recorded completion.
-      console.error('[Bread] hosted document indexing failed:', result.reason)
+      console.error('[Breezify] hosted document indexing failed:', result.reason)
     }
   }
 }
@@ -73,7 +73,7 @@ export interface GitHubHostedDocsTarget {
   force?: boolean
 }
 
-export type GitHubHostedDocsSyncMode = 'merge' | 'replace_bread'
+export type GitHubHostedDocsSyncMode = 'merge' | 'replace_breezify'
 
 export interface GitHubHostedDocsSyncResult {
   repoFullName: string
@@ -105,7 +105,7 @@ export interface ParsedHostedDoc {
   content: string
   publicSlug: string
   relativeDirectory: string
-  breadDocumentId: string | null
+  breezifyDocumentId: string | null
   /**
    * Optional `date` frontmatter, as an ISO string. Dated feeds (changelog
    * pages) order by the document's `updated_at`, so a file that declares its
@@ -222,7 +222,7 @@ export function inferHostedDirectoryFolders(input: {
 }
 
 /**
- * The Bread folder a repository file belongs to. The selected root is the
+ * The Breezify folder a repository file belongs to. The selected root is the
  * workspace root, so a top-level file is folderless and every other file
  * lives in the folder established for its directory.
  */
@@ -325,13 +325,13 @@ export function shouldApplyGitHubHostedContent(input: {
   incomingContent: string
   sourceMetadata: Record<string, unknown> | null
 }): boolean {
-  if (input.mode === 'replace_bread') return true
+  if (input.mode === 'replace_breezify') return true
   const currentHash = hostedContentHash(input.currentContent)
   const incomingHash = hostedContentHash(input.incomingContent)
   if (currentHash === incomingHash) return true
-  // Bread's editor persists authored content as HTML while the GitHub mirror
+  // Breezify's editor persists authored content as HTML while the GitHub mirror
   // is Markdown. Treat matching rendered Markdown as convergence so a merged
-  // Bread-authored PR clears the pending local-edit state instead of creating
+  // Breezify-authored PR clears the pending local-edit state instead of creating
   // a false conflict.
   if (hasEquivalentHostedContent(input.currentContent, input.incomingContent)) {
     return true
@@ -344,7 +344,7 @@ export function shouldDeleteStaleHostedDocument(input: {
   currentContent: unknown
   sourceMetadata: Record<string, unknown> | null
 }): boolean {
-  if (input.mode === 'replace_bread') return true
+  if (input.mode === 'replace_breezify') return true
   return input.sourceMetadata?.github_hosted_content_hash ===
     hostedContentHash(input.currentContent)
 }
@@ -538,15 +538,15 @@ export function parseGitHubHostedDocument(
     path,
     title: (data.title || data.sidebar_label || fallbackTitle).trim(),
     content: repositoryFileToHostedMarkdown(raw),
-    // Canonical Bread imports keep their established authored slugs because
+    // Canonical Breezify imports keep their established authored slugs because
     // they are updated in place. Connector-created rows use a repo-scoped slug
     // so two repositories can both contain `intro.mdx` without colliding.
     publicSlug: `github-${repoId}-${slugify(requestedSlug || path)}`,
     relativeDirectory: relativePath.split('/').slice(0, -1).join('/'),
-    breadDocumentId: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      data.bread_document_id ?? '',
+    breezifyDocumentId: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      data.breezify_document_id ?? '',
     )
-      ? data.bread_document_id!
+      ? data.breezify_document_id!
       : null,
     date: hostedDocDate(data.date),
     repositoryContent: raw,
@@ -812,11 +812,11 @@ async function persistStatus(
     .from('github_hosted_docs_sources')
     .update(patch)
     .eq('id', sourceId)
-  if (error) console.error('[Bread] hosted docs status update failed:', error.message)
+  if (error) console.error('[Breezify] hosted docs status update failed:', error.message)
 }
 
 function safeHostedDocsError(err: unknown): string {
-  if (err instanceof BreadDocsFormatError) {
+  if (err instanceof BreezifyDocsFormatError) {
     const issue = err.issues[0]
     return issue
       ? `GitHub docs format check failed: ${issue.path}: ${issue.message}.`
@@ -934,7 +934,7 @@ export async function loadHostedOpenApiSpecs(input: {
     },
   )
   const issues = results.flatMap((result) => result.issues)
-  if (issues.length > 0) throw new BreadDocsFormatError(issues)
+  if (issues.length > 0) throw new BreezifyDocsFormatError(issues)
   return results.flatMap((result) => (result.spec ? [result.spec] : []))
 }
 
@@ -1030,7 +1030,7 @@ export async function upsertOpenApiFolder(
 /**
  * Mirror parsed OpenAPI specs into generated, GitHub-owned reference pages:
  * one folder per spec (named after `info.title`), one subfolder per tag, one
- * page per operation. The repository is authoritative, so Bread edits to these
+ * page per operation. The repository is authoritative, so Breezify edits to these
  * pages are overwritten (with a version snapshot) on the next sync, and pages
  * whose operation or spec disappeared are removed.
  */
@@ -1235,7 +1235,7 @@ async function syncHostedOpenApiSpecs(
   }
 }
 
-/** Mirror selected GitHub Markdown/MDX directories into curated Bread docs. */
+/** Mirror selected GitHub Markdown/MDX directories into curated Breezify docs. */
 export async function syncGitHubHostedDocs(
   target: GitHubHostedDocsTarget,
   deps: HostedDocsDeps = {},
@@ -1269,16 +1269,16 @@ export async function syncGitHubHostedDocs(
       (entry) => (entry.size ?? 0) > MAX_HOSTED_DOC_BYTES,
     )
     if (oversizedEntry) {
-      throw new BreadDocsFormatError([{
+      throw new BreezifyDocsFormatError([{
         path: oversizedEntry.path,
-        message: `exceeds the ${MAX_HOSTED_DOC_BYTES}-byte Bread sync limit`,
+        message: `exceeds the ${MAX_HOSTED_DOC_BYTES}-byte Breezify sync limit`,
       }])
     }
     const oversizedSpec = specEntries.find(
       (entry) => (entry.size ?? 0) > MAX_OPENAPI_SPEC_BYTES,
     )
     if (oversizedSpec) {
-      throw new BreadDocsFormatError([{
+      throw new BreezifyDocsFormatError([{
         path: oversizedSpec.path,
         message: `exceeds the ${MAX_OPENAPI_SPEC_BYTES}-byte OpenAPI spec limit`,
       }])
@@ -1336,7 +1336,7 @@ export async function syncGitHubHostedDocs(
         )
         const raw = decodeHostedDocsBlob(blob)
         if (!raw) {
-          throw new BreadDocsFormatError([{
+          throw new BreezifyDocsFormatError([{
             path: entry.path,
             message: 'must be valid non-empty UTF-8 text',
           }])
@@ -1344,7 +1344,7 @@ export async function syncGitHubHostedDocs(
         return { entry, raw }
       },
     )
-    assertBreadHostedDocsFiles(
+    assertBreezifyHostedDocsFiles(
       repositoryFiles.map(({ entry, raw }) => ({ path: entry.path, content: raw })),
     )
     const parsedDocs = repositoryFiles.map(({ entry, raw }) =>
@@ -1363,7 +1363,7 @@ export async function syncGitHubHostedDocs(
 
     // Load canonical rows in bounded batches so long paths cannot produce an
     // oversized PostgREST URL. The same preload drives two independent pieces
-    // of state: per-row resume checkpoints and the established Bread folder
+    // of state: per-row resume checkpoints and the established Breezify folder
     // ancestry used for new sibling files. Force bypasses checkpoint skipping,
     // but must still reuse the canonical taxonomy.
     const checkpointsByPath = new Map<string, HostedDocsFileCheckpoint[]>()
@@ -1398,7 +1398,7 @@ export async function syncGitHubHostedDocs(
       const checkpoints = checkpointsByPath.get(path) ?? []
       const explicitBlobSha = row.source_metadata?.github_hosted_checkpoint_blob_sha
       const explicitMode = row.source_metadata?.github_hosted_checkpoint_mode
-      const hasExplicitMode = explicitMode === 'merge' || explicitMode === 'replace_bread'
+      const hasExplicitMode = explicitMode === 'merge' || explicitMode === 'replace_breezify'
       checkpoints.push({
         blobSha: typeof explicitBlobSha === 'string' ? explicitBlobSha : null,
         mode: hasExplicitMode ? explicitMode : null,
@@ -1471,7 +1471,7 @@ export async function syncGitHubHostedDocs(
     // directory folder moves under its parent directory's folder, or to the
     // workspace root for a top-level directory. This is what lifts a tree out
     // of a legacy "<Repo> Docs" container once the root is the workspace root.
-    // Merge still keeps each document's own Bread placement; only "Use
+    // Merge still keeps each document's own Breezify placement; only "Use
     // GitHub" moves documents into their directory folders.
     const reparents = hostedFolderReparents({
       cache: directoryCache,
@@ -1508,7 +1508,7 @@ export async function syncGitHubHostedDocs(
         return
       }
 
-      // Preserve the established Bread taxonomy when a human-run canonical
+      // Preserve the established Breezify taxonomy when a human-run canonical
       // import already owns this file (including mirror rows used by several
       // portal projects). Otherwise create a generic hosted-document row under
       // the source's mirrored folder tree. The companion and canonical lookup
@@ -1533,15 +1533,15 @@ export async function syncGitHubHostedDocs(
       if (canonicalError) throw new Error(`canonical doc lookup: ${canonicalError.message}`)
 
       let rows = (canonicalRows ?? []) as ExistingDocument[]
-      // Bread-first bootstrap writes the original document UUID into each new
+      // Breezify-first bootstrap writes the original document UUID into each new
       // Markdown file. Use it only inside this workspace when no canonical path
       // link exists yet; this makes bootstrap reconciliation retry-safe without
       // ever matching on mutable titles or folder names.
-      if (rows.length === 0 && doc.breadDocumentId) {
+      if (rows.length === 0 && doc.breezifyDocumentId) {
         const { data: bootstrapRow, error: bootstrapError } = await admin
           .from('documents')
           .select('id, title, content, status, source_metadata, deleted_at, updated_at, folder_id')
-          .eq('id', doc.breadDocumentId)
+          .eq('id', doc.breezifyDocumentId)
           .eq('workspace_id', target.workspaceId)
           .is('deleted_at', null)
           .maybeSingle()
@@ -1580,8 +1580,8 @@ export async function syncGitHubHostedDocs(
                 source_metadata: {
                   ...(row.source_metadata ?? {}),
                   canonical_repo_path: doc.path,
-                  ...(doc.breadDocumentId
-                    ? { bread_document_id: doc.breadDocumentId }
+                  ...(doc.breezifyDocumentId
+                    ? { breezify_document_id: doc.breezifyDocumentId }
                     : {}),
                   github_hosted_sync: true,
                   github_hosted_conflict: true,
@@ -1603,7 +1603,7 @@ export async function syncGitHubHostedDocs(
 
           // GitHub owns placement in replace mode: the document moves to the
           // folder for its repository directory (or the workspace root).
-          if (mode === 'replace_bread') {
+          if (mode === 'replace_breezify') {
             const targetFolderId = hostedDocumentFolderId({
               relativeDirectory: doc.relativeDirectory,
               cache: directoryCache,
@@ -1628,8 +1628,8 @@ export async function syncGitHubHostedDocs(
             content: doc.content,
             sourceMetadataPatch: {
               canonical_repo_path: doc.path,
-              ...(doc.breadDocumentId
-                ? { bread_document_id: doc.breadDocumentId }
+              ...(doc.breezifyDocumentId
+                ? { breezify_document_id: doc.breezifyDocumentId }
                 : {}),
               github_hosted_sync: true,
               github_hosted_conflict: false,
@@ -1689,8 +1689,8 @@ export async function syncGitHubHostedDocs(
           source_metadata: {
             kind: 'github_hosted_document',
             canonical_repo_path: doc.path,
-            ...(doc.breadDocumentId
-              ? { bread_document_id: doc.breadDocumentId }
+            ...(doc.breezifyDocumentId
+              ? { breezify_document_id: doc.breezifyDocumentId }
               : {}),
             // The repository owns an entry's date; dated feeds read this
             // rather than `updated_at`, which stays a plain last-modified.

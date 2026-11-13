@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 // =============================================================================
-// import-docs.mjs — sync Bread's canonical product docs into a workspace.
+// import-docs.mjs — sync Breezify's canonical product docs into a workspace.
 //
 // Dogfood pipeline for the public KB portal: reads the MDX docs under
 // docs/product/**, converts each to portal-renderable Markdown, and
 // upserts one or more `documents` rows per file with document_type='page' and
 // stable human-readable `public_slug` values. Portal-specific mirror rows share
 // the same canonical file so separate docs/help URLs cannot drift. The tree is
-// mapped beneath one "Bread Docs" KB folder (kind='user',
+// mapped beneath one "Breezify Docs" KB folder (kind='user',
 // visibility='workspace'). Existing portal category folders are reused by their
 // stable internal names, so their ids, public scopes, and document URLs survive
 // consolidation. Internal engineering docs live elsewhere under docs/** and are
@@ -39,7 +39,7 @@
 //
 //   node apps/web/app/scripts/import-docs.mjs --help
 //
-// SEED A BREAD "Docs" WORKSPACE (the dogfood target):
+// SEED A BREEZIFY "Docs" WORKSPACE (the dogfood target):
 //   set -a; source apps/web/app/.env.local; set +a
 //   node apps/web/app/scripts/import-docs.mjs --workspace "Docs"
 //   # then visit /p/docs (the script prints the exact slug).
@@ -72,10 +72,10 @@ const DOCS_ROOT = path.join(REPO_ROOT, "docs/product")
 const FOLDER_VISIBILITY = "workspace"
 const DOC_TYPE = "page"
 const DEFAULT_WORKSPACE_NAME = "Docs"
-const DOCS_FOLDER_NAME = "bread-docs"
-const DOCS_FOLDER_DISPLAY_NAME = "Bread Docs"
+const DOCS_FOLDER_NAME = "breezify-docs"
+const DOCS_FOLDER_DISPLAY_NAME = "Breezify Docs"
 
-// These names already exist in the Bread workspace and are referenced by the
+// These names already exist in the Breezify workspace and are referenced by the
 // published docs/help portal scopes. Reusing and reparenting them preserves the
 // stable folder ids while removing the category sprawl from the workspace root.
 const FOLDER_ALIASES = {
@@ -181,8 +181,8 @@ const DOC_MIRRORS = {
       folderKeys: ["integrations"],
     },
     {
-      slug: "help-using-bread-with-claude-mcp",
-      title: "Using Bread with Claude (MCP)",
+      slug: "help-using-breezify-with-claude-mcp",
+      title: "Using Breezify with Claude (MCP)",
       folderKeys: ["integrations"],
     },
   ],
@@ -230,8 +230,8 @@ const DOC_MIRRORS = {
   ],
   "intro.mdx": [
     {
-      slug: "help-what-is-bread",
-      title: "What is Bread?",
+      slug: "help-what-is-breezify",
+      title: "What is Breezify?",
       folderKeys: ["help-center"],
     },
   ],
@@ -255,7 +255,7 @@ function parseArgs(argv) {
   return args
 }
 
-const HELP = `import-docs.mjs — seed a Bread workspace from the bundled docs tree
+const HELP = `import-docs.mjs — seed a Breezify workspace from the bundled docs tree
 
 Usage:
   node apps/web/app/scripts/import-docs.mjs --dry-run
@@ -380,7 +380,7 @@ function titleCase(segment) {
 function generatedFolderSpec(key, segment) {
   return {
     key,
-    name: `bread-docs-${key.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`,
+    name: `breezify-docs-${key.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`,
     displayName: segment.toLowerCase() === "api" ? "API" : titleCase(segment),
   }
 }
@@ -512,7 +512,7 @@ async function parseAll(root) {
     const raw = await readFile(file, "utf8")
     const { data, body } = parseFrontmatter(raw)
     // `slug` belongs to the retired Docusaurus router and may be values such as
-    // `/` or `/setup`. Only the Bread-specific override is safe to reuse here.
+    // `/` or `/setup`. Only the Breezify-specific override is safe to reuse here.
     const slug = (data.public_slug || slugFromRelPath(relPath)).trim()
     const fallbackTitle = titleCase(path.basename(relPath).replace(/\.(mdx|md)$/i, ""))
     const title = (data.title || data.sidebar_label || fallbackTitle).trim()
@@ -661,9 +661,9 @@ async function findOrCreateFolder(admin, workspaceId, name, displayName, parentI
 }
 
 /**
- * Resolve a canonical folder route beneath Bread Docs, returning the leaf id.
+ * Resolve a canonical folder route beneath Breezify Docs, returning the leaf id.
  * Stable aliases reuse existing portal folder ids; generated descendants use a
- * Bread-specific internal name so unrelated workspace folders never collide.
+ * Breezify-specific internal name so unrelated workspace folders never collide.
  * @returns {Promise<string>}
  */
 async function ensureFolderRoute(admin, workspaceId, route, cache, rootFolderId) {

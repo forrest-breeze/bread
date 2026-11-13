@@ -43,8 +43,8 @@ describe("GithubHostedDocsSyncGate", () => {
         data: {
           source: {
             sync_status: syncStatus,
-            repo_full_name: "bread/bread",
-            paths: ["docs/bread-docs"],
+            repo_full_name: "breezify/breezify",
+            paths: ["docs/breezify-docs"],
           },
         },
         error: undefined,
@@ -55,10 +55,10 @@ describe("GithubHostedDocsSyncGate", () => {
       renderGate()
 
       expect(
-        screen.getByRole("heading", { name: "Syncing Bread docs from GitHub" }),
+        screen.getByRole("heading", { name: "Syncing Breezify docs from GitHub" }),
       ).toBeInTheDocument()
       expect(screen.getByRole("progressbar")).toBeInTheDocument()
-      expect(screen.getByText("bread/bread/docs/bread-docs")).toBeInTheDocument()
+      expect(screen.getByText("breezify/breezify/docs/breezify-docs")).toBeInTheDocument()
       expect(screen.queryByRole("button", { name: "Editable control" })).toBeNull()
       expect(document.querySelector(".animate-spin")).toBeNull()
     },
@@ -123,7 +123,7 @@ describe("GithubHostedDocsSyncGate", () => {
   it("renders the server-shaped tree until hydration even when the cache reports a sync", () => {
     mocks.useHasHydrated.mockReturnValue(false)
     mocks.useGithubHostedDocs.mockReturnValue({
-      data: { source: { sync_status: "syncing", repo_full_name: "bread/bread", paths: ["docs"] } },
+      data: { source: { sync_status: "syncing", repo_full_name: "breezify/breezify", paths: ["docs"] } },
       error: undefined,
       isLoading: false,
       isValidating: false,

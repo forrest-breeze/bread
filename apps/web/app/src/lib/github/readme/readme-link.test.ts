@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 
 const github = vi.hoisted(() => ({
   getInstallationToken: vi.fn(),
@@ -105,7 +105,7 @@ describe('linkReadmeRepository', () => {
       branch: 'v2.0',
       paths: ['site'],
       publish_mode: 'pull_request',
-      pending_sync_mode: 'replace_bread',
+      pending_sync_mode: 'replace_breezify',
     })
 
     github.getRepositoryBranchReference.mockResolvedValue(null)

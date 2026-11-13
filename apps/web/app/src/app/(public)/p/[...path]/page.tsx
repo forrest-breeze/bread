@@ -22,7 +22,11 @@ import { portalLlmsFilename } from "@/lib/portal/llms-txt-request"
 import { portalCanonicalPageUrl } from "@/lib/portal/canonical-url"
 import { resolvePortalCanonicalBaseUrl } from "@/lib/portal/canonical-url.server"
 import { firstPortalDocument } from "@/lib/portal/build-default"
-import { portalPagePresentation } from "@/lib/portal/schema"
+import {
+  portalDefaultPage,
+  portalPagePresentation,
+  resolvePortalNavRoute,
+} from "@/lib/portal/schema"
 import { sortApiReferenceDocuments } from "@/lib/portal/api-reference-model"
 import { PortalChangelogView } from "@/components/public-kb/portal/portal-changelog-view"
 import { PortalApiReferenceView } from "@/components/public-kb/portal/portal-api-reference-view"
@@ -211,7 +215,7 @@ export default async function PortalCatchAllPage({
   const parsedBase = baseFromParsed(parsed.workspaceSlug, parsed.projectSlug)
   const requestedHrefBase = publicPortalBasePath(
     parsedBase,
-    requestHeaders.get("x-bread-base-path"),
+    requestHeaders.get("x-breezify-base-path"),
   )
 
   // Login-return target: the clean public URL on a validated custom-domain
@@ -242,14 +246,14 @@ export default async function PortalCatchAllPage({
   if (parsed.view === "home" && rootRedirectSlug) {
     const suffix = query ? `?q=${encodeURIComponent(query)}` : ""
     redirect(
-      requestHeaders.get("x-bread-base-path")
+      requestHeaders.get("x-breezify-base-path")
         ? publicPortalHref(requestedHrefBase, suffix)
         : `/p/${parsed.workspaceSlug}/${rootRedirectSlug}${suffix}`,
     )
   }
   const hrefBase = publicPortalBasePath(
     base,
-    requestHeaders.get("x-bread-base-path"),
+    requestHeaders.get("x-breezify-base-path"),
   )
   const entitlements = await getPortalEntitlementsForWorkspace(workspace.id)
 
@@ -263,15 +267,25 @@ export default async function PortalCatchAllPage({
         navScope={scope}
         publishedLayout={layout}
         refId={parsed.refId ?? ""}
-        canRemoveBreadBranding={entitlements.portalBrandingRemoval}
+        canRemoveBreezifyBranding={entitlements.portalBrandingRemoval}
       />
     )
   }
-  if (parsed.view === "page") {
-    const portalPage = layout?.pages?.find(
-      (candidate) => candidate.slug === parsed.refId,
-    )
-    if (!portalPage) notFound()
+  // The root serves whichever entry holds the first nav slot; once a custom
+  // page takes it, Home moves to /page/home.
+  const navRoute = resolvePortalNavRoute(layout, parsed.view, parsed.refId)
+  if (!navRoute) notFound()
+  if (navRoute.kind === "page") {
+    const portalPage = navRoute.page
+    // The default page's own URL is the portal root.
+    const portalPageHref =
+      portalDefaultPage(layout)?.id === portalPage.id
+        ? hrefBase
+        : publicPortalHref(hrefBase, `/page/${portalPage.slug}`)
+    // One URL per page: the default page's /page/<slug> folds into the root.
+    if (parsed.view === "page" && !parsed.pageDocRef && portalPageHref === hrefBase) {
+      redirect(hrefBase)
+    }
     const presentation = portalPagePresentation(portalPage)
     // A custom page scope is independent of Home; null deliberately inherits
     // Home so existing pages continue to follow project-level content changes.
@@ -299,7 +313,7 @@ export default async function PortalCatchAllPage({
         )
         if (!target) notFound()
         if (ordered[0]?.id === target.id) {
-          redirect(publicPortalHref(hrefBase, `/page/${portalPage.slug}`))
+          redirect(portalPageHref)
         }
       }
       return (
@@ -312,7 +326,7 @@ export default async function PortalCatchAllPage({
           taxonomy={pageData.taxonomy}
           documents={pageData.documents}
           activeDocRef={parsed.pageDocRef}
-          canRemoveBreadBranding={entitlements.portalBrandingRemoval}
+          canRemoveBreezifyBranding={entitlements.portalBrandingRemoval}
         />
       )
     }
@@ -353,7 +367,7 @@ export default async function PortalCatchAllPage({
           taxonomy={pageTaxonomy}
           documents={pageDocuments}
           activeDocument={activeDocument}
-          canRemoveBreadBranding={entitlements.portalBrandingRemoval}
+          canRemoveBreezifyBranding={entitlements.portalBrandingRemoval}
         />
       )
     }
@@ -363,6 +377,8 @@ export default async function PortalCatchAllPage({
     if (!first) return <p className="p-8 text-muted-foreground">No published documents yet.</p>
     redirect(publicPortalHref(hrefBase, `/doc/${first.slug || first.id}`))
   }
+  // Home: /page/home has no sub-documents.
+  if (parsed.pageDocRef) notFound()
   const documents = await getPublicDocuments(workspace.id, scope)
   const taxonomy = await getPublicTaxonomy(workspace.id, scope)
   const first = firstPortalDocument(taxonomy, documents)

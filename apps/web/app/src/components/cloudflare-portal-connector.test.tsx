@@ -18,7 +18,7 @@ import { CloudflarePortalConnector } from "./cloudflare-portal-connector"
 const deployment = {
   status: "connected" as const,
   domain: "customer.com",
-  scriptName: "bread-portal-123",
+  scriptName: "breezify-portal-123",
   deployedAt: "2026-08-21T18:31:13.970Z",
   lastError: null,
   needsDeploy: false,

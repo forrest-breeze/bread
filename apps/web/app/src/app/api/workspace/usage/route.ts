@@ -94,7 +94,7 @@ export async function GET(): Promise<NextResponse<WorkspaceUsageResponse | { err
     ]);
 
     if (usageError) {
-      console.error("[Bread] workspace/usage query failed:", usageError.message);
+      console.error("[Breezify] workspace/usage query failed:", usageError.message);
       return NextResponse.json({ error: "Failed to load usage" }, { status: 500 });
     }
 
@@ -141,7 +141,7 @@ export async function GET(): Promise<NextResponse<WorkspaceUsageResponse | { err
       },
     });
   } catch (error) {
-    console.error("[Bread] workspace/usage handler:", error);
+    console.error("[Breezify] workspace/usage handler:", error);
     return NextResponse.json({ error: "Failed to load usage" }, { status: 500 });
   }
 }

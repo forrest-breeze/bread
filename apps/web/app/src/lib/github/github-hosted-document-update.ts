@@ -28,7 +28,7 @@ interface GitHubHostedDocumentUpdateRpcRow {
 
 export class GitHubHostedDocumentChangedError extends Error {
   constructor() {
-    super('The Bread document changed while GitHub content was being applied.')
+    super('The Breezify document changed while GitHub content was being applied.')
     this.name = 'GitHubHostedDocumentChangedError'
   }
 }
@@ -36,7 +36,7 @@ export class GitHubHostedDocumentChangedError extends Error {
 /**
  * Atomically snapshots the prior curated head and applies its GitHub version.
  * The database row lock makes a committed retry a no-op instead of creating a
- * duplicate version, while a concurrent Bread edit fails closed as stale.
+ * duplicate version, while a concurrent Breezify edit fails closed as stale.
  */
 export async function applyGitHubHostedDocumentUpdate(
   admin: SupabaseClient,

@@ -111,9 +111,9 @@ describe("GET /api/public/llms", () => {
     mockHeaders.mockResolvedValue(
       new Headers({
         host: "app.example.com",
-        "x-bread-proxy": "cloudflare-worker-v1",
+        "x-breezify-proxy": "cloudflare-worker-v1",
         "x-forwarded-host": "customer.com",
-        "x-bread-base-path": "/help",
+        "x-breezify-base-path": "/help",
       }),
     )
 

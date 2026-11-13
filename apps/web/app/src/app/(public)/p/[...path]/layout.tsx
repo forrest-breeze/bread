@@ -6,6 +6,7 @@ import { requirePortal } from "@/lib/public-kb-route"
 import { getPortalEntitlementsForWorkspace } from "@/lib/db/subscription"
 import { portalPublicNextPath } from "@/lib/portal/login-return"
 import { parsePortalPath } from "@/lib/portal/portal-path"
+import { resolvePortalNavRoute } from "@/lib/portal/schema"
 import { PortalShell } from "@/components/public-kb/portal/portal-shell"
 import { publicPortalBasePath } from "@/lib/portal/public-base-path"
 import {
@@ -99,21 +100,26 @@ export default async function PortalLayout({
   const requestCookies = await cookies()
   const hrefBase = publicPortalBasePath(
     base,
-    requestHeaders.get("x-bread-base-path"),
+    requestHeaders.get("x-breezify-base-path"),
   )
   const entitlements = await getPortalEntitlementsForWorkspace(workspace.id)
   const navigationPages = published?.pages ?? []
   // Ordinary document/folder routes belong to Home. Page routes retain their
   // parent tab even when viewing a nested API endpoint or changelog entry.
-  const activePageSlug = parsed.view === "page" ? parsed.refId : null
+  // The root serves the default page, so it selects that page's tab.
+  const navRoute =
+    parsed.view === "home" || parsed.view === "page"
+      ? resolvePortalNavRoute(published, parsed.view, parsed.refId)
+      : null
+  const activePageSlug = navRoute?.kind === "page" ? navRoute.page.slug : null
   return (
     <PortalShell
       workspace={workspace}
       published={published}
       base={base}
       hrefBase={hrefBase}
-      askAiEnabled={entitlements.portalAiBuilder}
-      canRemoveBreadBranding={entitlements.portalBrandingRemoval}
+      askAiEnabled={entitlements.portalAssistant}
+      canRemoveBreezifyBranding={entitlements.portalBrandingRemoval}
       translationsEnabled={entitlements.portalTranslations}
       navigationPages={navigationPages}
       activePageSlug={activePageSlug}

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .upload(path, file, { upsert: true, contentType: file.type });
 
   if (uploadError) {
-    console.error("[Bread] Failed to upload icon:", uploadError.message);
+    console.error("[Breezify] Failed to upload icon:", uploadError.message);
     return NextResponse.json({ error: "Failed to upload icon" }, { status: 500 });
   }
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .eq("id", membership.workspace_id);
 
   if (updateError) {
-    console.error("[Bread] Failed to update workspace icon_url:", updateError.message);
+    console.error("[Breezify] Failed to update workspace icon_url:", updateError.message);
     return NextResponse.json({ error: "Failed to save icon" }, { status: 500 });
   }
 

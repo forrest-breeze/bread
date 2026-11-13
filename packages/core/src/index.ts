@@ -26,7 +26,7 @@ export interface RunbookEntry {
   source?: string;
 }
 
-export interface BreadExtraction {
+export interface BreezifyExtraction {
   title: string;
   symptoms: string[];
   root_cause: string;
@@ -179,7 +179,7 @@ export interface SlackIntegrationRow {
 }
 
 /**
- * A Slack channel an admin has designated for scheduled auto-ingestion. Bread
+ * A Slack channel an admin has designated for scheduled auto-ingestion. Breezify
  * polls only these channels (never the whole workspace); `last_synced_ts` is the
  * Slack epoch-float high-water mark of the newest message ingested.
  */
@@ -420,7 +420,7 @@ export interface WorkspaceRow {
 export type IngestionApprovalMode = "smart" | "always_review";
 export type PortalChromeScope = "workspace" | "project";
 export type PortalAddressScope = "workspace" | "project";
-export type PortalAddressMode = "bread" | "path" | "domain";
+export type PortalAddressMode = "breezify" | "path" | "domain";
 
 export interface WorkspaceSettings {
   invite_code?: string;
@@ -472,7 +472,7 @@ export interface WorkspaceSettings {
    * The workspace's existing public website / landing page (e.g.
    * "https://acme.com"), captured during onboarding. When set, generated portal
    * templates point their Home/Pricing nav links at this site instead of the
-   * Bread marketing placeholders, and ingestion may later crawl it for extra
+   * Breezify marketing placeholders, and ingestion may later crawl it for extra
    * context. Stored as a normalized absolute http(s) URL; empty/undefined means
    * the workspace has no landing page on file.
    */
@@ -688,7 +688,7 @@ export interface ChatMessageRow {
 // ---------------------------------------------------------------------------
 
 /**
- * One row per GitHub App installation linked to a Bread workspace.
+ * One row per GitHub App installation linked to a Breezify workspace.
  * No access token is stored — tokens are generated on demand via RS256 JWT
  * (see getInstallationToken). Tokens expire after 1 hour.
  */
@@ -698,7 +698,7 @@ export interface GitHubIntegrationRow {
   /** GitHub organisation or personal account login, e.g. "acmecorp" */
   github_account_login: string;
   github_account_type: 'Organization' | 'User';
-  /** GitHub App installation ID. Unique across all Bread workspaces. */
+  /** GitHub App installation ID. Unique across all Breezify workspaces. */
   installation_id: number;
   installed_by: string | null;
   created_at: string;
@@ -729,7 +729,7 @@ export interface MonitoredRepoRow {
     | 'error';
   /** False after an admin cancels indexing; PR capture remains active. */
   file_indexing_enabled: boolean;
-  /** Active repository-file documents currently searchable in Bread. */
+  /** Active repository-file documents currently searchable in Breezify. */
   indexed_file_count: number;
   /** Selected files still waiting for a successful ingest pass. */
   pending_file_count: number;
@@ -763,7 +763,7 @@ export interface GitHubHostedDocsSourceRow {
   last_sync_commit_sha: string | null;
   last_sync_at: string | null;
   last_sync_error: string | null;
-  /** Pull request whose merge activates a Bread-authored root. */
+  /** Pull request whose merge activates a Breezify-authored root. */
   pending_pull_request_number: number | null;
   pending_pull_request_url: string | null;
   pending_pull_request_head: string | null;
@@ -775,13 +775,13 @@ export interface GitHubHostedDocsSourceRow {
   publish_operation_id: string | null;
   publish_operation_started_at: string | null;
   /** One-shot reconciliation applied after the activation PR merges. */
-  pending_sync_mode: 'merge' | 'replace_bread';
+  pending_sync_mode: 'merge' | 'replace_breezify';
   /**
-   * Repository layout. 'bread' is the strict Bread frontmatter format;
+   * Repository layout. 'breezify' is the strict Breezify frontmatter format;
    * 'readme' is the layout ReadMe's GitHub integration reads and writes.
-   * Absent on rows read before the column existed; treat as 'bread'.
+   * Absent on rows read before the column existed; treat as 'breezify'.
    */
-  format?: 'bread' | 'readme';
+  format?: 'breezify' | 'readme';
   /** How workspace edits reach GitHub. 'direct' commits to the synced branch. */
   publish_mode?: 'pull_request' | 'direct';
   /** Synced branch; null means the repository default branch. */
@@ -822,9 +822,9 @@ export interface GitHubPRSessionRow {
 }
 
 /**
- * Maps a GitHub username to a Bread user within a workspace.
+ * Maps a GitHub username to a Breezify user within a workspace.
  * Used during ingest to attribute captured PR content to the correct user_id.
- * Each Bread user may link exactly one GitHub account per workspace.
+ * Each Breezify user may link exactly one GitHub account per workspace.
  */
 export interface GitHubUserLinkRow {
   id: string;
@@ -1385,17 +1385,17 @@ export interface BulkImportSourceMetadata {
 // ---------------------------------------------------------------------------
 
 /**
- * Default public-KB portal slugs for Bread's own dogfooded vanity routes.
+ * Default public-KB portal slugs for Breezify's own dogfooded vanity routes.
  * `docs` is a workspace slug; `help` is a published help_center PROJECT slug
  * nested beneath that workspace. Override per-environment via the
- * NEXT_PUBLIC_BREAD_{DOCS,HELP}_SLUG env vars at the call site.
+ * NEXT_PUBLIC_BREEZIFY_{DOCS,HELP}_SLUG env vars at the call site.
  */
-export const BREAD_PORTAL_SLUGS = {
-  docs: "bread",
+export const BREEZIFY_PORTAL_SLUGS = {
+  docs: "breezify",
   help: "help",
 } as const;
 
-export type BreadPortalKey = keyof typeof BREAD_PORTAL_SLUGS;
+export type BreezifyPortalKey = keyof typeof BREEZIFY_PORTAL_SLUGS;
 
 export interface PortalUrlOptions {
   /** Origin to prefix, e.g. "https://app.example.com". Omit for a root-relative path. */
@@ -1410,8 +1410,8 @@ export interface PortalUrlOptions {
  * redirects, link builders, the app) never hardcode the prefix.
  *
  *   portalUrl("help")                                         // "/p/help"
- *   portalUrl("bread", { appUrl: "https://app.example.com" })  // "https://app.example.com/p/bread"
- *   portalUrl("bread", { appUrl, subpath: ":path*" })        // ".../p/bread/:path*"
+ *   portalUrl("breezify", { appUrl: "https://app.example.com" })  // "https://app.example.com/p/breezify"
+ *   portalUrl("breezify", { appUrl, subpath: ":path*" })        // ".../p/breezify/:path*"
  */
 export function portalUrl(slug: string, options: PortalUrlOptions = {}): string {
   const origin = options.appUrl ? options.appUrl.replace(/\/+$/, "") : "";

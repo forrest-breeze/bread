@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import type { CredentialRole, PatScope } from "@bread/core";
+import type { CredentialRole, PatScope } from "@breezify/core";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hashBearerToken } from "@/lib/api/hash-bearer-token";
 import { touchLastUsed } from "@/lib/api/touch-last-used";

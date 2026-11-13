@@ -686,7 +686,7 @@ export function PortalAgentPanel({
                 <>
                   <div className="rounded-lg bg-muted px-3 py-2 text-sm text-foreground">
                     <div
-                      className="bread-editor !min-h-0 max-w-none break-words text-sm leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_li>p]:my-0 [&_li]:my-0.5 [&_ol]:my-1.5 [&_ol]:pl-4 [&_p]:my-1.5 [&_ul]:my-1.5 [&_ul]:pl-4"
+                      className="breezify-editor !min-h-0 max-w-none break-words text-sm leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_li>p]:my-0 [&_li]:my-0.5 [&_ol]:my-1.5 [&_ol]:pl-4 [&_p]:my-1.5 [&_ul]:my-1.5 [&_ul]:pl-4"
                       dangerouslySetInnerHTML={{
                         __html: markdown.render(turn.text || ""),
                       }}

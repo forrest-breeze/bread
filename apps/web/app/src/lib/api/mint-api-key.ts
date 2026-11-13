@@ -10,7 +10,7 @@ import { encryptToken } from "@/lib/security/token-crypto";
  *
  * `key_hash` is the authentication path (see `authenticateApiKey` /
  * `authenticateMcp`). `key_encrypted` is the reversible copy that backs the
- * admin-gated reveal endpoint, and is null when BREAD_TOKEN_ENC_KEY is
+ * admin-gated reveal endpoint, and is null when BREEZIFY_TOKEN_ENC_KEY is
  * missing or invalid — the key still works, it just can't be revealed later.
  */
 /**
@@ -18,7 +18,7 @@ import { encryptToken } from "@/lib/security/token-crypto";
  * authenticator route a bearer token to the API-key path rather than the OAuth
  * one, so it must stay in sync with what `mintApiKey` produces.
  */
-export const API_KEY_PREFIX = "bread_sk_";
+export const API_KEY_PREFIX = "breezify_sk_";
 
 export interface MintedApiKey {
   /** The plaintext secret. Returned to the caller once; never stored as-is. */

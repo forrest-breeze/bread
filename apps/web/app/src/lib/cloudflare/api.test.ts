@@ -43,9 +43,9 @@ describe("Cloudflare API helpers", () => {
     await uploadCloudflareWorker({
       accessToken: "oauth-token",
       accountId: "account-id",
-      scriptName: "bread-portal-test",
+      scriptName: "breezify-portal-test",
       domain: "customer.com",
-      breadOrigin: "https://app.example.com",
+      breezifyOrigin: "https://app.example.com",
       routes: { "/docs": "/p/acme/docs" },
       source: "export default { fetch() { return new Response('ok') } }",
     });
@@ -61,8 +61,8 @@ describe("Cloudflare API helpers", () => {
     };
     expect(Object.fromEntries(parsed.bindings.map((b) => [b.name, b.text]))).toEqual({
       EXPECTED_HOST: "customer.com",
-      BREAD_ORIGIN: "https://app.example.com",
-      BREAD_ROUTES: '{"/docs":"/p/acme/docs"}',
+      BREEZIFY_ORIGIN: "https://app.example.com",
+      BREEZIFY_ROUTES: '{"/docs":"/p/acme/docs"}',
     });
   });
 });

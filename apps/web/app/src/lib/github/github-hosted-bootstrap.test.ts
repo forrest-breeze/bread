@@ -11,16 +11,16 @@ import {
 describe('GitHub hosted docs bootstrap', () => {
   it('adds the docs tag to pull request titles', () => {
     expect(githubHostedDocsPullRequestTitle('docs', true)).toBe(
-      'docs: Update docs from Bread',
+      'docs: Update docs from Breezify',
     )
     expect(githubHostedDocsPullRequestTitle('docs', false)).toBe(
-      'docs: Create docs from Bread',
+      'docs: Create docs from Breezify',
     )
   })
 
   it('builds a stable branch prefix for merge recovery', () => {
     expect(githubHostedDocsBranchPrefix('docs/Product Guides')).toBe(
-      'bread/docs-docs-product-guides-',
+      'breezify/docs-docs-product-guides-',
     )
   })
 
@@ -30,12 +30,12 @@ describe('GitHub hosted docs bootstrap', () => {
     expect(normalizeBootstrapTargetPath('docs/product docs')).toBeNull()
   })
 
-  it('maps a Bread folder subtree to new Markdown files', () => {
+  it('maps a Breezify folder subtree to new Markdown files', () => {
     const files = buildGitHubBootstrapFiles({
       targetPath: 'docs',
       rootFolderId: 'root',
       folders: [
-        { id: 'root', displayName: 'Bread Docs', parentFolderId: null },
+        { id: 'root', displayName: 'Breezify Docs', parentFolderId: null },
         { id: 'child', displayName: 'API & Tools', parentFolderId: 'root' },
       ],
       documents: [
@@ -63,12 +63,12 @@ describe('GitHub hosted docs bootstrap', () => {
       (file) => file.path === 'docs/getting-started.md',
     )
     expect(gettingStarted?.documentId).toBe('doc-1')
-    expect(gettingStarted?.breadDocumentId).toBe('doc-1')
-    expect(gettingStarted?.content).toContain('bread_document_id: "doc-1"')
+    expect(gettingStarted?.breezifyDocumentId).toBe('doc-1')
+    expect(gettingStarted?.content).toContain('breezify_document_id: "doc-1"')
     expect(gettingStarted?.content).toContain('# Getting Started\n\nWelcome.')
   })
 
-  it('creates a non-document placeholder so an empty Bread folder can exist in Git', () => {
+  it('creates a non-document placeholder so an empty Breezify folder can exist in Git', () => {
     expect(
       buildGitHubBootstrapFiles({
         targetPath: 'docs',
@@ -90,7 +90,7 @@ describe('GitHub hosted docs bootstrap', () => {
 
   it('preserves a linked canonical path, id, and date despite display-folder renames', () => {
     const documentId = '00000000-0000-4000-8000-000000000001'
-    const breadDocumentId = '00000000-0000-4000-8000-000000000099'
+    const breezifyDocumentId = '00000000-0000-4000-8000-000000000099'
     const files = buildGitHubBootstrapFiles({
       targetPath: 'docs',
       rootFolderId: 'workspace-root',
@@ -102,16 +102,16 @@ describe('GitHub hosted docs bootstrap', () => {
       documents: [
         {
           id: documentId,
-          breadDocumentId,
+          breezifyDocumentId,
           title: 'Renamed Setup',
           folderId: 'guides',
           pathRootFolderId: 'hosted-root',
-          contentMarkdown: 'Current Bread instructions.',
+          contentMarkdown: 'Current Breezify instructions.',
           canonicalPath: 'docs/old/setup.mdx',
           repositoryContent: [
             '---',
             'title: "Old Setup"',
-            `bread_document_id: ${JSON.stringify(breadDocumentId)}`,
+            `breezify_document_id: ${JSON.stringify(breezifyDocumentId)}`,
             'date: "2026-08-17T17:00:00.000Z"',
             '---',
             '',
@@ -134,12 +134,12 @@ describe('GitHub hosted docs bootstrap', () => {
     ])
     const setup = files.find((file) => file.path === 'docs/old/setup.mdx')
     expect(setup?.documentId).toBe(documentId)
-    expect(setup?.breadDocumentId).toBe(breadDocumentId)
+    expect(setup?.breezifyDocumentId).toBe(breezifyDocumentId)
     expect(setup?.content).toContain(
-      `bread_document_id: ${JSON.stringify(breadDocumentId)}`,
+      `breezify_document_id: ${JSON.stringify(breezifyDocumentId)}`,
     )
     expect(setup?.content).toContain('date: "2026-08-17T17:00:00.000Z"')
-    expect(setup?.content).toContain('# Renamed Setup\n\nCurrent Bread instructions.')
+    expect(setup?.content).toContain('# Renamed Setup\n\nCurrent Breezify instructions.')
   })
 
   it('reuses the exact GitHub file when title and body were not edited', () => {
@@ -147,7 +147,7 @@ describe('GitHub hosted docs bootstrap', () => {
     const repositoryContent = [
       '---',
       'title: "Setup"',
-      `bread_document_id: ${JSON.stringify(documentId)}`,
+      `breezify_document_id: ${JSON.stringify(documentId)}`,
       'date: "2026-08-17"',
       '---',
       '',
@@ -162,7 +162,7 @@ describe('GitHub hosted docs bootstrap', () => {
       folders: [{ id: 'root', displayName: 'Docs', parentFolderId: null }],
       documents: [{
         id: documentId,
-        breadDocumentId: documentId,
+        breezifyDocumentId: documentId,
         title: 'Setup',
         folderId: 'root',
         contentMarkdown: 'Keep this exact MDX.',
@@ -177,7 +177,7 @@ describe('GitHub hosted docs bootstrap', () => {
     expect(files[0]?.content).toBe(repositoryContent)
   })
 
-  it('keeps GitHub date spelling when Bread changes only the body', () => {
+  it('keeps GitHub date spelling when Breezify changes only the body', () => {
     const documentId = '00000000-0000-4000-8000-000000000001'
     const files = buildGitHubBootstrapFiles({
       targetPath: 'docs',
@@ -185,15 +185,15 @@ describe('GitHub hosted docs bootstrap', () => {
       folders: [{ id: 'root', displayName: 'Docs', parentFolderId: null }],
       documents: [{
         id: documentId,
-        breadDocumentId: documentId,
+        breezifyDocumentId: documentId,
         title: 'Setup',
         folderId: 'root',
-        contentMarkdown: 'A real Bread edit.',
+        contentMarkdown: 'A real Breezify edit.',
         canonicalPath: 'docs/setup.md',
         repositoryContent: [
           '---',
           'title: "Setup"',
-          `bread_document_id: ${JSON.stringify(documentId)}`,
+          `breezify_document_id: ${JSON.stringify(documentId)}`,
           'date: "2026-08-17"',
           '---',
           '',
@@ -207,7 +207,7 @@ describe('GitHub hosted docs bootstrap', () => {
     })
 
     expect(files[0]?.content).toContain('date: "2026-08-17"')
-    expect(files[0]?.content).toContain('A real Bread edit.')
+    expect(files[0]?.content).toContain('A real Breezify edit.')
   })
 
   it('does not invent a date for an undated GitHub file', () => {
@@ -218,15 +218,15 @@ describe('GitHub hosted docs bootstrap', () => {
       folders: [{ id: 'root', displayName: 'Docs', parentFolderId: null }],
       documents: [{
         id: documentId,
-        breadDocumentId: documentId,
+        breezifyDocumentId: documentId,
         title: 'Setup',
         folderId: 'root',
-        contentMarkdown: 'A real Bread edit.',
+        contentMarkdown: 'A real Breezify edit.',
         canonicalPath: 'docs/setup.md',
         repositoryContent: [
           '---',
           'title: "Setup"',
-          `bread_document_id: ${JSON.stringify(documentId)}`,
+          `breezify_document_id: ${JSON.stringify(documentId)}`,
           '---',
           '',
           '# Setup',
@@ -239,7 +239,7 @@ describe('GitHub hosted docs bootstrap', () => {
     })
 
     expect(files[0]?.content).not.toContain('\ndate:')
-    expect(files[0]?.content).toContain('A real Bread edit.')
+    expect(files[0]?.content).toContain('A real Breezify edit.')
   })
 
   it('reserves canonical paths before assigning generated paths', () => {
@@ -279,7 +279,7 @@ describe('GitHub hosted docs bootstrap', () => {
       targetPath: 'docs',
       rootFolderId: 'root',
       folders: [
-        { id: 'root', displayName: 'Bread Docs', parentFolderId: null },
+        { id: 'root', displayName: 'Breezify Docs', parentFolderId: null },
         {
           id: 'developers',
           displayName: 'Developers & AI',
@@ -297,7 +297,7 @@ describe('GitHub hosted docs bootstrap', () => {
         },
         {
           id: 'help-center',
-          displayName: 'Bread Help Center',
+          displayName: 'Breezify Help Center',
           parentFolderId: 'root',
         },
       ],
@@ -344,7 +344,7 @@ describe('GitHub hosted docs bootstrap', () => {
       targetPath: 'docs',
       rootFolderId: 'root',
       folders: [
-        { id: 'root', displayName: 'Bread Docs', parentFolderId: null },
+        { id: 'root', displayName: 'Breezify Docs', parentFolderId: null },
         { id: 'guides', displayName: 'Product Guides', parentFolderId: 'root' },
         { id: 'api', displayName: 'API', parentFolderId: 'guides' },
       ],
@@ -379,7 +379,7 @@ describe('GitHub hosted docs bootstrap', () => {
 
   it('does not let repository content establish identity without explicit metadata', () => {
     const documentId = '00000000-0000-4000-8000-000000000001'
-    const breadDocumentId = '00000000-0000-4000-8000-000000000099'
+    const breezifyDocumentId = '00000000-0000-4000-8000-000000000099'
     const files = buildGitHubBootstrapFiles({
       targetPath: 'docs',
       rootFolderId: 'root',
@@ -393,7 +393,7 @@ describe('GitHub hosted docs bootstrap', () => {
         repositoryContent: [
           '---',
           'title: "Setup"',
-          `bread_document_id: ${JSON.stringify(breadDocumentId)}`,
+          `breezify_document_id: ${JSON.stringify(breezifyDocumentId)}`,
           'date: "2026-08-17T17:00:00.000Z"',
           '---',
           '',
@@ -403,23 +403,23 @@ describe('GitHub hosted docs bootstrap', () => {
     })
 
     expect(files[0]?.documentId).toBe(documentId)
-    expect(files[0]?.breadDocumentId).toBe(documentId)
+    expect(files[0]?.breezifyDocumentId).toBe(documentId)
     expect(files[0]?.content).toContain(
-      `bread_document_id: ${JSON.stringify(documentId)}`,
+      `breezify_document_id: ${JSON.stringify(documentId)}`,
     )
     expect(files[0]?.content).not.toContain('\ndate:')
   })
 
   it('does not preserve companion identity or date when explicit identity differs', () => {
     const documentId = '00000000-0000-4000-8000-000000000001'
-    const breadDocumentId = '00000000-0000-4000-8000-000000000002'
+    const breezifyDocumentId = '00000000-0000-4000-8000-000000000002'
     const files = buildGitHubBootstrapFiles({
       targetPath: 'docs',
       rootFolderId: 'root',
       folders: [{ id: 'root', displayName: 'Workspace', parentFolderId: null }],
       documents: [{
         id: documentId,
-        breadDocumentId,
+        breezifyDocumentId,
         title: 'Setup',
         folderId: 'root',
         contentMarkdown: 'Current.',
@@ -427,7 +427,7 @@ describe('GitHub hosted docs bootstrap', () => {
         repositoryContent: [
           '---',
           'title: "Setup"',
-          'bread_document_id: "00000000-0000-4000-8000-000000000099"',
+          'breezify_document_id: "00000000-0000-4000-8000-000000000099"',
           'date: "2026-08-17T17:00:00.000Z"',
           '---',
           '',
@@ -437,9 +437,9 @@ describe('GitHub hosted docs bootstrap', () => {
     })
 
     expect(files[0]?.documentId).toBe(documentId)
-    expect(files[0]?.breadDocumentId).toBe(breadDocumentId)
+    expect(files[0]?.breezifyDocumentId).toBe(breezifyDocumentId)
     expect(files[0]?.content).toContain(
-      `bread_document_id: ${JSON.stringify(breadDocumentId)}`,
+      `breezify_document_id: ${JSON.stringify(breezifyDocumentId)}`,
     )
     expect(files[0]?.content).not.toContain('\ndate:')
   })
@@ -532,7 +532,7 @@ describe('frontmatter date', () => {
       repositoryContent: [
         '---',
         'title: "Release notes"',
-        `bread_document_id: ${JSON.stringify(documentId)}`,
+        `breezify_document_id: ${JSON.stringify(documentId)}`,
         'date: "2026-08-17T17:00:00.000Z"',
         '---',
         '',
@@ -544,11 +544,11 @@ describe('frontmatter date', () => {
     expect(content).not.toContain('2026-08-17')
   })
 
-  it('publishes a genuine Bread date edit even when the body is unchanged', () => {
+  it('publishes a genuine Breezify date edit even when the body is unchanged', () => {
     const repositoryContent = [
       '---',
       'title: "Release notes"',
-      `bread_document_id: ${JSON.stringify(documentId)}`,
+      `breezify_document_id: ${JSON.stringify(documentId)}`,
       'date: "2026-08-17"',
       '---',
       '',

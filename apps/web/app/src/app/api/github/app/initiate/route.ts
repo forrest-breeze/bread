@@ -49,13 +49,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const appSlug = process.env.GITHUB_APP_SLUG
   if (!appSlug) {
-    console.error('[Bread] GitHub initiate: GITHUB_APP_SLUG is not set')
+    console.error('[Breezify] GitHub initiate: GITHUB_APP_SLUG is not set')
     return NextResponse.redirect(getReturnUrl('server_misconfigured'))
   }
 
   const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET ?? ''
   if (!webhookSecret) {
-    console.error('[Bread] GitHub initiate: GITHUB_WEBHOOK_SECRET is not set')
+    console.error('[Breezify] GitHub initiate: GITHUB_WEBHOOK_SECRET is not set')
     return NextResponse.redirect(getReturnUrl('server_misconfigured'))
   }
 
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   installUrl.searchParams.set('state', state)
 
   const response = NextResponse.redirect(installUrl.toString())
-  response.cookies.set('bread-github-oauth-return', returnPath, {
+  response.cookies.set('breezify-github-oauth-return', returnPath, {
     httpOnly: true,
     maxAge: 15 * 60,
     path: '/',

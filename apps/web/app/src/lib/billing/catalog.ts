@@ -1,4 +1,5 @@
 import type { SubscriptionPlanId, SubscriptionRow } from "@/lib/types";
+import { isAnthropicConfigured } from "@/lib/ai/config";
 
 /**
  * Max active members per plan. `null` means uncapped (business, enterprise).
@@ -90,7 +91,11 @@ export interface PortalPlanEntitlements {
   planId: BillingPlanId;
   portalEditor: boolean;
   portalProjectLimit: number | null;
+  /** AI portal *builder* (generate a portal with AI). Off: no server routes. */
   portalAiBuilder: boolean;
+  /** Visitor "Ask AI" assistant on the portal. On when ANTHROPIC_API_KEY is set. */
+  portalAssistant: boolean;
+  /** Machine translation of the portal. On when ANTHROPIC_API_KEY is set. */
   portalTranslations: boolean;
   portalReporting: boolean;
   portalReportingMaxDays: number | null;
@@ -118,11 +123,13 @@ export function getPortalPlanEntitlements(
     planId,
     portalEditor: portalProjectLimit === null || portalProjectLimit > 0,
     portalProjectLimit,
-    // Breeze internal build: no AI subprocessors, so the AI builder, "Ask AI"
-    // assistant and machine translation are off on every plan. Their server
-    // routes were removed; see AI_FEATURES_DISABLED in the README.
+    // The AI portal builder has no server routes in this build, so it stays
+    // off. The visitor assistant (/api/public/ask) and machine translation
+    // (/api/public/translate) run on Claude and are on whenever
+    // ANTHROPIC_API_KEY is configured, independent of plan.
     portalAiBuilder: false,
-    portalTranslations: false,
+    portalAssistant: isAnthropicConfigured(),
+    portalTranslations: isAnthropicConfigured(),
     portalReporting: businessOrAbove,
     portalReportingMaxDays,
     portalBrandingRemoval: planId === "enterprise",

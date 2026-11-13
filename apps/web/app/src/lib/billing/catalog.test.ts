@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi } from "vitest"
 import {
   PLAN_AI_MONTHLY_BUDGET_USD,
   PLAN_MEMBER_LIMITS,
@@ -39,10 +39,19 @@ describe("resolvePortalPlanEntitlements", () => {
     expect(e.portalBrandingRemoval).toBe(true)
   })
 
-  it("keeps AI builder and translations off (no AI subprocessors)", () => {
-    const e = resolvePortalPlanEntitlements(null)
-    expect(e.portalAiBuilder).toBe(false)
-    expect(e.portalTranslations).toBe(false)
+  it("keeps the AI builder off and gates assistant + translations on ANTHROPIC_API_KEY", () => {
+    vi.stubEnv("ANTHROPIC_API_KEY", "")
+    const off = resolvePortalPlanEntitlements(null)
+    expect(off.portalAiBuilder).toBe(false)
+    expect(off.portalAssistant).toBe(false)
+    expect(off.portalTranslations).toBe(false)
+
+    vi.stubEnv("ANTHROPIC_API_KEY", "test-key")
+    const on = resolvePortalPlanEntitlements(null)
+    expect(on.portalAiBuilder).toBe(false)
+    expect(on.portalAssistant).toBe(true)
+    expect(on.portalTranslations).toBe(true)
+    vi.unstubAllEnvs()
   })
 })
 

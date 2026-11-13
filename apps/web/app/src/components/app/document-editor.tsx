@@ -51,7 +51,7 @@ import {
 import { usePortalEditorExit } from "@/components/portal-builder/portal-editor-exit-context"
 import { GitHubDocumentToolbar } from "@/components/app/github-document-toolbar"
 import { TextDiffViewer } from "@/components/app/text-diff-viewer"
-import { buildBreadGitHubDraft } from "@/lib/github/github-hosted-publish"
+import { buildBreezifyGitHubDraft } from "@/lib/github/github-hosted-publish"
 import {
   notifyWorkspaceDocumentSaved,
   PREPARE_WORKSPACE_PUBLISH_EVENT,
@@ -298,7 +298,7 @@ export function DocumentEditor({ documentId }: DocumentEditorProps): React.React
   const [hostedConflictError, setHostedConflictError] = useState<string | null>(
     null,
   )
-  const [hostedConflictBreadDraft, setHostedConflictBreadDraft] = useState("")
+  const [hostedConflictBreezifyDraft, setHostedConflictBreezifyDraft] = useState("")
 
   // Use refs for save logic so we always have fresh values without
   // needing to re-create the save function on every keystroke
@@ -1041,11 +1041,11 @@ export function DocumentEditor({ documentId }: DocumentEditorProps): React.React
   const openHostedConflictResolver = useCallback((): void => {
     if (!githubState) return
     const exportInput = getExportInput()
-    setHostedConflictBreadDraft(
-      buildBreadGitHubDraft({
+    setHostedConflictBreezifyDraft(
+      buildBreezifyGitHubDraft({
         repositoryContent: githubState.repository_content,
-        breadTitle: exportInput.title,
-        breadMarkdown: buildMarkdownExport(exportInput),
+        breezifyTitle: exportInput.title,
+        breezifyMarkdown: buildMarkdownExport(exportInput),
       }),
     )
     setHostedConflictError(null)
@@ -1364,10 +1364,10 @@ export function DocumentEditor({ documentId }: DocumentEditorProps): React.React
                   <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-600" />
                   <div>
                     <p className="font-medium text-foreground">
-                      GitHub and Bread both changed
+                      GitHub and Breezify both changed
                     </p>
                     <p className="text-muted-foreground">
-                      Automatic sync preserved this Bread version. Review it
+                      Automatic sync preserved this Breezify version. Review it
                       beside the current GitHub file before choosing which version
                       continues.
                     </p>
@@ -1487,7 +1487,7 @@ export function DocumentEditor({ documentId }: DocumentEditorProps): React.React
                       The deployment branch changed
                     </p>
                     <p className="text-muted-foreground">
-                      Bread will merge non-overlapping GitHub changes when you
+                      Breezify will merge non-overlapping GitHub changes when you
                       publish and will stop before writing if review is needed.
                     </p>
                   </div>
@@ -1583,9 +1583,9 @@ export function DocumentEditor({ documentId }: DocumentEditorProps): React.React
       >
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Resolve GitHub and Bread changes</DialogTitle>
+            <DialogTitle>Resolve GitHub and Breezify changes</DialogTitle>
             <DialogDescription>
-              Compare the complete GitHub file with the linked Bread version.
+              Compare the complete GitHub file with the linked Breezify version.
               Nothing is written to GitHub until workspace changes are published
               together in one pull request.
             </DialogDescription>
@@ -1594,11 +1594,11 @@ export function DocumentEditor({ documentId }: DocumentEditorProps): React.React
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3 text-xs font-medium text-muted-foreground">
               <span>Current GitHub version</span>
-              <span>Current Bread version</span>
+              <span>Current Breezify version</span>
             </div>
             <TextDiffViewer
               previousText={githubState?.repository_content ?? ""}
-              nextText={hostedConflictBreadDraft}
+              nextText={hostedConflictBreezifyDraft}
               emptyMessage="The two versions now match."
               className="max-h-[45vh] overflow-auto shadow-none"
             />
@@ -1638,7 +1638,7 @@ export function DocumentEditor({ documentId }: DocumentEditorProps): React.React
                   setHostedConflictOpen(false)
                 }}
               >
-                Keep Bread for workspace publish
+                Keep Breezify for workspace publish
               </Button>
             </div>
           </DialogFooter>

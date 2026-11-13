@@ -113,7 +113,7 @@ describe("proxy — public-KB subdomain routing on an apex base", () => {
     expect(mockResolveSubdomainSlug).toHaveBeenCalledWith("acme")
     expect(rewriteTarget(res)).toContain("/p/acme-k3n8")
     expect(
-      res.headers.get("x-middleware-request-x-bread-portal-mount-path"),
+      res.headers.get("x-middleware-request-x-breezify-portal-mount-path"),
     ).toBe("/")
     expect(mockUpdateSession).toHaveBeenCalledTimes(1)
   })
@@ -212,8 +212,8 @@ describe("proxy — project-level custom-domain routing", () => {
     const res = await proxy(
       makeReq("app.example.com", "/blog/doc/launch", {
         "x-forwarded-host": "customer.com",
-        "x-bread-base-path": "/blog",
-        "x-bread-proxy": "cloudflare-worker-v1",
+        "x-breezify-base-path": "/blog",
+        "x-breezify-proxy": "cloudflare-worker-v1",
       }),
     )
 
@@ -222,7 +222,7 @@ describe("proxy — project-level custom-domain routing", () => {
       "/blog/doc/launch",
     )
     expect(rewriteTarget(res)).toContain("/p/acme/blog/doc/launch")
-    expect(res.headers.get("x-middleware-request-x-bread-base-path")).toBe(
+    expect(res.headers.get("x-middleware-request-x-breezify-base-path")).toBe(
       "/blog",
     )
   })
@@ -243,13 +243,13 @@ describe("proxy — project-level custom-domain routing", () => {
     const res = await proxy(
       makeReq("app.example.com", "/p/acme/blog/doc/launch", {
         "x-forwarded-host": "customer.com",
-        "x-bread-base-path": "/blog",
-        "x-bread-proxy": "cloudflare-worker-v1",
+        "x-breezify-base-path": "/blog",
+        "x-breezify-proxy": "cloudflare-worker-v1",
       }),
     )
 
     expect(res.status).not.toBe(307)
-    expect(res.headers.get("x-bread-portal")).toBe("acme")
+    expect(res.headers.get("x-breezify-portal")).toBe("acme")
     expect(mockUpdateSession).toHaveBeenCalledTimes(1)
   })
 
@@ -258,7 +258,7 @@ describe("proxy — project-level custom-domain routing", () => {
 
     const res = await proxy(makeReq("app.example.com", "/p/acme/blog"))
 
-    expect(res.headers.get("x-bread-portal")).toBeNull()
+    expect(res.headers.get("x-breezify-portal")).toBeNull()
     expect(mockUpdateSession).toHaveBeenCalledTimes(1)
   })
 
@@ -268,12 +268,12 @@ describe("proxy — project-level custom-domain routing", () => {
     const res = await proxy(
       makeReq("internal-host.netlify.app", "/p/acme/blog", {
         "x-forwarded-host": "app.example.com",
-        "x-bread-base-path": "/blog",
-        "x-bread-proxy": "cloudflare-worker-v1",
+        "x-breezify-base-path": "/blog",
+        "x-breezify-proxy": "cloudflare-worker-v1",
       }),
     )
 
-    expect(res.headers.get("x-bread-portal")).toBe("acme")
+    expect(res.headers.get("x-breezify-portal")).toBe("acme")
     expect(mockUpdateSession).toHaveBeenCalledTimes(1)
   })
 
@@ -286,15 +286,15 @@ describe("proxy — project-level custom-domain routing", () => {
     const proxy = await loadProxy()
 
     const searchResponse = await proxy(
-      makeReq("app.example.com", "/blog/_bread/api/search?q=hello", {
+      makeReq("app.example.com", "/blog/_breezify/api/search?q=hello", {
         "x-forwarded-host": "customer.com",
-        "x-bread-proxy": "reverse-proxy-v1",
+        "x-breezify-proxy": "reverse-proxy-v1",
       }),
     )
     const translateResponse = await proxy(
-      makeReq("app.example.com", "/blog/_bread/api/translate", {
+      makeReq("app.example.com", "/blog/_breezify/api/translate", {
         "x-forwarded-host": "customer.com",
-        "x-bread-proxy": "reverse-proxy-v1",
+        "x-breezify-proxy": "reverse-proxy-v1",
       }),
     )
 
@@ -318,8 +318,8 @@ describe("proxy — project-level custom-domain routing", () => {
       "/doc/install",
     )
     expect(rewriteTarget(res)).toContain("/p/acme/docs/doc/install")
-    expect(res.headers.get("x-bread-portal")).toBe("acme")
-    expect(res.headers.get("x-bread-portal-mount-path")).toBe("/")
+    expect(res.headers.get("x-breezify-portal")).toBe("acme")
+    expect(res.headers.get("x-breezify-portal-mount-path")).toBe("/")
     expect(mockUpdateSession).toHaveBeenCalledTimes(1)
   })
 
@@ -334,7 +334,7 @@ describe("proxy — project-level custom-domain routing", () => {
     const res = await proxy(makeReq("customer.com", "/help/doc/billing"))
 
     expect(rewriteTarget(res)).toContain("/p/acme/help/doc/billing")
-    expect(res.headers.get("x-bread-portal-mount-path")).toBe("/help")
+    expect(res.headers.get("x-breezify-portal-mount-path")).toBe("/help")
     expect(mockUpdateSession).toHaveBeenCalledTimes(1)
   })
 
@@ -401,7 +401,7 @@ describe("proxy — portal llms.txt files", () => {
     expect(target).toContain("portal=acme-k3n8")
     // The portal owns the whole host, so links must not be built from /p/<slug>.
     expect(
-      res.headers.get("x-middleware-request-x-bread-portal-mount-path"),
+      res.headers.get("x-middleware-request-x-breezify-portal-mount-path"),
     ).toBe("/")
   })
 
@@ -427,7 +427,7 @@ describe("proxy — portal llms.txt files", () => {
     const target = rewriteTarget(res)
     expect(target).toContain("/api/public/llms")
     expect(target).toContain("portal=acme%2Fhelp")
-    expect(res.headers.get("x-bread-portal-mount-path")).toBe("/help")
+    expect(res.headers.get("x-breezify-portal-mount-path")).toBe("/help")
   })
 
   it("maps a Worker-forwarded /p/... llms.txt, preserving its base path header", async () => {
@@ -436,13 +436,13 @@ describe("proxy — portal llms.txt files", () => {
     const res = await proxy(
       makeReq("app.example.com", "/p/acme/help/llms.txt", {
         "x-forwarded-host": "customer.com",
-        "x-bread-base-path": "/help",
-        "x-bread-proxy": "cloudflare-worker-v1",
+        "x-breezify-base-path": "/help",
+        "x-breezify-proxy": "cloudflare-worker-v1",
       }),
     )
 
     expect(rewriteTarget(res)).toContain("portal=acme%2Fhelp")
-    expect(res.headers.get("x-middleware-request-x-bread-base-path")).toBe(
+    expect(res.headers.get("x-middleware-request-x-breezify-base-path")).toBe(
       "/help",
     )
   })
@@ -540,5 +540,6 @@ describe("proxy matcher", () => {
     expect(pattern.test("/api/public/media/abc.svg")).toBe(true)
     expect(pattern.test("/_next/static/chunk.js")).toBe(false)
     expect(pattern.test("/breeze-mark.png")).toBe(false)
+    expect(pattern.test("/breeze-icon.png")).toBe(false)
   })
 })

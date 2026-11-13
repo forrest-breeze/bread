@@ -22,6 +22,7 @@ import {
 } from "@/lib/workspace-settings"
 import type { StoredFooter, StoredHeader } from "@/lib/portal/schema"
 import { looksLikeHtml } from "@/lib/html-detection"
+import { appAbsoluteAssetUrl } from "@/lib/portal/public-base-path"
 import {
   estimateDocumentReadTimeMinutes,
   makeDocumentPreview,
@@ -143,7 +144,7 @@ export interface PublicWorkspace {
   /**
    * The workspace's own landing page / website (normalized absolute http(s)
    * URL), captured during onboarding. When present, generated portal templates
-   * point their Home/Pricing nav at this site instead of the Bread marketing
+   * point their Home/Pricing nav at this site instead of the Breezify marketing
    * placeholders. Empty string / undefined means none on file.
    */
   websiteUrl?: string
@@ -278,7 +279,7 @@ async function loadWorkspaceBySlug(
   const settings = data.settings as Record<string, unknown> | null
   // Unconverted prospect portals expire after their TTL — serve as not-found.
   if (isProspectPortalExpired(settings)) return null
-  const iconUrl = (data.icon_url as string | null) ?? null
+  const iconUrl = appAbsoluteAssetUrl((data.icon_url as string | null) ?? null)
   return {
     id: data.id as string,
     name: data.name as string,
@@ -311,7 +312,7 @@ async function loadWorkspaceById(
   const settings = data.settings as Record<string, unknown> | null
   // Unconverted prospect portals expire after their TTL — serve as not-found.
   if (isProspectPortalExpired(settings)) return null
-  const iconUrl = (data.icon_url as string | null) ?? null
+  const iconUrl = appAbsoluteAssetUrl((data.icon_url as string | null) ?? null)
   return {
     id: data.id as string,
     name: data.name as string,
@@ -420,7 +421,7 @@ async function gatePortalVisibility(
     user = await getAuthUser()
   } catch (err) {
     if (isTransientPortalAuthFailure(err)) {
-      console.warn("[Bread] Public KB auth check unavailable:", err)
+      console.warn("[Breezify] Public KB auth check unavailable:", err)
       return { kind: "not_found" }
     }
     throw err

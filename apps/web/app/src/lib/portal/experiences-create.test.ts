@@ -501,7 +501,7 @@ describe("getDraftOrSynthesize", () => {
 // ---------------------------------------------------------------------------
 // Slug-less writes must target the workspace's default project as the builder
 // sees it — never conjure a phantom root project once the root has been moved
-// to a suffix. Regression for the "Bread keeps getting recreated" bug.
+// to a suffix. Regression for the "Breezify keeps getting recreated" bug.
 // ---------------------------------------------------------------------------
 
 type FakeRow = Record<string, unknown>

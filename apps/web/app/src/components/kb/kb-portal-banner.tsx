@@ -8,7 +8,7 @@ import { useHasHydrated } from "@/hooks/use-has-hydrated"
 import { useWorkspace } from "@/hooks/swr"
 import { getKbPublic, getKbCustomDomain } from "@/lib/workspace-settings"
 import { cn } from "@/lib/utils"
-import type { WorkspaceRole } from "@bread/core"
+import type { WorkspaceRole } from "@breezify/core"
 
 /**
  * Shows the portal address at the top of the KB home — the same link configured

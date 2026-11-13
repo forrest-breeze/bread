@@ -1,5 +1,5 @@
 {
-  "name": "bread-monorepo",
+  "name": "breezify-monorepo",
   "private": true,
   "packageManager": "npm@11.4.2",
   "workspaces": [
@@ -14,7 +14,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:coverage": "node scripts/repo-coverage.mjs",
-    "seed:bread-docs": "NODE_OPTIONS=--conditions=react-server npx tsx --tsconfig apps/web/app/tsconfig.json apps/web/app/scripts/seed-bread-docs.ts",
+    "seed:breezify-docs": "NODE_OPTIONS=--conditions=react-server npx tsx --tsconfig apps/web/app/tsconfig.json apps/web/app/scripts/seed-breezify-docs.ts",
     "github:app-key": "npx tsx --tsconfig apps/web/app/tsconfig.json apps/web/app/scripts/put-github-app-key.ts",
     "clean": "turbo run clean",
     "prune": "npm run clean && find . -name '.turbo' -type d -prune -exec rm -rf {} +",

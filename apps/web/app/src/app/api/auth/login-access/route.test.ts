@@ -21,7 +21,7 @@ describe("POST /api/auth/login-access", () => {
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
-    expect(response.headers.get("set-cookie")).toContain("bread-login-access=");
+    expect(response.headers.get("set-cookie")).toContain("breezify-login-access=");
     expect(response.headers.get("set-cookie")).toContain("HttpOnly");
     expect(response.headers.get("set-cookie")).toContain("Path=/login");
   });

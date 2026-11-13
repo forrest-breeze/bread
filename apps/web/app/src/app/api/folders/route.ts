@@ -106,7 +106,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
       query = query.in("folder_id", visibleFolderIds);
     } catch (err) {
-      console.error("[Bread] Failed to resolve folder project scope:", err);
+      console.error("[Breezify] Failed to resolve folder project scope:", err);
       return NextResponse.json(
         { error: "Invalid project scope" },
         { status: 400 },
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { data, error } = await query;
 
   if (error) {
-    console.error("[Bread] Failed to fetch folders:", error.message);
+    console.error("[Breezify] Failed to fetch folders:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch folders" },
       { status: 500 },
@@ -212,7 +212,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to create folder:", error.message);
+    console.error("[Breezify] Failed to create folder:", error.message);
     const status = error.code === "23505" ? 409 : 500;
     return NextResponse.json(
       { error: status === 409 ? "A folder with that name already exists" : "Failed to create folder" },

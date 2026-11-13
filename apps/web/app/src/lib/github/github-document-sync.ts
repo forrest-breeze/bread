@@ -16,12 +16,12 @@ import {
   mergeTextThreeWay,
   type ThreeWayMergeConflict,
 } from "@/lib/github/text-three-way-merge"
-import { validateBreadHostedDocument } from "@/lib/github/github-hosted-format"
+import { validateBreezifyHostedDocument } from "@/lib/github/github-hosted-format"
 import type {
   GitHubDocumentEditSessionRow,
   GitHubDocumentEditSessionStatus,
   GitHubFileCommit,
-} from "@bread/core"
+} from "@breezify/core"
 
 const ACTIVE_SESSION_STATUSES: GitHubDocumentEditSessionStatus[] = [
   "draft",
@@ -337,7 +337,7 @@ function branchSlug(path: string): string {
 }
 
 function makeBranchName(path: string): string {
-  return `bread/${branchSlug(path)}-${crypto.randomUUID().slice(0, 8)}`
+  return `breezify/${branchSlug(path)}-${crypto.randomUUID().slice(0, 8)}`
 }
 
 export async function getGitHubDocumentState(
@@ -381,7 +381,7 @@ export async function checkoutGitHubDocument(
   if (existing) {
     if (options?.rejectExistingDraft) {
       throw new GitHubDocumentSyncError(
-        "A shared GitHub draft already exists for this file. Open it and resolve that draft before replacing it from Bread.",
+        "A shared GitHub draft already exists for this file. Open it and resolve that draft before replacing it from Breezify.",
         409,
         "active_session_exists",
       )
@@ -439,7 +439,7 @@ export async function checkoutGitHubDocument(
     if (raced) {
       if (options?.rejectExistingDraft) {
         throw new GitHubDocumentSyncError(
-          "A shared GitHub draft was created while this Bread version was being prepared. Open it and resolve that draft first.",
+          "A shared GitHub draft was created while this Breezify version was being prepared. Open it and resolve that draft first.",
           409,
           "active_session_exists",
         )
@@ -735,15 +735,15 @@ export async function publishGitHubDocument(
     }
 
     if (context.hostedDocsRoot) {
-      const formatIssues = validateBreadHostedDocument({
+      const formatIssues = validateBreezifyHostedDocument({
         path: session.file_path,
         content: contentToPublish,
       })
       if (formatIssues.length > 0) {
         throw new GitHubDocumentSyncError(
-          `This file does not follow the Bread document format: ${formatIssues[0]!.message}.`,
+          `This file does not follow the Breezify document format: ${formatIssues[0]!.message}.`,
           422,
-          "invalid_bread_docs_format",
+          "invalid_breezify_docs_format",
         )
       }
     }
@@ -809,7 +809,7 @@ export async function publishGitHubDocument(
               body:
                 args.prBody?.trim() ||
                 [
-                  `Updates \`${session.file_path}\` from Bread's collaborative editor.`,
+                  `Updates \`${session.file_path}\` from Breezify's collaborative editor.`,
                   "",
                   `Draft revision: ${session.draft_revision}`,
                 ].join("\n"),
@@ -844,7 +844,7 @@ export async function publishGitHubDocument(
       .single()
     if (savedError || !saved) {
       throw new GitHubDocumentSyncError(
-        "GitHub saved the commit, but Bread could not refresh the session. Reload to reconcile it.",
+        "GitHub saved the commit, but Breezify could not refresh the session. Reload to reconcile it.",
         500,
         "session_reconcile_failed",
       )

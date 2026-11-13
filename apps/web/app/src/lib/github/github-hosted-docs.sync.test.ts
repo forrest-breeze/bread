@@ -12,7 +12,7 @@ vi.mock('@/rag/ingest', () => ({
 const workspaceId = '22222222-2222-4222-8222-222222222222'
 const documentId = '11111111-1111-4111-8111-111111111111'
 const sourceId = '33333333-3333-4333-8333-333333333333'
-const path = 'docs/bread-docs/setup.md'
+const path = 'docs/breezify-docs/setup.md'
 const repoId = 1185697075
 const priorBlobSha = 'old-blob-sha'
 const incomingBlobSha = 'new-blob-sha'
@@ -27,7 +27,7 @@ const incomingContent = 'New body.'
 const rawIncomingDocument = [
   '---',
   `title: ${JSON.stringify(incomingTitle)}`,
-  `bread_document_id: ${JSON.stringify(documentId)}`,
+  `breezify_document_id: ${JSON.stringify(documentId)}`,
   'date: "2026-08-20T00:00:00Z"',
   '---',
   '',
@@ -189,7 +189,7 @@ function makeAdmin(
     github_hosted_checkpoint_blob_sha: priorBlobSha,
     github_hosted_checkpoint_mode: 'merge',
     repo_id: repoId,
-    repo_full_name: 'bread/bread',
+    repo_full_name: 'breezify/breezify',
     path,
     commit_sha: 'old-commit-sha',
   }
@@ -371,8 +371,8 @@ const target = {
   workspaceId,
   installationId: 42,
   repoId,
-  repoFullName: 'bread/bread',
-  paths: ['docs/bread-docs'],
+  repoFullName: 'breezify/breezify',
+  paths: ['docs/breezify-docs'],
   ref: 'main',
   lastSyncCommitSha: 'old-commit-sha',
 }
@@ -424,7 +424,7 @@ describe('syncGitHubHostedDocs atomic document updates', () => {
         p_content: incomingContent,
         p_source_metadata_patch: {
           canonical_repo_path: path,
-          bread_document_id: documentId,
+          breezify_document_id: documentId,
           github_hosted_sync: true,
           github_hosted_conflict: false,
           github_hosted_content_hash: hash(incomingContent),
@@ -434,7 +434,7 @@ describe('syncGitHubHostedDocs atomic document updates', () => {
           github_hosted_checkpoint_mode: 'merge',
           published_date: incomingDate,
           repo_id: repoId,
-          repo_full_name: 'bread/bread',
+          repo_full_name: 'breezify/breezify',
           path,
           ref: 'main',
           commit_sha: incomingCommitSha,
@@ -456,7 +456,7 @@ describe('syncGitHubHostedDocs atomic document updates', () => {
   })
 
   it('keeps a merge conflict metadata-only and does not call the RPC', async () => {
-    const fixture = makeAdmin('Bread-authored edit.')
+    const fixture = makeAdmin('Breezify-authored edit.')
 
     await expect(
       syncGitHubHostedDocs(target, syncDeps(fixture.admin)),
@@ -509,7 +509,7 @@ describe('syncGitHubHostedDocs publication date', () => {
     const withoutDate = [
       '---',
       `title: ${JSON.stringify(incomingTitle)}`,
-      `bread_document_id: ${JSON.stringify(documentId)}`,
+      `breezify_document_id: ${JSON.stringify(documentId)}`,
       '---',
       '',
       `# ${incomingTitle}`,
@@ -545,7 +545,7 @@ describe('syncGitHubHostedDocs publication date', () => {
 // top-level directory becomes a top-level folder. Directory folders mirror the
 // repository tree in every mode; "Use GitHub" additionally makes each
 // document's placement follow the repository, while merge leaves a document
-// where Bread put it.
+// where Breezify put it.
 // ---------------------------------------------------------------------------
 describe('syncGitHubHostedDocs workspace-root placement', () => {
   const folderMoves = (fixture: AdminFixture) =>
@@ -564,7 +564,7 @@ describe('syncGitHubHostedDocs workspace-root placement', () => {
 
     await expect(
       syncGitHubHostedDocs(
-        { ...target, mode: 'replace_bread', force: true },
+        { ...target, mode: 'replace_breezify', force: true },
         syncDeps(fixture.admin),
       ),
     ).resolves.toMatchObject({ updated: 1, moved: 1, rootFolderId: null })
@@ -582,7 +582,7 @@ describe('syncGitHubHostedDocs workspace-root placement', () => {
     ).toEqual([])
   })
 
-  it('keeps Bread placement during merge', async () => {
+  it('keeps Breezify placement during merge', async () => {
     const fixture = makeAdmin(priorGitHubContent, { folderId: 'legacy-docs-wrapper' })
 
     await expect(
@@ -596,7 +596,7 @@ describe('syncGitHubHostedDocs workspace-root placement', () => {
     // `guides/` was imported while a "<Repo> Docs" container still wrapped the
     // tree. With the root as the workspace root, the directory folder belongs
     // at the top level in every mode, not only when GitHub wins.
-    const guidePath = 'docs/bread-docs/guides/setup.md'
+    const guidePath = 'docs/breezify-docs/guides/setup.md'
     const fixture = makeAdmin(priorGitHubContent, {
       folders: [
         { id: 'legacy-docs-wrapper', parent_folder_id: null },
@@ -629,11 +629,11 @@ describe('syncGitHubHostedDocs workspace-root placement', () => {
   it('creates a top-level directory folder at the workspace root for a new file', async () => {
     const fixture = makeAdmin(priorGitHubContent)
     const newDocumentId = '44444444-4444-4444-8444-444444444444'
-    const newPath = 'docs/bread-docs/guides/first-guide.md'
+    const newPath = 'docs/breezify-docs/guides/first-guide.md'
     const raw = [
       '---',
       'title: "First guide"',
-      `bread_document_id: ${JSON.stringify(newDocumentId)}`,
+      `breezify_document_id: ${JSON.stringify(newDocumentId)}`,
       '---',
       '',
       '# First guide',
@@ -670,7 +670,7 @@ describe('syncGitHubHostedDocs workspace-root placement', () => {
         folder_id: 'new-folder-id',
         source_metadata: expect.objectContaining({
           canonical_repo_path: newPath,
-          bread_document_id: newDocumentId,
+          breezify_document_id: newDocumentId,
         }),
       }),
     )

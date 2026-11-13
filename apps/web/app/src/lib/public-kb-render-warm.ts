@@ -19,7 +19,7 @@ export function warmPublicRender(content: string): void {
         )
         await renderPublicHtmlCached(content)
       } catch (err) {
-        console.warn("[Bread] public render warm-up failed:", err)
+        console.warn("[Breezify] public render warm-up failed:", err)
       }
     })
   } catch {

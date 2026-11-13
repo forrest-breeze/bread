@@ -40,7 +40,7 @@ import type { ReadmeStore, ReadmeStoreDocument } from './readme-store'
  *
  * `direct` commits straight to the synced branch, which is how ReadMe's own
  * GitHub integration behaves. `pull_request` collects the same changes on a
- * Bread-owned branch for repositories whose branch is protected.
+ * Breezify-owned branch for repositories whose branch is protected.
  */
 
 export type ReadmePublishMode = 'direct' | 'pull_request'
@@ -87,7 +87,7 @@ export class ReadmePublishError extends Error {
   }
 }
 
-export const README_PUBLISH_BRANCH_PREFIX = 'bread/readme-sync-'
+export const README_PUBLISH_BRANCH_PREFIX = 'breezify/readme-sync-'
 export const README_DIFF_MAX_FILES = 60
 export const README_DIFF_MAX_BYTES = 256_000
 
@@ -127,7 +127,7 @@ export async function loadReadmeExportInput(
     store.listDocuments(),
     store.listSpecs(),
   ])
-  // Role-restricted folders stay in Bread: nothing under them is written to
+  // Role-restricted folders stay in Breezify: nothing under them is written to
   // GitHub. The exception is a folder that mirrors a repository directory,
   // whose content is in the repository already.
   const exported = folders.filter(
@@ -230,7 +230,7 @@ async function resolveComparison(
   const head = await retry(() => github.getCommit(token, source.repoFullName, branch))
   if (!source.lastSyncCommitSha || source.lastSyncCommitSha !== head.sha) {
     throw new ReadmePublishError(
-      'GitHub has changes that Bread has not synchronized yet. Sync before publishing.',
+      'GitHub has changes that Breezify has not synchronized yet. Sync before publishing.',
       409,
       'github_sync_required',
       {
@@ -272,7 +272,7 @@ async function resolveComparison(
         baseTree = await retry(() =>
           github.getTree(token, source.repoFullName, base.commit.tree.sha),
         )
-        // Files an earlier publish added on this branch are Bread's to remove.
+        // Files an earlier publish added on this branch are Breezify's to remove.
         const onBranchOnly = baseTree.tree.filter(
           (entry) =>
             entry.type === 'blob' &&
@@ -467,8 +467,8 @@ function commitMessage(plan: ReadmeExportPlan, message: string | undefined): str
   const subject =
     message?.trim().split('\n')[0]?.slice(0, 120) ||
     (paths.length === 1
-      ? `docs: update ${paths[0]} from Bread`
-      : `docs: sync ${paths.length} files from Bread`)
+      ? `docs: update ${paths[0]} from Breezify`
+      : `docs: sync ${paths.length} files from Breezify`)
   const listed = [
     ...plan.writes.slice(0, 20).map((write) => `- ${write.path}`),
     ...plan.deletes.slice(0, 20).map((path) => `- ${path} (removed)`),
@@ -481,7 +481,7 @@ function mapCommitError(error: unknown, branch: string): never {
     const text = error.message
     if (/protected|rule violations|GH006|GH013|required status|pull request is required/i.test(text)) {
       throw new ReadmePublishError(
-        `GitHub rejected the push: ${branch} is protected. Allow the Bread GitHub App to bypass the branch rules, or switch publishing to pull requests in Settings.`,
+        `GitHub rejected the push: ${branch} is protected. Allow the Breezify GitHub App to bypass the branch rules, or switch publishing to pull requests in Settings.`,
         409,
         'branch_protected',
         { branch },
@@ -496,7 +496,7 @@ function mapCommitError(error: unknown, branch: string): never {
     }
     if (error.status === 403 || error.status === 404) {
       throw new ReadmePublishError(
-        'The Bread GitHub App cannot write to this repository. It needs read and write access to Contents.',
+        'The Breezify GitHub App cannot write to this repository. It needs read and write access to Contents.',
         409,
         'github_write_denied',
       )
@@ -605,7 +605,7 @@ export async function publishReadmeWorkspace(
   const changed = plan.writes.length + plan.deletes.length
   if (changed === 0) {
     throw new ReadmePublishError(
-      'GitHub already matches the Bread workspace.',
+      'GitHub already matches the Breezify workspace.',
       409,
       'no_changes',
     )
@@ -665,13 +665,13 @@ export async function publishReadmeWorkspace(
         github.createPullRequest(token, source.repoFullName, {
           head: prBranch,
           base: branch,
-          title: 'docs: sync from Bread',
+          title: 'docs: sync from Breezify',
           body: [
-            'Publishes the current Bread workspace to this repository.',
+            'Publishes the current Breezify workspace to this repository.',
             '',
             `${plan.writes.length} file${plan.writes.length === 1 ? '' : 's'} written; ${plan.deletes.length} deleted.`,
             '',
-            'Merge this pull request to make the changes live. Bread picks the merge up automatically.',
+            'Merge this pull request to make the changes live. Breezify picks the merge up automatically.',
           ].join('\n'),
         }),
       )
@@ -715,7 +715,7 @@ export async function publishReadmeWorkspace(
 /**
  * Commit one OpenAPI definition to the synced branch right after it was
  * uploaded (CI or Settings), the way ReadMe writes an uploaded definition back
- * to the repository. Touches a single Bread-owned path, so it does not need
+ * to the repository. Touches a single Breezify-owned path, so it does not need
  * the workspace to be fully synchronized first.
  */
 export async function commitReadmeSpecFile(

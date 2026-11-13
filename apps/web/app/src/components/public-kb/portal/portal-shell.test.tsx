@@ -101,7 +101,7 @@ describe("PortalShell preview", () => {
         base="acme/docs"
         hrefBase="/p/acme/docs"
         askAiEnabled
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled={false}
       >
         <p>Docs</p>
@@ -119,7 +119,7 @@ describe("PortalShell preview", () => {
         base="acme/docs"
         hrefBase="/p/acme/docs"
         askAiEnabled
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled={false}
       >
         <p>Docs</p>
@@ -136,7 +136,7 @@ describe("PortalShell preview", () => {
         base="acme/docs"
         hrefBase="/p/acme/docs"
         askAiEnabled={false}
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled={false}
         navigationPages={[changelogPage]}
         activePageSlug="releases"
@@ -151,7 +151,7 @@ describe("PortalShell preview", () => {
         base="acme/docs"
         hrefBase="/p/acme/docs"
         askAiEnabled={false}
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled={false}
         navigationPages={[changelogPage]}
         activePageSlug="releases"
@@ -173,7 +173,7 @@ describe("PortalShell preview", () => {
         base="acme/docs"
         hrefBase="/p/acme/docs"
         askAiEnabled={false}
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled={false}
         navigationPages={[changelogPage]}
         activePageSlug={null}
@@ -198,7 +198,7 @@ describe("PortalShell preview", () => {
         base="acme/guides"
         hrefBase="/p/acme/guides"
         askAiEnabled={false}
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled
         preview={{ themeMode: "dark", projectSlug: "guides" }}
       >
@@ -221,7 +221,7 @@ describe("PortalShell preview", () => {
         base="acme/guides"
         hrefBase="/p/acme/guides"
         askAiEnabled={false}
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled={false}
         preview={{ themeMode: "light", projectSlug: "guides" }}
       >
@@ -241,7 +241,7 @@ describe("PortalShell preview", () => {
         base="acme"
         hrefBase="/p/acme"
         askAiEnabled={false}
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled
         preferredLanguage="es"
       >
@@ -272,7 +272,7 @@ describe("PortalShell preview", () => {
         base="acme"
         hrefBase="/p/acme"
         askAiEnabled={false}
-        canRemoveBreadBranding={false}
+        canRemoveBreezifyBranding={false}
         translationsEnabled={false}
       >
         <p>Docs</p>

@@ -10,7 +10,7 @@ import { renderLlmsTxt, renderLlmsTxtLink } from "./llms-txt.js";
 describe("renderLlmsTxt", () => {
   it("renders the spec skeleton in order", () => {
     const out = renderLlmsTxt({
-      title: "Bread",
+      title: "Breezify",
       summary: "A knowledge base that writes itself.",
       details: ["Some context."],
       sections: [
@@ -23,7 +23,7 @@ describe("renderLlmsTxt", () => {
 
     expect(out).toBe(
       [
-        "# Bread",
+        "# Breezify",
         "",
         "> A knowledge base that writes itself.",
         "",

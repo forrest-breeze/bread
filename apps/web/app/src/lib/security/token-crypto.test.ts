@@ -6,7 +6,7 @@ const KEY_B64 = Buffer.alloc(32, 7).toString("base64");
 const KEY_HEX = Buffer.alloc(32, 9).toString("hex");
 
 beforeEach(() => {
-  vi.stubEnv("BREAD_TOKEN_ENC_KEY", KEY_B64);
+  vi.stubEnv("BREEZIFY_TOKEN_ENC_KEY", KEY_B64);
 });
 
 afterEach(() => {
@@ -33,20 +33,20 @@ describe("token-crypto", () => {
   });
 
   it("accepts a hex-encoded key as well as base64", () => {
-    vi.stubEnv("BREAD_TOKEN_ENC_KEY", KEY_HEX);
+    vi.stubEnv("BREEZIFY_TOKEN_ENC_KEY", KEY_HEX);
     const cipher = encryptToken("tok");
     expect(decryptToken(cipher as string)).toBe("tok");
   });
 
   it("returns null when the key is missing", () => {
-    vi.stubEnv("BREAD_TOKEN_ENC_KEY", "");
+    vi.stubEnv("BREEZIFY_TOKEN_ENC_KEY", "");
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect(encryptToken("tok")).toBeNull();
     expect(decryptToken("whatever")).toBeNull();
   });
 
   it("returns null when the key is the wrong length", () => {
-    vi.stubEnv("BREAD_TOKEN_ENC_KEY", Buffer.alloc(16).toString("base64"));
+    vi.stubEnv("BREEZIFY_TOKEN_ENC_KEY", Buffer.alloc(16).toString("base64"));
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect(encryptToken("tok")).toBeNull();
   });
@@ -66,7 +66,7 @@ describe("token-crypto", () => {
 
   it("returns null when decrypting with a different key", () => {
     const cipher = encryptToken("tok") as string;
-    vi.stubEnv("BREAD_TOKEN_ENC_KEY", Buffer.alloc(32, 1).toString("base64"));
+    vi.stubEnv("BREEZIFY_TOKEN_ENC_KEY", Buffer.alloc(32, 1).toString("base64"));
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect(decryptToken(cipher)).toBeNull();
   });

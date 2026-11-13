@@ -3,7 +3,7 @@ import type {
   ImportJobRow,
   ImportItemStatus,
   ImportSource,
-} from "@bread/core";
+} from "@breezify/core";
 import { runNotionImport } from "@/lib/import/notion";
 import { runConfluenceImport } from "@/lib/import/confluence";
 import { runObsidianImport } from "@/lib/import/obsidian";
@@ -52,7 +52,7 @@ export async function runImportJob(jobId: string): Promise<void> {
     .maybeSingle();
 
   if (loadErr || !jobData) {
-    console.error("[Bread] runImportJob: load failed", jobId, loadErr?.message);
+    console.error("[Breezify] runImportJob: load failed", jobId, loadErr?.message);
     return;
   }
 
@@ -94,7 +94,7 @@ export async function runImportJob(jobId: string): Promise<void> {
         );
       if (insertErr) {
         console.error(
-          "[Bread] import item upsert failed:",
+          "[Breezify] import item upsert failed:",
           insertErr.message,
         );
         return;
@@ -105,7 +105,7 @@ export async function runImportJob(jobId: string): Promise<void> {
       );
       if (rpcErr) {
         console.error(
-          "[Bread] increment_import_job_progress failed:",
+          "[Breezify] increment_import_job_progress failed:",
           rpcErr.message,
         );
       }
@@ -138,7 +138,7 @@ export async function runImportJob(jobId: string): Promise<void> {
         .eq("id", jobId);
     }
   } catch (err) {
-    console.error("[Bread] runImportJob failed:", jobId, err);
+    console.error("[Breezify] runImportJob failed:", jobId, err);
     await admin
       .from("import_jobs")
       .update({

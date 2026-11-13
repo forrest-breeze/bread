@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'node:crypto'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { z } from 'zod'
 import { requireRouteUser } from '@/lib/auth/route-auth'
 import { getActiveWorkspace } from '@/lib/db/workspace'
@@ -8,10 +8,10 @@ import { isWorkspaceOnPaidTier } from '@/lib/db/subscription'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import {
-  assertBreadHostedDocsFiles,
-  BreadDocsFormatError,
+  assertBreezifyHostedDocsFiles,
+  BreezifyDocsFormatError,
 } from '@/lib/github/github-hosted-format'
-import { buildBreadWorkspaceExport } from '@/lib/github/github-hosted-workspace'
+import { buildBreezifyWorkspaceExport } from '@/lib/github/github-hosted-workspace'
 import {
   HostedWorkspacePublishError,
   resolveHostedWorkspacePublishDiff,
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   if (!(await isWorkspaceOnPaidTier(workspace.workspace_id))) {
     return privateJson(
-      { error: 'GitHub publishing requires a paid plan.', code: 'paid_plan_required' },
+      { error: 'GitHub publishing is not enabled for this workspace.', code: 'feature_not_enabled' },
       402,
     )
   }
@@ -167,13 +167,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    const exported = await buildBreadWorkspaceExport(admin, {
+    const exported = await buildBreezifyWorkspaceExport(admin, {
       workspaceId: workspace.workspace_id,
       targetPath: source.paths[0]!,
       repoId: source.repo_id,
       hostedRootFolderId: source.root_folder_id,
     })
-    assertBreadHostedDocsFiles(exported.files)
+    assertBreezifyHostedDocsFiles(exported.files)
     const diff = await resolveHostedWorkspacePublishDiff({
       source,
       files: exported.files,
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         error.status,
       )
     }
-    if (error instanceof BreadDocsFormatError) {
+    if (error instanceof BreezifyDocsFormatError) {
       return privateJson(
         {
           error: 'The workspace export cannot be safely reverted.',
@@ -219,7 +219,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         422,
       )
     }
-    console.error('[Bread] workspace publish revert:', error)
+    console.error('[Breezify] workspace publish revert:', error)
     return privateJson(
       { error: 'Could not revert the selected workspace changes.', code: 'revert_failed' },
       500,
@@ -236,7 +236,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .eq('workspace_id', workspace.workspace_id)
         .eq('publish_operation_id', leaseOperationId)
       if (releaseError) {
-        console.error('[Bread] workspace revert lease release failed:', releaseError)
+        console.error('[Breezify] workspace revert lease release failed:', releaseError)
       }
     }
   }

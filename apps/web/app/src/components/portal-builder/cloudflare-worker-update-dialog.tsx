@@ -33,7 +33,7 @@ export function CloudflareWorkerUpdateDialog({
         <DialogHeader>
           <DialogTitle>Update the Cloudflare Worker?</DialogTitle>
           <DialogDescription>
-            The project is published in Bread, but the Worker for {domain} does
+            The project is published in Breezify, but the Worker for {domain} does
             not include <span className="font-mono">{pathPrefix}</span> yet.
             Update its route table to make this project available there.
           </DialogDescription>

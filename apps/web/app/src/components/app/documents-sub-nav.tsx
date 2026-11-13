@@ -107,10 +107,10 @@ import {
 } from "@/components/public-kb/portal/portal-icon"
 import type { FolderVisibility, WorkspaceMemberRole } from "@/lib/types"
 
-const DRAG_TYPE = "application/x-bread-doc-id"
-const FOLDER_DRAG_TYPE = "application/x-bread-folder-id"
-const MULTI_DOC_DRAG_TYPE = "application/x-bread-doc-ids"
-const MULTI_FOLDER_DRAG_TYPE = "application/x-bread-folder-ids"
+const DRAG_TYPE = "application/x-breezify-doc-id"
+const FOLDER_DRAG_TYPE = "application/x-breezify-folder-id"
+const MULTI_DOC_DRAG_TYPE = "application/x-breezify-doc-ids"
+const MULTI_FOLDER_DRAG_TYPE = "application/x-breezify-folder-ids"
 
 type FolderDropIntent = "inside" | "before" | "after"
 type FolderReorderPosition = Extract<FolderDropIntent, "before" | "after">
@@ -1888,7 +1888,7 @@ export function DocumentsSubNav({
         })
         if (!res.ok) throw new Error(`Move folder failed: ${res.status}`)
       } catch (err) {
-        console.error("[Bread] Move folder failed:", err)
+        console.error("[Breezify] Move folder failed:", err)
         await mutateFolders(prev, { revalidate: false })
       } finally {
         pendingMovesRef.current -= 1
@@ -1965,7 +1965,7 @@ export function DocumentsSubNav({
           })
         }
       } catch (err) {
-        console.error("[Bread] Move docs failed:", err)
+        console.error("[Breezify] Move docs failed:", err)
         await mutateDocs(prevDocs, { revalidate: false })
       } finally {
         pendingMovesRef.current -= 1
@@ -2001,7 +2001,7 @@ export function DocumentsSubNav({
           ),
         )
       } catch (err) {
-        console.error("[Bread] Move folders failed:", err)
+        console.error("[Breezify] Move folders failed:", err)
         await mutateFolders(prev, { revalidate: false })
       } finally {
         pendingMovesRef.current -= 1
@@ -2113,7 +2113,7 @@ export function DocumentsSubNav({
         ])
         onFoldersReordered?.()
       } catch (err) {
-        console.error("[Bread] Reorder folders failed:", err)
+        console.error("[Breezify] Reorder folders failed:", err)
         showError(err instanceof Error ? err.message : "Failed to save folder order")
         await mutateFolders(prevFolders, { revalidate: false })
       } finally {
@@ -2199,7 +2199,7 @@ export function DocumentsSubNav({
         ])
         onFoldersReordered?.()
       } catch (err) {
-        console.error("[Bread] Reorder documents failed:", err)
+        console.error("[Breezify] Reorder documents failed:", err)
         showError(
           err instanceof Error ? err.message : "Failed to save document order",
         )
@@ -2668,7 +2668,7 @@ export function DocumentsSubNav({
         })
         if (!res.ok) throw new Error(`Failed: ${res.status}`)
       } catch (err) {
-        console.error("[Bread] Update folder icon failed:", err)
+        console.error("[Breezify] Update folder icon failed:", err)
         void mutateFolders()
       }
       // An open folder page header reads the detail cache — refresh it too

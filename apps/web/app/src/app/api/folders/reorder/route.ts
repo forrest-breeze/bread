@@ -66,7 +66,7 @@ export async function PATCH(request: Request): Promise<NextResponse> {
     .in("id", orderedIds);
 
   if (foundError) {
-    console.error("[Bread] folders/reorder: folder lookup failed:", foundError.message);
+    console.error("[Breezify] folders/reorder: folder lookup failed:", foundError.message);
     return NextResponse.json({ error: "Failed to reorder folders" }, { status: 500 });
   }
 
@@ -91,7 +91,7 @@ export async function PATCH(request: Request): Promise<NextResponse> {
 
   const failed = writes.find((result) => result.error);
   if (failed?.error) {
-    console.error("[Bread] folders/reorder: update failed:", failed.error.message);
+    console.error("[Breezify] folders/reorder: update failed:", failed.error.message);
     return NextResponse.json({ error: "Failed to reorder folders" }, { status: 500 });
   }
 

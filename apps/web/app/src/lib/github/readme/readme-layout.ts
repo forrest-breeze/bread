@@ -1,6 +1,6 @@
 /**
  * The repository layout used by ReadMe's GitHub integration, and how it maps
- * onto a Bread workspace.
+ * onto a Breezify workspace.
  *
  *   <root>/docs/_order.yaml                 order of the guide categories
  *   <root>/docs/<category>/_order.yaml      order of the pages in a category
@@ -10,7 +10,7 @@
  *   <root>/reference/**.md                  reference pages (API stubs are skipped)
  *   <root>/recipes/, custom_pages/, changelogs/
  *
- * Guide categories become top-level Bread folders and loose pages in `docs/`
+ * Guide categories become top-level Breezify folders and loose pages in `docs/`
  * become folderless documents, so a workspace that was never linked exports to
  * `docs/` naturally. Every other section is one top-level folder.
  *
@@ -173,7 +173,7 @@ export function parentFolderDirectory(relativeDirectory: string): string | null 
 }
 
 /**
- * Every directory that needs a Bread folder, parents before children.
+ * Every directory that needs a Breezify folder, parents before children.
  * Directories are relative to the project root.
  */
 export function readmeFolderDirectories(relativePagePaths: readonly string[]): string[] {
@@ -243,7 +243,7 @@ export interface ReadmeSyncState {
   root: string
   /** `_order.yaml` files keyed by repository path. */
   order_files: Record<string, ReadmeOrderFileState>
-  /** Repository paths Bread created or imported and may update or delete. */
+  /** Repository paths Breezify created or imported and may update or delete. */
   managed_paths: string[]
   /** Files that were seen but not imported, for display in Settings. */
   skipped: ReadmeSkippedFile[]
@@ -299,12 +299,12 @@ export function readReadmeSyncState(value: unknown, root: string): ReadmeSyncSta
   }
 }
 
-/** The link between a Bread document and its repository file. */
+/** The link between a Breezify document and its repository file. */
 export interface ReadmeDocumentLink {
   /** Repository path of the file. */
   path: string
   blobSha: string | null
-  /** Hash of the Markdown Bread held when it last matched the repository. */
+  /** Hash of the Markdown Breezify held when it last matched the repository. */
   markdownHash: string | null
   title: string | null
   hidden: boolean
@@ -343,7 +343,7 @@ export function readReadmeDocumentLink(
   }
 }
 
-/** The link between a Bread folder and its repository directory. */
+/** The link between a Breezify folder and its repository directory. */
 export interface ReadmeFolderLink {
   /** Repository path of the directory. */
   path: string

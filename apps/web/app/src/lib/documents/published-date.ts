@@ -18,7 +18,7 @@ export const PUBLISHED_DATE_KEY = "published_date"
  * Coerce a value into the ISO form stored and emitted everywhere else. Postgres
  * hands timestamps back as "2026-08-17 17:00:00+00", which is not the shape the
  * GitHub frontmatter validator accepts, so normalizing at the boundary keeps a
- * file Bread writes parseable by Bread.
+ * file Breezify writes parseable by Breezify.
  */
 export function normalizePublishedDate(value: unknown): string | null {
   if (typeof value !== "string" || !value.trim()) return null

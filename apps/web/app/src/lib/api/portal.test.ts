@@ -10,7 +10,7 @@ const originalFetch = globalThis.fetch
 const layout: PortalLayout = {
   schemaVersion: 1,
   theme: {
-    brandName: "Bread",
+    brandName: "Breezify",
     tagline: "Knowledge that ships",
     logoUrl: "",
     accentColor: "#111111",

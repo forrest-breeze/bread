@@ -1,4 +1,4 @@
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import {
   getInstallationToken,
   getPullRequest,
@@ -47,9 +47,9 @@ function pullRequestActivation(pr: GitHubPR): GitHubHostedDocsActivation {
 }
 
 /**
- * Resolve the PR that gates a Bread-authored docs root. New links use their
+ * Resolve the PR that gates a Breezify-authored docs root. New links use their
  * persisted PR number. Rows created before that metadata existed recover by
- * matching Bread's generated branch prefix among recently closed PRs.
+ * matching Breezify's generated branch prefix among recently closed PRs.
  */
 export async function resolveGitHubHostedDocsActivation(
   source: GitHubHostedDocsSourceRow,

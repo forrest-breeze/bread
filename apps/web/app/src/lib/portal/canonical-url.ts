@@ -64,7 +64,7 @@ export function portalCanonicalBaseUrl(
   if (
     workspaceAddressScope === "workspace" &&
     workspaceDomain &&
-    workspaceAddressMode !== "bread"
+    workspaceAddressMode !== "breezify"
   ) {
     const root = `https://${workspaceDomain}`
     if (workspaceAddressMode === "path") return `${root}/${projectSlug}`

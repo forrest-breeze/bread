@@ -87,7 +87,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         .in("document_type", ["source", "page"])
         .or(docScopeFilter(ds));
     } catch (err) {
-      console.error("[Bread] Failed to resolve document project scope:", err);
+      console.error("[Breezify] Failed to resolve document project scope:", err);
       return NextResponse.json(
         { error: "Invalid project scope" },
         { status: 400 },
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .order("updated_at", { ascending: false });
 
   if (error) {
-    console.error("[Bread] Failed to fetch documents:", error.message);
+    console.error("[Breezify] Failed to fetch documents:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch documents" },
       { status: 500 },
@@ -179,7 +179,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       id,
     });
   } catch (error) {
-    console.error("[Bread] Failed to create document:", error);
+    console.error("[Breezify] Failed to create document:", error);
     return NextResponse.json(
       { error: "Failed to create document" },
       { status: 500 },

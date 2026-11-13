@@ -99,7 +99,7 @@ interface PortalDocViewProps {
   publishedLayout: PortalLayout | null
   /** Document ref from the URL — a public_slug or UUID. */
   refId: string
-  canRemoveBreadBranding: boolean
+  canRemoveBreezifyBranding: boolean
   preview?: boolean
   previewData?: { taxonomy: PublicTaxonomy; documents: PublicDocSummary[] }
 }
@@ -112,7 +112,7 @@ export async function PortalDocView({
   navScope,
   publishedLayout,
   refId,
-  canRemoveBreadBranding,
+  canRemoveBreezifyBranding,
   preview = false,
   previewData,
 }: PortalDocViewProps): Promise<React.ReactElement> {
@@ -230,7 +230,7 @@ export async function PortalDocView({
             footer={sidebar ? footer : undefined}
             editable={preview}
             copyPageEnabled
-            allowPoweredByRemoval={canRemoveBreadBranding}
+            allowPoweredByRemoval={canRemoveBreezifyBranding}
             brandName={theme.brandName}
             brandLogoUrl={theme.logoUrl || null}
             brandDarkLogoUrl={theme.darkLogoUrl || null}
@@ -240,7 +240,7 @@ export async function PortalDocView({
         {!sidebar ? (
           <PortalFooter
             footer={footer}
-            allowPoweredByRemoval={canRemoveBreadBranding}
+            allowPoweredByRemoval={canRemoveBreezifyBranding}
             brandName={theme.brandName}
             brandLogoUrl={theme.logoUrl || null}
             brandDarkLogoUrl={theme.darkLogoUrl || null}

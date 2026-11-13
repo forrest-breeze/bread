@@ -10,7 +10,7 @@ const shouldProxyPostHog =
 
 // Sub-folder portals run on a customer's origin, where root-relative `/_next`
 // requests would otherwise hit the customer's existing site. The primary
-// deployment therefore emits absolute framework asset URLs back to Bread.
+// deployment therefore emits absolute framework asset URLs back to Breezify.
 // Preview builds deliberately stay self-contained because their chunk hashes
 // do not match production. Non-Netlify/Vercel production can set the explicit
 // override.
@@ -33,14 +33,14 @@ const isDeployedBuild =
 const isPrimaryDeployment =
   deployContext === "production" || (isDeployedBuild && !isPreviewDeployment);
 const portalAssetOrigin = (
-  process.env.BREAD_PORTAL_ASSET_ORIGIN ||
+  process.env.BREEZIFY_PORTAL_ASSET_ORIGIN ||
   (isPrimaryDeployment ? process.env.NEXT_PUBLIC_APP_URL || process.env.URL : "") ||
   ""
 ).replace(/\/+$/, "");
 
 if (isPrimaryDeployment && !portalAssetOrigin) {
   console.warn(
-    "[bread] No portal asset origin resolved for this production build. Set NEXT_PUBLIC_APP_URL or BREAD_PORTAL_ASSET_ORIGIN — sub-folder portals (example.com/blog, customer.com/help) will not hydrate without it.",
+    "[breezify] No portal asset origin resolved for this production build. Set NEXT_PUBLIC_APP_URL or BREEZIFY_PORTAL_ASSET_ORIGIN — sub-folder portals (example.com/blog, customer.com/help) will not hydrate without it.",
   );
 }
 

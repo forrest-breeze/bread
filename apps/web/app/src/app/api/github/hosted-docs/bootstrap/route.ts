@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { z } from 'zod'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { requireRouteUser } from '@/lib/auth/route-auth'
 import { getActiveWorkspace } from '@/lib/db/workspace'
 import { isWorkspaceOnPaidTier } from '@/lib/db/subscription'
@@ -12,9 +12,9 @@ import {
   githubHostedDocsPullRequestTitle,
   normalizeBootstrapTargetPath,
 } from '@/lib/github/github-hosted-bootstrap'
-import { assertBreadHostedDocsFiles } from '@/lib/github/github-hosted-format'
+import { assertBreezifyHostedDocsFiles } from '@/lib/github/github-hosted-format'
 import {
-  buildBreadWorkspaceExport,
+  buildBreezifyWorkspaceExport,
   MAX_HOSTED_WORKSPACE_BYTES,
   MAX_HOSTED_WORKSPACE_DOCUMENTS,
 } from '@/lib/github/github-hosted-workspace'
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const auth = await requireAdmin()
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!(await isWorkspaceOnPaidTier(auth.workspaceId))) {
-    return NextResponse.json({ error: 'Integrations require a paid plan.' }, { status: 402 })
+    return NextResponse.json({ error: 'Integrations are not enabled for this workspace.' }, { status: 402 })
   }
 
   const parsed = await safeJsonBody(request, bodySchema)
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    const exported = await buildBreadWorkspaceExport(admin, {
+    const exported = await buildBreezifyWorkspaceExport(admin, {
       workspaceId: auth.workspaceId,
       targetPath,
     })
@@ -158,10 +158,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(
         {
           error:
-            `Restricted Bread folders cannot be copied into a repository shared with a broader audience: ` +
+            `Restricted Breezify folders cannot be copied into a repository shared with a broader audience: ` +
             `${exported.restrictedFolderNames.slice(0, 3).join(', ')}` +
             `${exported.restrictedFolderNames.length > 3 ? ', …' : ''}. ` +
-            'Use a private repository with the same audience or keep these documents Bread-only.',
+            'Use a private repository with the same audience or keep these documents Breezify-only.',
           restricted_folders: exported.restrictedFolderNames,
         },
         { status: 409 },
@@ -169,18 +169,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     if (exported.documents.length > MAX_HOSTED_WORKSPACE_DOCUMENTS) {
       return NextResponse.json(
-        { error: `The Bread workspace must contain at most ${MAX_HOSTED_WORKSPACE_DOCUMENTS} documents for this operation.` },
+        { error: `The Breezify workspace must contain at most ${MAX_HOSTED_WORKSPACE_DOCUMENTS} documents for this operation.` },
         { status: 413 },
       )
     }
     if (exported.totalBytes > MAX_HOSTED_WORKSPACE_BYTES) {
       return NextResponse.json(
-        { error: 'This Bread workspace is too large to publish in one GitHub pull request.' },
+        { error: 'This Breezify workspace is too large to publish in one GitHub pull request.' },
         { status: 413 },
       )
     }
     const files = exported.files
-    assertBreadHostedDocsFiles(files)
+    assertBreezifyHostedDocsFiles(files)
 
     const token = await withGitHubRetry(() => getInstallationToken(repo.installation_id))
     const metadata = await withGitHubRetry(() =>
@@ -277,8 +277,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         baseCommitSha: baseCommit.sha,
         baseTreeSha: baseCommit.commit.tree.sha,
         message: targetExists
-          ? `docs: update ${targetPath} from Bread`
-          : `docs: create ${targetPath} from Bread`,
+          ? `docs: update ${targetPath} from Breezify`
+          : `docs: create ${targetPath} from Breezify`,
         files: files.map(({ path, content }) => ({ path, content })),
         deletePaths: targetExists
           ? tree.tree
@@ -300,12 +300,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         title: githubHostedDocsPullRequestTitle(targetPath, targetExists),
         body: [
           targetExists
-            ? `Makes the Markdown and MDX tree under \`${targetPath}\` match the current Bread workspace.`
-            : `Creates \`${targetPath}\` from the current Bread workspace folder tree.`,
+            ? `Makes the Markdown and MDX tree under \`${targetPath}\` match the current Breezify workspace.`
+            : `Creates \`${targetPath}\` from the current Breezify workspace folder tree.`,
           '',
-          'Bread Bot reports `Validate Bread docs` for the pull request commit and future commits while this root is linked.',
+          'Breezify Bot reports `Validate Breezify docs` for the pull request commit and future commits while this root is linked.',
           '',
-          'Repository administrators can mark `Validate Bread docs` as required in the target branch ruleset. Bread does not request broad repository-administration access.',
+          'Repository administrators can mark `Validate Breezify docs` as required in the target branch ruleset. Breezify does not request broad repository-administration access.',
           '',
           'Merging this pull request activates the bidirectional GitHub docs root.',
         ].join('\n'),
@@ -393,10 +393,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           if (deleteError) throw deleteError
         }
       } catch (rollbackError) {
-        console.error('[Bread] hosted docs bootstrap rollback failed:', rollbackError)
+        console.error('[Breezify] hosted docs bootstrap rollback failed:', rollbackError)
       }
     }
-    console.error('[Bread] hosted docs bootstrap failed:', error)
+    console.error('[Breezify] hosted docs bootstrap failed:', error)
     return NextResponse.json(
       {
         error:
@@ -416,7 +416,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .eq('workspace_id', auth.workspaceId)
         .eq('publish_operation_id', configurationOperationId)
       if (releaseError) {
-        console.error('[Bread] hosted docs bootstrap lease release failed:', releaseError)
+        console.error('[Breezify] hosted docs bootstrap lease release failed:', releaseError)
       }
     }
   }

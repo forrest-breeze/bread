@@ -190,7 +190,8 @@ export function PortalLanguageControls({
             <div className="min-w-0">
               <p className="text-sm font-medium">Translations unavailable</p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Machine translation is disabled in this build.
+                Add an Anthropic API key (ANTHROPIC_API_KEY) to enable machine
+                translation.
               </p>
             </div>
           </div>

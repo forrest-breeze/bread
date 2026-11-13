@@ -35,9 +35,9 @@ describe('GitHub hosted docs source helpers', () => {
     createHash('sha256').update(content).digest('hex')
 
   const establishedHelpCenterFolders = () => inferHostedDirectoryFolders({
-    roots: ['docs/bread-docs'],
+    roots: ['docs/breezify-docs'],
     documents: [{
-      canonicalPath: 'docs/bread-docs/help-center/setup/existing.md',
+      canonicalPath: 'docs/breezify-docs/help-center/setup/existing.md',
       folderId: 'setup-folder',
       deletedAt: null,
     }],
@@ -107,7 +107,7 @@ describe('GitHub hosted docs source helpers', () => {
     ].join('\n'))).toBe('Current GitHub instructions.')
   })
 
-  it('preserves Bread edits during merge but allows explicit replacement', () => {
+  it('preserves Breezify edits during merge but allows explicit replacement', () => {
     const sourceMetadata = { github_hosted_content_hash: hash('last GitHub version') }
 
     expect(shouldApplyGitHubHostedContent({
@@ -118,19 +118,19 @@ describe('GitHub hosted docs source helpers', () => {
     })).toBe(true)
     expect(shouldApplyGitHubHostedContent({
       mode: 'merge',
-      currentContent: 'Bread edit',
+      currentContent: 'Breezify edit',
       incomingContent: 'new GitHub version',
       sourceMetadata,
     })).toBe(false)
     expect(shouldApplyGitHubHostedContent({
-      mode: 'replace_bread',
-      currentContent: 'Bread edit',
+      mode: 'replace_breezify',
+      currentContent: 'Breezify edit',
       incomingContent: 'new GitHub version',
       sourceMetadata,
     })).toBe(true)
   })
 
-  it('recognizes a merged Bread-authored version despite HTML storage', () => {
+  it('recognizes a merged Breezify-authored version despite HTML storage', () => {
     const sourceMetadata = { github_hosted_content_hash: hash('old GitHub version') }
 
     expect(shouldApplyGitHubHostedContent({
@@ -145,7 +145,7 @@ describe('GitHub hosted docs source helpers', () => {
     const sourceMetadata = { github_hosted_content_hash: hash('last GitHub version') }
     expect(shouldDeleteStaleHostedDocument({
       mode: 'merge',
-      currentContent: 'Bread edit',
+      currentContent: 'Breezify edit',
       sourceMetadata,
     })).toBe(false)
     expect(shouldDeleteStaleHostedDocument({
@@ -200,15 +200,15 @@ describe('GitHub hosted docs source helpers', () => {
 
   it('does not choose arbitrarily between canonical mirror folders', () => {
     const cache = inferHostedDirectoryFolders({
-      roots: ['docs/bread-docs'],
+      roots: ['docs/breezify-docs'],
       documents: [
         {
-          canonicalPath: 'docs/bread-docs/help-center/setup/first.md',
+          canonicalPath: 'docs/breezify-docs/help-center/setup/first.md',
           folderId: 'setup-folder-a',
           deletedAt: null,
         },
         {
-          canonicalPath: 'docs/bread-docs/help-center/setup/second.md',
+          canonicalPath: 'docs/breezify-docs/help-center/setup/second.md',
           folderId: 'setup-folder-b',
           deletedAt: null,
         },
@@ -226,20 +226,20 @@ describe('GitHub hosted docs source helpers', () => {
 
   it('ignores deleted canonical rows when inferring folder reuse', () => {
     const cache = inferHostedDirectoryFolders({
-      roots: ['docs/bread-docs'],
+      roots: ['docs/breezify-docs'],
       documents: [
         {
-          canonicalPath: 'docs/bread-docs/help-center/setup/live.md',
+          canonicalPath: 'docs/breezify-docs/help-center/setup/live.md',
           folderId: 'live-setup-folder',
           deletedAt: null,
         },
         {
-          canonicalPath: 'docs/bread-docs/help-center/setup/deleted.md',
+          canonicalPath: 'docs/breezify-docs/help-center/setup/deleted.md',
           folderId: 'deleted-setup-folder',
           deletedAt: '2026-08-19T12:00:00.000Z',
         },
         {
-          canonicalPath: 'docs/bread-docs/help-center/archive/deleted.md',
+          canonicalPath: 'docs/breezify-docs/help-center/archive/deleted.md',
           folderId: 'archive-folder',
           deletedAt: '2026-08-19T12:00:00.000Z',
         },
@@ -260,19 +260,19 @@ describe('GitHub hosted docs source helpers', () => {
 
   it('requires every selected repository path before taking the same-commit shortcut', () => {
     const input = {
-      roots: ['docs/bread-docs'],
+      roots: ['docs/breezify-docs'],
       expectedPaths: [
-        'docs/bread-docs/help-center/first.md',
-        'docs/bread-docs/help-center/missing.md',
+        'docs/breezify-docs/help-center/first.md',
+        'docs/breezify-docs/help-center/missing.md',
       ],
       documents: [
         {
-          canonicalPath: 'docs/bread-docs/help-center/first.md',
+          canonicalPath: 'docs/breezify-docs/help-center/first.md',
           folderId: 'help-center-a',
           deletedAt: null,
         },
         {
-          canonicalPath: 'docs/bread-docs/help-center/first.md',
+          canonicalPath: 'docs/breezify-docs/help-center/first.md',
           folderId: 'help-center-b',
           deletedAt: null,
         },
@@ -285,7 +285,7 @@ describe('GitHub hosted docs source helpers', () => {
       documents: [
         ...input.documents,
         {
-          canonicalPath: 'docs/bread-docs/help-center/missing.md',
+          canonicalPath: 'docs/breezify-docs/help-center/missing.md',
           folderId: 'help-center-a',
           deletedAt: null,
         },
@@ -296,12 +296,12 @@ describe('GitHub hosted docs source helpers', () => {
       documents: [
         ...input.documents,
         {
-          canonicalPath: 'docs/bread-docs/help-center/missing.md',
+          canonicalPath: 'docs/breezify-docs/help-center/missing.md',
           folderId: 'help-center-a',
           deletedAt: null,
         },
         {
-          canonicalPath: 'docs/bread-docs/help-center/stale.md',
+          canonicalPath: 'docs/breezify-docs/help-center/stale.md',
           folderId: 'help-center-a',
           deletedAt: null,
         },
@@ -311,14 +311,14 @@ describe('GitHub hosted docs source helpers', () => {
 
   it('does not let deleted or out-of-root canonical rows satisfy integrity', () => {
     expect(hasCompleteHostedCanonicalPaths({
-      roots: ['docs/bread-docs'],
+      roots: ['docs/breezify-docs'],
       expectedPaths: [
-        'docs/bread-docs/help-center/missing.md',
+        'docs/breezify-docs/help-center/missing.md',
         'docs/other/ignored.md',
       ],
       documents: [
         {
-          canonicalPath: 'docs/bread-docs/help-center/missing.md',
+          canonicalPath: 'docs/breezify-docs/help-center/missing.md',
           folderId: 'deleted-folder',
           deletedAt: '2026-08-19T18:00:00.000Z',
         },
@@ -461,31 +461,31 @@ describe('GitHub hosted docs source helpers', () => {
     // A killed forced replacement is retried later without `force`; completed
     // files must resume in that mode too, while the initial force run bypasses
     // every checkpoint.
-    expect(decision({ mode: 'replace_bread' })).toBe(false)
+    expect(decision({ mode: 'replace_breezify' })).toBe(false)
     expect(decision({
-      mode: 'replace_bread',
+      mode: 'replace_breezify',
       checkpoints: [{
         blobSha: 'blob-current',
-        mode: 'replace_bread',
+        mode: 'replace_breezify',
         deletedAt: null,
         appliedCommitSha: 'commit-current',
       }],
     })).toBe(true)
     expect(decision({
-      mode: 'replace_bread',
+      mode: 'replace_breezify',
       force: true,
       checkpoints: [{
         blobSha: 'blob-current',
-        mode: 'replace_bread',
+        mode: 'replace_breezify',
         deletedAt: null,
         appliedCommitSha: 'commit-current',
       }],
     })).toBe(false)
     expect(decision({
-      mode: 'replace_bread',
+      mode: 'replace_breezify',
       checkpoints: [{
         blobSha: 'blob-current',
-        mode: 'replace_bread',
+        mode: 'replace_breezify',
         deletedAt: null,
         appliedCommitSha: 'commit-previous',
       }],
@@ -529,7 +529,7 @@ describe('GitHub hosted docs source helpers', () => {
       }],
     })).toBe(false)
     expect(legacyCheckpoint({
-      mode: 'replace_bread',
+      mode: 'replace_breezify',
       checkpoints: [{
         blobSha: null,
         mode: null,

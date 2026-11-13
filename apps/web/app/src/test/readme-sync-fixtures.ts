@@ -218,7 +218,7 @@ export class FakeRepository {
               number: found.number,
               html_url: `https://github.test/${this.fullName}/pull/${found.number}`,
               state: 'open' as const,
-              title: 'docs: sync from Bread',
+              title: 'docs: sync from Breezify',
             }
           : null
       },
@@ -234,7 +234,7 @@ export class MemoryReadmeStore implements ReadmeStore {
   readonly documents = new Map<string, StoredDocument>()
   readonly folders = new Map<string, ReadmeStoreFolder>()
   readonly specs = new Map<string, ReadmeStoreSpec>()
-  /** Document versions snapshotted when GitHub content replaced Bread's. */
+  /** Document versions snapshotted when GitHub content replaced Breezify's. */
   readonly snapshots: Array<{ id: string; title: string; content: string }> = []
   readonly indexed: string[] = []
   source: Record<string, unknown> = {}
@@ -246,7 +246,7 @@ export class MemoryReadmeStore implements ReadmeStore {
     return `${prefix}-${this.nextId++}`
   }
 
-  // --- Things a person does in the Bread editor ------------------------------
+  // --- Things a person does in the Breezify editor ------------------------------
   document(match: string): StoredDocument {
     const found = [...this.documents.values()].find(
       (document) =>
@@ -312,7 +312,7 @@ export class MemoryReadmeStore implements ReadmeStore {
   }
 
   /** Delete in the editor: a soft delete that keeps the repository link. */
-  deleteInBread(match: string): void {
+  deleteInBreezify(match: string): void {
     this.document(match).deleted = true
   }
 
@@ -403,7 +403,7 @@ export class MemoryReadmeStore implements ReadmeStore {
   ): Promise<void> {
     const document = this.documents.get(input.id)!
     if (document.title !== input.expectedTitle || document.content !== input.expectedContent) {
-      throw new Error('The Bread document changed while GitHub content was being applied.')
+      throw new Error('The Breezify document changed while GitHub content was being applied.')
     }
     this.snapshots.push({ id: document.id, title: document.title, content: document.content })
     document.title = input.title

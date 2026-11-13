@@ -31,7 +31,7 @@ const SOCIAL_META: Record<
   instagram: { icon: Instagram, label: "Instagram" },
 }
 
-// The "Powered by Bread" credit alone does NOT count as footer content — a
+// The "Powered by Breezify" credit alone does NOT count as footer content — a
 // portal with no configured footer links renders no footer band at all (the
 // credit moves into the article instead). Callers use `footerHasContent` (from
 // the portal schema) to decide where the credit lives.
@@ -48,7 +48,7 @@ interface PortalFooterProps {
   variant?: "global" | "content"
 }
 
-// Global portal footer. Renders a divider + right-aligned Bread credit at the
+// Global portal footer. Renders a divider + right-aligned Breezify credit at the
 // bottom of every page as a minimal footer when no links are configured, and
 // extends to a full/rich link footer when configured. Removing the credit is
 // gated by the caller's plan.

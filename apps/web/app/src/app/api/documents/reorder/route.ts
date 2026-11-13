@@ -67,7 +67,7 @@ export async function PATCH(request: Request): Promise<NextResponse> {
 
   if (foundError) {
     console.error(
-      "[Bread] documents/reorder: document lookup failed:",
+      "[Breezify] documents/reorder: document lookup failed:",
       foundError.message,
     );
     return NextResponse.json(
@@ -97,7 +97,7 @@ export async function PATCH(request: Request): Promise<NextResponse> {
   const failed = writes.find((result) => result.error);
   if (failed?.error) {
     console.error(
-      "[Bread] documents/reorder: update failed:",
+      "[Breezify] documents/reorder: update failed:",
       failed.error.message,
     );
     return NextResponse.json(

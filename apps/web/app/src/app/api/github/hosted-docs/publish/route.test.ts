@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 
 const mocks = vi.hoisted(() => ({
   getWorkspace: vi.fn(),
@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   inspect: vi.fn(),
   publish: vi.fn(),
   assertFormat: vi.fn(),
-  createBranchName: vi.fn(() => 'bread/docs-docs-workspace-reserved'),
+  createBranchName: vi.fn(() => 'breezify/docs-docs-workspace-reserved'),
 }))
 
 vi.mock('@/lib/auth/route-auth', () => ({
@@ -27,17 +27,17 @@ vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: vi.fn(() => ({ from: mocks.from, rpc: mocks.rpc })),
 }))
 vi.mock('@/lib/github/github-hosted-format', () => {
-  class BreadDocsFormatError extends Error {
+  class BreezifyDocsFormatError extends Error {
     issues: unknown[] = []
   }
   return {
-    assertBreadHostedDocsFiles: mocks.assertFormat,
-    BreadDocsFormatError,
-    BREAD_HOSTED_DOC_MAX_BYTES: 256 * 1024,
+    assertBreezifyHostedDocsFiles: mocks.assertFormat,
+    BreezifyDocsFormatError,
+    BREEZIFY_HOSTED_DOC_MAX_BYTES: 256 * 1024,
   }
 })
 vi.mock('@/lib/github/github-hosted-workspace', () => ({
-  buildBreadWorkspaceExport: mocks.buildExport,
+  buildBreezifyWorkspaceExport: mocks.buildExport,
   MAX_HOSTED_WORKSPACE_BYTES: 8 * 1024 * 1024,
   MAX_HOSTED_WORKSPACE_DOCUMENTS: 500,
 }))
@@ -57,7 +57,7 @@ vi.mock('@/lib/github/github-hosted-workspace-publish', () => {
     HostedWorkspacePublishError,
     inspectHostedWorkspacePublish: mocks.inspect,
     isHostedWorkspacePublishBranch: (head: string | null) =>
-      head?.startsWith('bread/docs-docs-workspace-') === true,
+      head?.startsWith('breezify/docs-docs-workspace-') === true,
     publishHostedWorkspaceToGitHub: mocks.publish,
   }
 })
@@ -163,7 +163,7 @@ describe('/api/github/hosted-docs/publish', () => {
       comparisonKey: 'comparison-key',
     })
     mocks.publish.mockResolvedValue({
-      branch: 'bread/docs-docs-workspace-reserved',
+      branch: 'breezify/docs-docs-workspace-reserved',
       commitSha: 'publish-sha',
       commitUrl: 'https://github.com/acme/docs/commit/publish-sha',
       pullRequestNumber: 17,
@@ -329,7 +329,7 @@ describe('/api/github/hosted-docs/publish', () => {
     expect(response.headers.get('cache-control')).toContain('no-store')
   })
 
-  it('requires an explicit Bread-wins acknowledgement for conflicts', async () => {
+  it('requires an explicit Breezify-wins acknowledgement for conflicts', async () => {
     mocks.from.mockReturnValueOnce(selectBuilder(source({ conflict_count: 2 })))
 
     const response = await POST(request())
@@ -352,7 +352,7 @@ describe('/api/github/hosted-docs/publish', () => {
     })
     const reserved = {
       ...leased,
-      publish_pull_request_head: 'bread/docs-docs-workspace-reserved',
+      publish_pull_request_head: 'breezify/docs-docs-workspace-reserved',
     }
     mocks.from
       .mockReturnValueOnce(selectBuilder(initial))
@@ -378,7 +378,7 @@ describe('/api/github/hosted-docs/publish', () => {
       .mockReturnValueOnce(selectBuilder({ installation_id: 7 }))
     mocks.rpc.mockResolvedValue({ data: [], error: null })
 
-    const response = await POST(request({ conflict_resolution: 'bread' }))
+    const response = await POST(request({ conflict_resolution: 'breezify' }))
     const body = await response.json()
 
     expect(response.status).toBe(409)
@@ -415,7 +415,7 @@ describe('/api/github/hosted-docs/publish', () => {
     })
     const reserved = {
       ...leased,
-      publish_pull_request_head: 'bread/docs-docs-workspace-reserved',
+      publish_pull_request_head: 'breezify/docs-docs-workspace-reserved',
     }
     const updated = {
       ...reserved,
@@ -440,14 +440,14 @@ describe('/api/github/hosted-docs/publish', () => {
     expect(response.status).toBe(201)
     expect(body).toMatchObject({
       pull_request_number: 17,
-      branch: 'bread/docs-docs-workspace-reserved',
+      branch: 'breezify/docs-docs-workspace-reserved',
       changed_file_count: 1,
     })
     expect(mocks.publish).toHaveBeenCalledOnce()
     expect(pointerBuilder.update).toHaveBeenCalledWith(
       expect.objectContaining({
         publish_pull_request_number: 17,
-        publish_pull_request_head: 'bread/docs-docs-workspace-reserved',
+        publish_pull_request_head: 'breezify/docs-docs-workspace-reserved',
         publish_last_commit_sha: 'publish-sha',
       }),
     )
@@ -465,7 +465,7 @@ describe('/api/github/hosted-docs/publish', () => {
     })
     const reserved = {
       ...leased,
-      publish_pull_request_head: 'bread/docs-docs-workspace-reserved',
+      publish_pull_request_head: 'breezify/docs-docs-workspace-reserved',
     }
     mocks.from
       .mockReturnValueOnce(selectBuilder(initial))
@@ -496,7 +496,7 @@ describe('/api/github/hosted-docs/publish', () => {
   })
 
   it('clears a recovered reservation when the synchronized root has no changes', async () => {
-    const existingHead = 'bread/docs-docs-workspace-recovered'
+    const existingHead = 'breezify/docs-docs-workspace-recovered'
     const initial = source({ publish_pull_request_head: existingHead })
     const leased = source({
       publish_pull_request_head: existingHead,
@@ -513,7 +513,7 @@ describe('/api/github/hosted-docs/publish', () => {
     mocks.rpc.mockResolvedValue({ data: [leased], error: null })
     mocks.publish.mockRejectedValue(
       new HostedWorkspacePublishError(
-        'The GitHub docs root already matches the Bread workspace.',
+        'The GitHub docs root already matches the Breezify workspace.',
         409,
         'no_changes',
       ),

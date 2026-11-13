@@ -76,7 +76,7 @@ describe("PortalChangelogView", () => {
         documents: [
           release("release-one", "Release one", "2026-08-01T00:00:00Z"),
         ],
-        canRemoveBreadBranding: true,
+        canRemoveBreezifyBranding: true,
         preview: true,
       }),
     )
@@ -101,7 +101,7 @@ describe("PortalChangelogView", () => {
         taxonomy,
         documents,
         activeDocument: { ...documents[1]!, content: "## Faster previews" },
-        canRemoveBreadBranding: true,
+        canRemoveBreezifyBranding: true,
         preview: true,
       }),
     )

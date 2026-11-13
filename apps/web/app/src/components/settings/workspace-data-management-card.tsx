@@ -42,9 +42,9 @@ import {
 // ---------------------------------------------------------------------------
 // Export / Import card for the workspace settings page.
 //
-// Export is a synchronous download of the Bread-format JSON (whole workspace
+// Export is a synchronous download of the Breezify-format JSON (whole workspace
 // or a single user folder). Import opens the unified <ImportDialog />, which
-// hosts four source tabs (Bread JSON, Notion, Confluence, Obsidian) — each
+// hosts four source tabs (Breezify JSON, Notion, Confluence, Obsidian) — each
 // either drops a file or collects per-source credentials and then routes to
 // the import job detail page for live progress.
 // ---------------------------------------------------------------------------
@@ -155,7 +155,7 @@ export function WorkspaceDataManagementCard({
         <CardHeader>
           <CardTitle>Data Management</CardTitle>
           <CardDescription>
-            Export the workspace as a Bread-format JSON backup, or import from a
+            Export the workspace as a Breezify-format JSON backup, or import from a
             prior export, Notion, Confluence Cloud, or Obsidian.
           </CardDescription>
         </CardHeader>
@@ -219,7 +219,7 @@ export function WorkspaceDataManagementCard({
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground">
-              Pick a source — Bread JSON, Notion, Confluence Cloud, or Obsidian.
+              Pick a source — Breezify JSON, Notion, Confluence Cloud, or Obsidian.
             </p>
           </div>
 

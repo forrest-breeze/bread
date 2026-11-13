@@ -67,7 +67,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!entitlements.portalEditor) {
     return NextResponse.json(
       {
-        error: "Portal editor requires a paid plan",
+        error: "The portal editor is not enabled for this workspace",
         message: "This workspace cannot manage portal versions.",
         code: "payment_required",
       },
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const body: VersionsResponse = { versions }
     return NextResponse.json(body)
   } catch (err) {
-    console.error("[Bread] portal versions GET:", err)
+    console.error("[Breezify] portal versions GET:", err)
     return NextResponse.json(
       { error: "Failed to load portal versions" },
       { status: 500 },
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!entitlements.portalEditor) {
     return NextResponse.json(
       {
-        error: "Portal editor requires a paid plan",
+        error: "The portal editor is not enabled for this workspace",
         message: "This workspace cannot manage portal versions.",
         code: "payment_required",
       },
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     await saveDraft(workspace.workspace_id, edit.spec, projectSlug, user.id, payload.version)
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error("[Bread] portal versions GET:", err)
+    console.error("[Breezify] portal versions GET:", err)
     return NextResponse.json(
       { error: "Failed to load portal versions" },
       { status: 500 },

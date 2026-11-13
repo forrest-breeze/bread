@@ -47,7 +47,7 @@ export async function GET(
         { status: error.status },
       )
     }
-    console.error("[Bread] GitHub document history failed:", error)
+    console.error("[Breezify] GitHub document history failed:", error)
     return NextResponse.json(
       { error: "Could not load GitHub history" },
       { status: 502 },

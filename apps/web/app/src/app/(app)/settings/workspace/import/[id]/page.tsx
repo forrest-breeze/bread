@@ -32,7 +32,7 @@ export default function ImportJobDetailPage({ params }: PageProps): React.JSX.El
   const items = data?.items ?? []
 
   async function cancel(): Promise<void> {
-    if (!confirm("Cancel this import? Already-imported docs stay in Bread.")) return
+    if (!confirm("Cancel this import? Already-imported docs stay in Breezify.")) return
     await fetch(`/api/import/jobs/${id}/cancel`, { method: "POST" })
     await mutate()
   }

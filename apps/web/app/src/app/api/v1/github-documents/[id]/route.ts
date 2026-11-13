@@ -74,7 +74,7 @@ function errorResponse(request: NextRequest, error: unknown): NextResponse {
       ),
     )
   }
-  console.error("[Bread] API v1 GitHub document operation failed:", error)
+  console.error("[Breezify] API v1 GitHub document operation failed:", error)
   return withCors(
     request,
     NextResponse.json(

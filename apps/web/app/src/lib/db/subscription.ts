@@ -8,7 +8,7 @@ import type { SubscriptionRow } from "@/lib/types";
 // ---------------------------------------------------------------------------
 // Workspace entitlements
 //
-// Bread runs as an internal tool: there is no billing, no plans and no trials.
+// Breezify runs as an internal tool: there is no billing, no plans and no trials.
 // Every workspace is entitled to the full feature set. The `subscriptions`
 // table is still read for its period dates (usage reporting), but nothing is
 // gated on it anymore. The gate helpers below are kept so the call sites stay
@@ -31,7 +31,7 @@ export async function getWorkspaceSubscription(
 
   if (error) {
     console.error(
-      `[Bread] Failed to read subscription for workspace ${workspaceId}:`,
+      `[Breezify] Failed to read subscription for workspace ${workspaceId}:`,
       error.message,
     );
     return null;

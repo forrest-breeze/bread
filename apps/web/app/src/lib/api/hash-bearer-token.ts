@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
  * SHA-256 hex digest. Returns null when the header is absent, does not
  * start with "Bearer ", or has an empty token after the prefix.
  *
- * Single source of truth for how Bread maps a bearer secret to an
+ * Single source of truth for how Breezify maps a bearer secret to an
  * `api_keys.key_hash` lookup value — used by both `authenticateApiKey`
  * (REST) and `authenticateMcp` (MCP streamable-HTTP).
  */

@@ -26,7 +26,7 @@ async function getRedisStatus(): Promise<RedisStatus> {
     await redis.ping()
     return 'ok'
   } catch (err) {
-    console.warn('[Bread] /api/health: Upstash ping failed:', err)
+    console.warn('[Breezify] /api/health: Upstash ping failed:', err)
     return 'degraded'
   }
 }

@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import {
   getInstallationToken,
   getRepository,
@@ -20,7 +20,7 @@ import {
 /**
  * Link a workspace to a repository that uses the ReadMe layout.
  *
- * Unlike the Bread format there is nothing to validate file by file: pages
+ * Unlike the Breezify format there is nothing to validate file by file: pages
  * that cannot be read are skipped and reported by the sync. Linking only
  * checks that the repository, branch and root exist and are within limits.
  */
@@ -35,7 +35,7 @@ export interface ReadmeLinkInput {
   /** Branch to sync; empty for the repository default branch. */
   branch: string | null
   publishMode: 'direct' | 'pull_request'
-  /** 'github_wins' replaces linked Bread content with the repository's. */
+  /** 'github_wins' replaces linked Breezify content with the repository's. */
   mode: 'merge' | 'github_wins'
   existing: GitHubHostedDocsSourceRow | null
   /** Lease held on the existing row by the caller, when there is one. */
@@ -150,7 +150,7 @@ export async function linkReadmeRepository(
     pending_pull_request_number: null,
     pending_pull_request_url: null,
     pending_pull_request_head: null,
-    pending_sync_mode: input.mode === 'github_wins' ? 'replace_bread' : 'merge',
+    pending_sync_mode: input.mode === 'github_wins' ? 'replace_breezify' : 'merge',
     publish_pull_request_number: null,
     publish_pull_request_url: null,
     publish_pull_request_head: null,

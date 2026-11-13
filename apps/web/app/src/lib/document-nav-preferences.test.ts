@@ -46,7 +46,7 @@ describe("document nav sort mode", () => {
   })
 
   it("falls back to the default for any unknown stored value", () => {
-    window.localStorage.setItem("bread-doc-nav-sort-mode", "garbage")
+    window.localStorage.setItem("breezify-doc-nav-sort-mode", "garbage")
     expect(getStoredDocumentNavSortMode()).toBe(DEFAULT_DOCUMENT_NAV_SORT_MODE)
   })
 })
@@ -71,7 +71,7 @@ describe("builder document sort mode", () => {
   })
 
   it("falls back to custom for any unknown stored value", () => {
-    window.localStorage.setItem("bread-kb-builder-doc-sort-mode", "garbage")
+    window.localStorage.setItem("breezify-kb-builder-doc-sort-mode", "garbage")
     expect(getStoredBuilderDocumentSortMode()).toBe("custom")
   })
 })
@@ -95,13 +95,13 @@ describe("open folder id persistence", () => {
   })
 
   it("returns an empty set when stored JSON is malformed", () => {
-    window.localStorage.setItem("bread-doc-nav-open-folders", "{not json")
+    window.localStorage.setItem("breezify-doc-nav-open-folders", "{not json")
     expect(getStoredOpenFolderIds().size).toBe(0)
   })
 
   it("filters non-string entries out of a stored array", () => {
     window.localStorage.setItem(
-      "bread-doc-nav-open-folders",
+      "breezify-doc-nav-open-folders",
       JSON.stringify(["valid", 42, null, "other"]),
     )
     const ids = getStoredOpenFolderIds()
@@ -112,7 +112,7 @@ describe("open folder id persistence", () => {
 
   it("returns an empty set when stored value is not an array", () => {
     window.localStorage.setItem(
-      "bread-doc-nav-open-folders",
+      "breezify-doc-nav-open-folders",
       JSON.stringify({ not: "array" }),
     )
     expect(getStoredOpenFolderIds().size).toBe(0)

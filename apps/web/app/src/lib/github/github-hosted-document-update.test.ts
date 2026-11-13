@@ -67,7 +67,7 @@ describe('applyGitHubHostedDocumentUpdate', () => {
     )
   })
 
-  it('fails closed when the expected Bread head is stale', async () => {
+  it('fails closed when the expected Breezify head is stale', async () => {
     const { admin } = adminWithRpc({
       data: [{
         applied: false,

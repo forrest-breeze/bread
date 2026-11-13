@@ -45,7 +45,7 @@ function errorResponse(error: unknown): NextResponse {
       { status: error.status },
     )
   }
-  console.error("[Bread] GitHub revision operation failed:", error)
+  console.error("[Breezify] GitHub revision operation failed:", error)
   return NextResponse.json(
     { error: "Could not load this GitHub revision" },
     { status: 502 },

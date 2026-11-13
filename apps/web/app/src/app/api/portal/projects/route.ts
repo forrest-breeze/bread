@@ -36,7 +36,7 @@ function canManage(role: string): boolean {
 function portalEditorPaymentRequired(message?: string): NextResponse {
   return NextResponse.json(
     {
-      error: "Portal editor requires a paid plan",
+      error: "The portal editor is not enabled for this workspace",
       message: message ?? "This workspace cannot manage portal projects.",
       code: "payment_required",
     },
@@ -68,7 +68,7 @@ export async function GET(): Promise<NextResponse> {
     const projects = await listPortalProjects(workspace.workspace_id)
     return NextResponse.json({ projects })
   } catch (err) {
-    console.error("[Bread] portal projects GET:", err)
+    console.error("[Breezify] portal projects GET:", err)
     return NextResponse.json(
       { error: "Failed to load portal projects" },
       { status: 500 },
@@ -120,7 +120,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     })
     return NextResponse.json({ project }, { status: 201 })
   } catch (err) {
-    console.error("[Bread] portal projects POST:", err)
+    console.error("[Breezify] portal projects POST:", err)
     const message = err instanceof Error ? err.message : "Failed to create project"
     const status =
       message.includes("already taken") ||
@@ -178,7 +178,7 @@ export async function PATCH(request: Request): Promise<NextResponse> {
     }
     return NextResponse.json({ error: "No update specified" }, { status: 400 })
   } catch (err) {
-    console.error("[Bread] portal projects PATCH:", err)
+    console.error("[Breezify] portal projects PATCH:", err)
     const message = err instanceof Error ? err.message : "Failed to update project"
     const status =
       message.includes("unknown project") ||

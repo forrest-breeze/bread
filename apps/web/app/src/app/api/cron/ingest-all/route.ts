@@ -50,7 +50,7 @@ async function settle<T>(label: string, work: Promise<T>): Promise<SourceResult<
     // orphaned (deadline-lost) worker is still observed — no unhandled rejection.
     return await Promise.race([work, deadline]);
   } catch (err) {
-    console.error(`[Bread] /api/cron/ingest-all ${label}:`, err);
+    console.error(`[Breezify] /api/cron/ingest-all ${label}:`, err);
     return { error: err instanceof Error ? err.message : String(err) };
   } finally {
     clearTimeout(timer);
@@ -60,7 +60,7 @@ async function settle<T>(label: string, work: Promise<T>): Promise<SourceResult<
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
-    console.error("[Bread] CRON_SECRET not configured");
+    console.error("[Breezify] CRON_SECRET not configured");
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
   if (!verifyCronBearer(req.headers.get("authorization"), secret)) {

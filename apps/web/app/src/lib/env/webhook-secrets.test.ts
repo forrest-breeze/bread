@@ -73,7 +73,7 @@ describe('assertWebhookSecrets', () => {
 
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(
-        '[Bread] webhook-secrets: provider=github missing=GITHUB_WEBHOOK_SECRET',
+        '[Breezify] webhook-secrets: provider=github missing=GITHUB_WEBHOOK_SECRET',
       )
     })
 
@@ -86,10 +86,10 @@ describe('assertWebhookSecrets', () => {
 
       expect(spy).toHaveBeenCalledTimes(2)
       expect(spy).toHaveBeenCalledWith(
-        '[Bread] webhook-secrets: provider=instagram missing=INSTAGRAM_APP_SECRET',
+        '[Breezify] webhook-secrets: provider=instagram missing=INSTAGRAM_APP_SECRET',
       )
       expect(spy).toHaveBeenCalledWith(
-        '[Bread] webhook-secrets: provider=instagram missing=INSTAGRAM_WEBHOOK_VERIFY_TOKEN',
+        '[Breezify] webhook-secrets: provider=instagram missing=INSTAGRAM_WEBHOOK_VERIFY_TOKEN',
       )
     })
 

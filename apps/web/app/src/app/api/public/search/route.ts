@@ -76,7 +76,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     const hits = await searchPublic(workspace.id, q, MAX_HITS, scope)
     return NextResponse.json({ hits } satisfies PublicSearchResponse)
   } catch (err) {
-    console.error("[Bread] public search:", err)
+    console.error("[Breezify] public search:", err)
     return NextResponse.json(
       { error: "We couldn't search right now. Please try again." },
       { status: 500 },

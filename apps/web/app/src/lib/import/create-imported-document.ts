@@ -27,7 +27,7 @@ export async function createImportedDocument(args: {
   try {
     embedding = await generateEmbedding(args.content, "RETRIEVAL_DOCUMENT");
   } catch (err) {
-    console.error("[Bread] createImportedDocument: embedding failed:", err);
+    console.error("[Breezify] createImportedDocument: embedding failed:", err);
   }
 
   const { data, error } = await admin

@@ -61,9 +61,16 @@ export function getPortalLayout(input: unknown): PortalLayout {
 export function setPages(
   layout: PortalLayout,
   pages: PortalPage[],
+  homePosition: number = layout.homePosition ?? 0,
 ): PortalLayout {
+  // Home always exists; keep its slot within the pages that remain.
+  const position = Math.min(Math.max(0, Math.trunc(homePosition)), pages.length)
   return validated(
-    { ...layout, pages: pages.length > 0 ? pages : undefined },
+    {
+      ...layout,
+      pages: pages.length > 0 ? pages : undefined,
+      homePosition: position > 0 ? position : undefined,
+    },
     "setPages",
   )
 }

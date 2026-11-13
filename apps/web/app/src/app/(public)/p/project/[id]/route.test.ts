@@ -98,11 +98,11 @@ describe("GET /p/project/[id]", () => {
 
   it("redirects the default project to the workspace's /p/<slug> path", async () => {
     mockMaybeSingleProject.mockResolvedValue({
-      data: { slug: "bread", workspace_id: "ws-1", status: "published" },
+      data: { slug: "breezify", workspace_id: "ws-1", status: "published" },
       error: null,
     })
     mockMaybeSingleWorkspace.mockResolvedValue({
-      data: { slug: "bread", settings: {} },
+      data: { slug: "breezify", settings: {} },
       error: null,
     })
 
@@ -110,16 +110,16 @@ describe("GET /p/project/[id]", () => {
     const params = Promise.resolve({ id: "a992906c-d30d-498b-8c3a-1fd22e0bd397" })
     const res = await GET(req, { params })
     expect(res.status).toBe(307)
-    expect(res.headers.get("location")).toBe("https://app.example.com/p/bread")
+    expect(res.headers.get("location")).toBe("https://app.example.com/p/breezify")
   })
 
   it("redirects a named project to a nested path under the workspace slug", async () => {
     mockMaybeSingleProject.mockResolvedValue({
-      data: { slug: "bread-help", workspace_id: "ws-1", status: "published" },
+      data: { slug: "breezify-help", workspace_id: "ws-1", status: "published" },
       error: null,
     })
     mockMaybeSingleWorkspace.mockResolvedValue({
-      data: { slug: "bread", settings: {} },
+      data: { slug: "breezify", settings: {} },
       error: null,
     })
 
@@ -127,16 +127,16 @@ describe("GET /p/project/[id]", () => {
     const params = Promise.resolve({ id: "a992906c-d30d-498b-8c3a-1fd22e0bd397" })
     const res = await GET(req, { params })
     expect(res.status).toBe(307)
-    expect(res.headers.get("location")).toBe("https://app.example.com/p/bread/bread-help")
+    expect(res.headers.get("location")).toBe("https://app.example.com/p/breezify/breezify-help")
   })
 
   it("redirects to custom domain if custom domain is configured", async () => {
     mockMaybeSingleProject.mockResolvedValue({
-      data: { slug: "bread-help", workspace_id: "ws-1", status: "published" },
+      data: { slug: "breezify-help", workspace_id: "ws-1", status: "published" },
       error: null,
     })
     mockMaybeSingleWorkspace.mockResolvedValue({
-      data: { slug: "bread", settings: { kb_custom_domain: "docs.acme.com" } },
+      data: { slug: "breezify", settings: { kb_custom_domain: "docs.acme.com" } },
       error: null,
     })
 
@@ -144,7 +144,7 @@ describe("GET /p/project/[id]", () => {
     const params = Promise.resolve({ id: "a992906c-d30d-498b-8c3a-1fd22e0bd397" })
     const res = await GET(req, { params })
     expect(res.status).toBe(307)
-    expect(res.headers.get("location")).toBe("https://docs.acme.com/bread-help")
+    expect(res.headers.get("location")).toBe("https://docs.acme.com/breezify-help")
   })
 
   it("redirects a project to a dedicated project domain root", async () => {
@@ -193,11 +193,11 @@ describe("GET /p/project/[id]", () => {
 
   it("preserves incoming search params", async () => {
     mockMaybeSingleProject.mockResolvedValue({
-      data: { slug: "bread", workspace_id: "ws-1", status: "published" },
+      data: { slug: "breezify", workspace_id: "ws-1", status: "published" },
       error: null,
     })
     mockMaybeSingleWorkspace.mockResolvedValue({
-      data: { slug: "bread", settings: {} },
+      data: { slug: "breezify", settings: {} },
       error: null,
     })
 
@@ -205,6 +205,6 @@ describe("GET /p/project/[id]", () => {
     const params = Promise.resolve({ id: "a992906c-d30d-498b-8c3a-1fd22e0bd397" })
     const res = await GET(req, { params })
     expect(res.status).toBe(307)
-    expect(res.headers.get("location")).toBe("https://app.example.com/p/bread?q=query&foo=bar")
+    expect(res.headers.get("location")).toBe("https://app.example.com/p/breezify?q=query&foo=bar")
   })
 })

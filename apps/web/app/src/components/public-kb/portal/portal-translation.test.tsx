@@ -143,7 +143,7 @@ describe("PortalTranslationProvider", () => {
       expect(screen.getByText("Hola mundo")).toBeTruthy()
     })
     expect(vi.mocked(fetch).mock.calls[0]?.[0]).toBe(
-      "/docs/_bread/api/translate",
+      "/docs/_breezify/api/translate",
     )
   })
 
@@ -195,7 +195,7 @@ describe("PortalTranslationProvider", () => {
   })
 
   it("restores the stored language before the first paint", async () => {
-    window.localStorage.setItem("bread-portal-language:acme", "es")
+    window.localStorage.setItem("breezify-portal-language:acme", "es")
 
     render(
       <PortalTranslationProvider

@@ -311,7 +311,7 @@ export type FooterBlock = z.infer<typeof footerBlockSchema>
 
 /**
  * Does a footer carry real, renderable content (columns / social / note /
- * legacy links)? The "Powered by Bread" credit alone does NOT count — a portal
+ * legacy links)? The "Powered by Breezify" credit alone does NOT count — a portal
  * with no configured footer links renders no footer band at all. Accepts both
  * the rendered FooterBlock and the workspace-level StoredFooter.
  */
@@ -712,14 +712,75 @@ const portalPagesSchema = z
     })
   })
 
+/**
+ * Slug Home is served at (`/page/home`) once another page takes the first
+ * slot. Reserved: the builder never lets a custom page claim it.
+ */
+export const PORTAL_HOME_PAGE_SLUG = "home"
+
+/** One entry in the combined Home + pages navigation order. */
+export type PortalNavEntry =
+  | { kind: "home" }
+  | { kind: "page"; page: PortalPage }
+
+/** Home's index among the nav entries, clamped to the pages that exist. */
+export function portalHomePosition(
+  layout: Pick<PortalLayout, "pages" | "homePosition"> | null | undefined,
+): number {
+  const count = layout?.pages?.length ?? 0
+  const stored = layout?.homePosition ?? 0
+  return Math.min(Math.max(0, Math.trunc(stored)), count)
+}
+
+/** Home and every page in navigation order. Home is always present. */
+export function portalNavEntries(
+  layout: Pick<PortalLayout, "pages" | "homePosition"> | null | undefined,
+): PortalNavEntry[] {
+  const entries: PortalNavEntry[] = (layout?.pages ?? []).map((page) => ({
+    kind: "page",
+    page,
+  }))
+  entries.splice(portalHomePosition(layout), 0, { kind: "home" })
+  return entries
+}
+
+/**
+ * The page served at the portal root: the first nav entry when it is a custom
+ * page, or null when Home holds the first slot (the default).
+ */
+export function portalDefaultPage(
+  layout: Pick<PortalLayout, "pages" | "homePosition"> | null | undefined,
+): PortalPage | null {
+  const first = portalNavEntries(layout)[0]
+  return first?.kind === "page" ? first.page : null
+}
+
+/**
+ * What a root (`home`) or `/page/<slug>` request renders. The root serves the
+ * default page; `/page/home` reaches Home once it has left the first slot. A
+ * stored page that already uses the slug `home` keeps its URL.
+ */
+export function resolvePortalNavRoute(
+  layout: Pick<PortalLayout, "pages" | "homePosition"> | null | undefined,
+  view: "home" | "page",
+  pageSlug?: string | null,
+): PortalNavEntry | null {
+  if (view === "home") {
+    const page = portalDefaultPage(layout)
+    return page ? { kind: "page", page } : { kind: "home" }
+  }
+  const page = layout?.pages?.find((candidate) => candidate.slug === pageSlug)
+  if (page) return { kind: "page", page }
+  return pageSlug === PORTAL_HOME_PAGE_SLUG ? { kind: "home" } : null
+}
+
 // ----- top-level layout -----------------------------------------------------
 export const portalLayoutSchema = z.object({
   // v1 and v2 both validate (additive bump). v2 layouts carry a `tree`.
   schemaVersion: z.union([z.literal(1), z.literal(2)]),
   theme: portalThemeSchema,
-  // Business/Enterprise portal language configuration. Public rendering and
-  // the translation API additionally re-check the live subscription before
-  // honoring this stored preference.
+  // Portal language configuration. Public rendering and the translation API
+  // additionally re-check workspace entitlements before honoring it.
   localization: portalLocalizationSchema.optional(),
   header: headerBlockSchema,
   // Workspace/custom inheritance for chrome controlled by the builder. Missing
@@ -738,6 +799,10 @@ export const portalLayoutSchema = z.object({
   // global portal header. Optional so previously published layouts keep
   // validating unchanged.
   pages: portalPagesSchema.optional(),
+  // Home's slot among `pages` in the navigation order (0 = first). The first
+  // entry is the portal's default page, served at the root URL; Home then
+  // moves to /page/home. Clamped to pages.length when read.
+  homePosition: z.number().int().min(0).max(8).optional(),
   body: z.array(portalBlockSchema).max(40),
   footer: footerBlockSchema.optional(),
   // ----- v2 DSL (additive, optional) — the open-ended component tree ---------

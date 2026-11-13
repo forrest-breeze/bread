@@ -37,7 +37,7 @@ export function RichContentPreview({
       <div
         ref={containerRef}
         data-mermaid-host=""
-        className="bread-editor min-h-0 px-4 py-3"
+        className="breezify-editor min-h-0 px-4 py-3"
         dangerouslySetInnerHTML={{ __html: renderDocumentHtml(content) }}
       />
     </ScrollArea>

@@ -57,8 +57,8 @@ interface FolderNode {
   children: FolderNode[]
 }
 
-type ReconciliationMode = "merge" | "bread_wins" | "github_wins"
-type ProposalKind = "create" | "bread_wins"
+type ReconciliationMode = "merge" | "breezify_wins" | "github_wins"
+type ProposalKind = "create" | "breezify_wins"
 type HostedDocsAction = "link" | "create" | "open_pr" | "disable"
 
 export function expandedPathsForSelection(paths: string[]): Set<string> {
@@ -196,19 +196,19 @@ const RECONCILIATION_OPTIONS: Array<{
     value: "merge",
     title: "Merge both",
     description:
-      "Validate the root, then bring in GitHub documents while preserving differing Bread edits for review. Folders follow the repository tree under the root; documents keep their Bread placement.",
+      "Validate the root, then bring in GitHub documents while preserving differing Breezify edits for review. Folders follow the repository tree under the root; documents keep their Breezify placement.",
   },
   {
-    value: "bread_wins",
-    title: "Use Bread",
+    value: "breezify_wins",
+    title: "Use Breezify",
     description:
-      "Open a pull request that makes the GitHub root’s Markdown tree match Bread.",
+      "Open a pull request that makes the GitHub root’s Markdown tree match Breezify.",
   },
   {
     value: "github_wins",
     title: "Use GitHub",
     description:
-      "Validate the root, then make Bread match GitHub: documents take the repository's content and folder layout, and Bread documents under the root that are not in GitHub are removed.",
+      "Validate the root, then make Breezify match GitHub: documents take the repository's content and folder layout, and Breezify documents under the root that are not in GitHub are removed.",
   },
 ]
 
@@ -313,8 +313,8 @@ export function GithubHostedDocsCard({
 
   const runExistingRootSetup = async (): Promise<void> => {
     if (!effectiveRepoId || !selectedRoot) return
-    if (reconciliation === "bread_wins") {
-      setProposalKind("bread_wins")
+    if (reconciliation === "breezify_wins") {
+      setProposalKind("breezify_wins")
       return
     }
     setPendingAction("link")
@@ -332,7 +332,7 @@ export function GithubHostedDocsCard({
       } else {
         setAppliedSourceKey("")
         setMessage(
-          "GitHub root linked. Bread is syncing its documents now.",
+          "GitHub root linked. Breezify is syncing its documents now.",
         )
         await mutate()
       }
@@ -343,7 +343,7 @@ export function GithubHostedDocsCard({
     }
   }
 
-  const proposeFromBread = async (kind: ProposalKind): Promise<void> => {
+  const proposeFromBreezify = async (kind: ProposalKind): Promise<void> => {
     if (!effectiveRepoId) return
     const targetPath = kind === "create" ? newRootPath.trim() : selectedRoot
     if (!targetPath) return
@@ -355,7 +355,7 @@ export function GithubHostedDocsCard({
       const result = await bootstrapGithubHostedDocsSource({
         repoId: effectiveRepoId,
         targetPath,
-        allowExisting: kind === "bread_wins",
+        allowExisting: kind === "breezify_wins",
       })
       if (result.error) {
         setError(result.error)
@@ -367,7 +367,7 @@ export function GithubHostedDocsCard({
         setMessage(
           kind === "create"
             ? "Pull request opened. Merging it creates the root and activates the link."
-            : "Pull request opened to make the selected Markdown tree match Bread.",
+            : "Pull request opened to make the selected Markdown tree match Breezify.",
         )
         await Promise.all([mutate(), mutateTree()])
       }
@@ -388,7 +388,7 @@ export function GithubHostedDocsCard({
       } else {
         setAppliedSourceKey("")
         setSelectedRoot(null)
-        setMessage("GitHub root link disabled. Existing Bread documents were preserved.")
+        setMessage("GitHub root link disabled. Existing Breezify documents were preserved.")
         await mutate()
       }
     } catch {
@@ -405,7 +405,7 @@ export function GithubHostedDocsCard({
           <div>
             <CardTitle>GitHub docs root</CardTitle>
             <CardDescription>
-              Link one repository folder as the root for the Bread folder tree.
+              Link one repository folder as the root for the Breezify folder tree.
               This does not monitor or index the rest of the repository.
             </CardDescription>
           </div>
@@ -453,7 +453,7 @@ export function GithubHostedDocsCard({
                   {source.sync_status === "disabled"
                     ? "A pull request is open. Root setup is locked until this link is disabled."
                     : syncing
-                      ? "Bread is activating this root now."
+                      ? "Breezify is activating this root now."
                       : source.sync_status === "error"
                         ? "This root needs attention. Disable the link to choose or create a different folder."
                         : "This root is active. Disable the link before choosing or creating a different folder."}
@@ -619,7 +619,7 @@ export function GithubHostedDocsCard({
                   <div>
                     <p className="text-sm font-medium">Initial reconciliation</p>
                     <p className="text-xs text-muted-foreground">
-                      Choose which side wins where the selected root and Bread differ.
+                      Choose which side wins where the selected root and Breezify differ.
                     </p>
                   </div>
                   <div
@@ -683,7 +683,7 @@ export function GithubHostedDocsCard({
                 <div>
                   <p className="text-sm font-medium">Create a new folder</p>
                   <p className="text-xs text-muted-foreground">
-                    Enter its repository path. Bread will build the workspace tree
+                    Enter its repository path. Breezify will build the workspace tree
                     there on a branch and open a pull request.
                   </p>
                 </div>
@@ -700,7 +700,7 @@ export function GithubHostedDocsCard({
                   <Button
                     variant="outline"
                     disabled={!effectiveRepoId || !newRootPath.trim() || busy}
-                    onClick={() => void proposeFromBread("create")}
+                    onClick={() => void proposeFromBreezify("create")}
                     aria-busy={pendingAction === "create"}
                   >
                     {pendingAction === "create" ? "Creating pull request…" : "Create via pull request"}
@@ -773,10 +773,10 @@ export function GithubHostedDocsCard({
               <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                   <DialogTitle>
-                    Use Bread versions
+                    Use Breezify versions
                   </DialogTitle>
                   <DialogDescription>
-                    Bread will create a branch and open a pull request. The default
+                    Breezify will create a branch and open a pull request. The default
                     branch is not changed until that pull request is merged.
                   </DialogDescription>
                 </DialogHeader>
@@ -792,7 +792,7 @@ export function GithubHostedDocsCard({
                   </div>
                   <p className="text-muted-foreground">
                     The pull request makes the selected root’s Markdown and MDX
-                    tree match Bread. Reviewable assets and non-document files
+                    tree match Breezify. Reviewable assets and non-document files
                     remain in place.
                   </p>
                 </div>
@@ -808,7 +808,7 @@ export function GithubHostedDocsCard({
                     <Button
                       disabled={busy}
                       onClick={() => {
-                        if (proposalKind) void proposeFromBread(proposalKind)
+                        if (proposalKind) void proposeFromBreezify(proposalKind)
                       }}
                       aria-busy={pendingAction === "open_pr"}
                     >

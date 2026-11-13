@@ -37,7 +37,7 @@ export function PortalReverseProxyInstructions({
   mountPath,
   portalPath,
   routeMappings,
-  breadOrigin = process.env.NEXT_PUBLIC_APP_URL ?? "",
+  breezifyOrigin = process.env.NEXT_PUBLIC_APP_URL ?? "",
   connectorReady = true,
   verifyWorkerActivation,
   onWorkerConnected,
@@ -48,7 +48,7 @@ export function PortalReverseProxyInstructions({
   mountPath: string
   portalPath: string
   routeMappings?: Array<{ mountPath: string; portalPath: string }>
-  breadOrigin?: string
+  breezifyOrigin?: string
   connectorReady?: boolean
   verifyWorkerActivation?: () => Promise<boolean>
   onWorkerConnected?: () => void
@@ -57,7 +57,7 @@ export function PortalReverseProxyInstructions({
 }): React.ReactElement {
   const [copied, setCopied] = useState<string | null>(null)
   const [showOther, setShowOther] = useState(false)
-  const normalizedOrigin = normalizeOrigin(breadOrigin)
+  const normalizedOrigin = normalizeOrigin(breezifyOrigin)
   const normalizedRoutes = useMemo(() => {
     const candidates = routeMappings?.length
       ? routeMappings
@@ -85,8 +85,8 @@ export function PortalReverseProxyInstructions({
   )
   const cloudflareSetup = useMemo(
     () => `EXPECTED_HOST=${domain}
-BREAD_ORIGIN=${normalizedOrigin}
-BREAD_ROUTES=${JSON.stringify(routeBundle)}
+BREEZIFY_ORIGIN=${normalizedOrigin}
+BREEZIFY_ROUTES=${JSON.stringify(routeBundle)}
 ${workerRoutes.map((route, index) => `WORKER_ROUTE_${index + 1}=${route}`).join("\n")}`,
     [domain, normalizedOrigin, routeBundle, workerRoutes],
   )
@@ -98,8 +98,8 @@ location = ${route.mountPath} {
     proxy_ssl_server_name on;
     proxy_set_header Host ${originHost(normalizedOrigin)};
     proxy_set_header X-Forwarded-Host $host;
-    proxy_set_header X-Bread-Base-Path ${route.mountPath};
-    proxy_set_header X-Bread-Proxy reverse-proxy-v1;
+    proxy_set_header X-Breezify-Base-Path ${route.mountPath};
+    proxy_set_header X-Breezify-Proxy reverse-proxy-v1;
 }
 
 location ^~ ${route.mountPath}/ {
@@ -107,8 +107,8 @@ location ^~ ${route.mountPath}/ {
     proxy_ssl_server_name on;
     proxy_set_header Host ${originHost(normalizedOrigin)};
     proxy_set_header X-Forwarded-Host $host;
-    proxy_set_header X-Bread-Base-Path ${route.mountPath};
-    proxy_set_header X-Bread-Proxy reverse-proxy-v1;
+    proxy_set_header X-Breezify-Base-Path ${route.mountPath};
+    proxy_set_header X-Breezify-Proxy reverse-proxy-v1;
 }`).join("\n\n"),
     [domain, normalizedOrigin, normalizedRoutes],
   )
@@ -135,7 +135,7 @@ location ^~ ${route.mountPath}/ {
         <span className="font-mono text-foreground">
           {normalizedRoutes.map((route) => route.mountPath).join(", ")}
         </span>{" "}
-        {normalizedRoutes.length === 1 ? "is" : "are"} sent to Bread.
+        {normalizedRoutes.length === 1 ? "is" : "are"} sent to Breezify.
       </p>
 
       <div className="grid gap-2 sm:grid-cols-2">
@@ -148,7 +148,7 @@ location ^~ ${route.mountPath}/ {
               <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                 Cloudflare one-click
                 <InfoHint side="top">
-                  Authorize Bread once. The connector finds this domain&apos;s
+                  Authorize Breezify once. The connector finds this domain&apos;s
                   Cloudflare zone, deploys the Worker with the generated
                   variables, and mounts every listed project path.
                 </InfoHint>

@@ -77,13 +77,13 @@ describe("POST /api/documents/[id]/github", () => {
     })
   })
 
-  it("forwards an explicit Bread version when preparing a checkout", async () => {
+  it("forwards an explicit Breezify version when preparing a checkout", async () => {
     mocks.checkout.mockResolvedValue({ id: "session-1" })
 
     const response = await POST(
       post({
         action: "checkout",
-        initial_content: "# Bread source of truth\n",
+        initial_content: "# Breezify source of truth\n",
       }),
       params,
     )
@@ -93,7 +93,7 @@ describe("POST /api/documents/[id]/github", () => {
       "workspace-1",
       DOCUMENT_ID,
       "user-1",
-      "# Bread source of truth\n",
+      "# Breezify source of truth\n",
       { rejectExistingDraft: true },
     )
   })

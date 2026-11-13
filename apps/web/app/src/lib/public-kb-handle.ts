@@ -20,7 +20,7 @@ export const RESERVED_HANDLES: ReadonlySet<string> = new Set([
   // App + marketing surfaces
   "app",
   "www",
-  "bread",
+  "breezify",
   "kb",
   "p",
   "public",

@@ -21,7 +21,7 @@ import { ObsidianConfigSchema } from "@/lib/import/schemas";
 // ---------------------------------------------------------------------------
 
 const WIKILINK_RE = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
-const PLACEHOLDER_PREFIX = "bread-wikilink:";
+const PLACEHOLDER_PREFIX = "breezify-wikilink:";
 
 interface NoteRecord {
   /** Vault-relative path (e.g. "Engineering/Runbooks/Postgres.md"). */
@@ -156,7 +156,7 @@ async function resolveWikilinks(
         if (!paths || paths.length === 0) return "(#)";
         if (paths.length > 1) {
           console.warn(
-            `[Bread] obsidian wikilink collision for "${slug}":`,
+            `[Breezify] obsidian wikilink collision for "${slug}":`,
             paths,
           );
         }

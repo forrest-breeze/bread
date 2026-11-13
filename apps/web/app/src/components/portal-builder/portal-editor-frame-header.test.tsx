@@ -39,6 +39,18 @@ describe("navigateFromFrame", () => {
     expect(handlers.onOpenPage).toHaveBeenLastCalledWith(null)
   })
 
+  it("resolves the root and /page/home against the page order", () => {
+    const handlers = nav()
+    const layout = {
+      pages: [{ id: "a", title: "API", slug: "api", scope: null }],
+      homePosition: 1,
+    }
+    navigateFromFrame("/p/acme", handlers, layout)
+    expect(handlers.onOpenPage).toHaveBeenLastCalledWith("api")
+    navigateFromFrame("/p/acme/page/home", handlers, layout)
+    expect(handlers.onOpenPage).toHaveBeenLastCalledWith(null)
+  })
+
   it("opens off-site links in a new tab instead of leaving the builder", () => {
     const open = vi.spyOn(window, "open").mockReturnValue(null)
     const handlers = nav()

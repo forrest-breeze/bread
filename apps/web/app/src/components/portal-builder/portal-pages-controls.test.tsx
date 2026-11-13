@@ -98,7 +98,7 @@ describe("PortalPagesControls", () => {
       />,
     )
 
-    expect(screen.getByText("In preview")).toBeInTheDocument()
+    expect(screen.queryByText("In preview")).not.toBeInTheDocument()
     expect(
       screen.queryByRole("textbox", { name: "Navigation label" }),
     ).not.toBeInTheDocument()
@@ -160,5 +160,88 @@ describe("PortalPagesControls", () => {
       current.pages[1],
       current.pages[0],
     ])
+  })
+})
+
+describe("PortalPagesControls ordering", () => {
+  const apiPage = {
+    id: "page-api",
+    title: "API Reference",
+    slug: "api-reference",
+    scope: [],
+    presentation: "api_reference" as const,
+  }
+
+  it("lists Home first as the default and lets it move below a page", async () => {
+    const user = userEvent.setup()
+    const onLayoutChange = vi.fn()
+    const current = layout()
+    current.pages = [apiPage]
+    render(
+      <PortalPagesControls
+        layout={current}
+        activePageSlug={null}
+        onLayoutChange={onLayoutChange}
+        onActivePageChange={vi.fn()}
+      />,
+    )
+
+    expect(screen.getAllByText("Default")).toHaveLength(1)
+    expect(screen.queryByText("In preview")).not.toBeInTheDocument()
+    // Home can be reordered but never edited or removed.
+    expect(screen.queryByRole("button", { name: "Remove Home" })).toBeNull()
+    expect(screen.queryByRole("button", { name: "Edit Home" })).toBeNull()
+
+    await user.click(screen.getByRole("button", { name: "Move Home down" }))
+    const next = onLayoutChange.mock.calls[0]?.[0] as PortalLayout
+    expect(next.pages).toEqual([apiPage])
+    expect(next.homePosition).toBe(1)
+  })
+
+  it("asks for confirmation before deleting a page", async () => {
+    const user = userEvent.setup()
+    const onLayoutChange = vi.fn()
+    const current = layout()
+    current.pages = [apiPage]
+    current.homePosition = 1
+    render(
+      <PortalPagesControls
+        layout={current}
+        activePageSlug={null}
+        onLayoutChange={onLayoutChange}
+        onActivePageChange={vi.fn()}
+      />,
+    )
+
+    await user.click(
+      screen.getByRole("button", { name: "Remove API Reference" }),
+    )
+    expect(onLayoutChange).not.toHaveBeenCalled()
+    await user.click(screen.getByRole("button", { name: "Delete page" }))
+
+    const next = onLayoutChange.mock.calls[0]?.[0] as PortalLayout
+    // Deleting the default page returns the first slot to Home.
+    expect(next.pages).toBeUndefined()
+    expect(next.homePosition).toBeUndefined()
+  })
+
+  it("reserves the home path", async () => {
+    const user = userEvent.setup()
+    render(
+      <PortalPagesControls
+        layout={layout()}
+        activePageSlug={null}
+        onLayoutChange={vi.fn()}
+        onActivePageChange={vi.fn()}
+      />,
+    )
+    await user.click(screen.getByRole("button", { name: "Add page" }))
+    await user.type(
+      screen.getByRole("textbox", { name: "Navigation label" }),
+      "Home",
+    )
+    expect(
+      screen.getByText("This path is reserved for Home."),
+    ).toBeInTheDocument()
   })
 })

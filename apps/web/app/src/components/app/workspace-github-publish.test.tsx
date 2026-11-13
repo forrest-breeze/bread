@@ -26,7 +26,7 @@ const harness = vi.hoisted(() => ({
   } as Record<string, unknown> | undefined,
   source: {
     id: "source-1",
-    repo_full_name: "example-org/bread-docs",
+    repo_full_name: "example-org/breezify-docs",
     sync_status: "synced",
     publish_pull_request_number: null as number | null,
     publish_pull_request_url: null as string | null,
@@ -70,7 +70,7 @@ beforeEach(() => {
   }
   harness.source = {
     id: "source-1",
-    repo_full_name: "example-org/bread-docs",
+    repo_full_name: "example-org/breezify-docs",
     sync_status: "synced",
     publish_pull_request_number: null,
     publish_pull_request_url: null,
@@ -268,7 +268,7 @@ describe("WorkspaceGitHubPublish", () => {
     await waitFor(() => expect(harness.mutate).toHaveBeenCalledOnce())
   })
 
-  it("explicitly confirms and acknowledges keeping Bread conflict versions", async () => {
+  it("explicitly confirms and acknowledges keeping Breezify conflict versions", async () => {
     const user = userEvent.setup()
     harness.source = {
       ...harness.source,
@@ -288,14 +288,14 @@ describe("WorkspaceGitHubPublish", () => {
     render(<WorkspaceGitHubPublish />)
     await user.click(screen.getByRole("button", { name: "Publish workspace" }))
     expect(
-      screen.getByText(/This pull request will propose the Bread versions/i),
+      screen.getByText(/This pull request will propose the Breezify versions/i),
     ).toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "Create pull request" }))
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(JSON.parse(String(init.body))).toEqual({
-      conflict_resolution: "bread",
+      conflict_resolution: "breezify",
     })
   })
 

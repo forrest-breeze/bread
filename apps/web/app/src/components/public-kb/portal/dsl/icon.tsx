@@ -56,7 +56,7 @@ export async function DslIcon({
   const classes = cn(SIZE_CLASS[size] ?? SIZE_CLASS.md, tone && TONE_CLASS[tone], className)
   const key = toLucideKey(name)
   // Brand glyphs first — every icon the built-in initialization emits resolves
-  // to the custom Bread set; the lucide dynamic map is only the long tail for
+  // to the custom Breezify set; the lucide dynamic map is only the long tail for
   // exotic agent-authored names.
   if (hasPortalGlyph(key)) {
     return <PortalGlyph name={key} className={classes} />

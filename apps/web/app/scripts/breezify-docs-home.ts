@@ -1,7 +1,7 @@
 import type { DslNode } from "../src/lib/portal/dsl/node"
 
 // ---------------------------------------------------------------------------
-// The Bread Docs home page (docs/kb-docs → /p/bread/docs).
+// The Breezify Docs home page (docs/kb-docs → /p/breezify/docs).
 //
 // The home page used to be a hero over a category grid — six rows of section
 // titles and nothing else. This module builds the v2 DSL `tree` that replaces
@@ -20,7 +20,7 @@ import type { DslNode } from "../src/lib/portal/dsl/node"
 // the legacy CategoryGrid/Callout leaves) and no prop is new. That is
 // deliberate: publishing a spec the live build rejects makes it fall back to
 // the default layout silently, with a 200 (see the changelog-page note in
-// seed-bread-docs.ts), so the home page must stay publishable against the
+// seed-breezify-docs.ts), so the home page must stay publishable against the
 // build that is already serving it.
 // ---------------------------------------------------------------------------
 
@@ -32,8 +32,8 @@ export interface DocsHomeSection {
   icon: string
 }
 
-export interface BreadDocsHomeInput {
-  /** In-portal link base for this project, e.g. "/p/bread/docs". */
+export interface BreezifyDocsHomeInput {
+  /** In-portal link base for this project, e.g. "/p/breezify/docs". */
   base: string
   /**
    * Absolute origin serving the app's `public/` assets. Sub-folder portals
@@ -67,7 +67,7 @@ export interface BreadDocsHomeInput {
  */
 const SECTION_DESCRIPTIONS: Record<string, string> = {
   "getting-started": "Set up your workspace and learn the core workflow.",
-  "using-bread": "Write, organize, capture, review, and find knowledge.",
+  "using-breezify": "Write, organize, capture, review, and find knowledge.",
   integrations: "Connect the tools where your team's context already lives.",
   publishing: "Turn selected knowledge into a polished public docs site.",
   developers: "Connect AI agents and build with the API.",
@@ -93,14 +93,14 @@ const START_STEPS: ReadonlyArray<{
     body:
       "Slack threads, pull-request discussions, meeting notes, and Drive files become captures. The librarian compares each one against what you already have and proposes a document to create, update, or merge.",
     linkLabel: "Capture knowledge",
-    doc: "using-bread/capture-knowledge.md",
+    doc: "using-breezify/capture-knowledge.md",
   },
   {
     title: "Let people and agents ask",
     body:
       "Search the knowledge base directly, or ask the agent a question that spans several documents. Point Claude Code, Cursor, or Codex at the same content over MCP so they stop guessing at your conventions.",
     linkLabel: "Search and ask AI",
-    doc: "using-bread/search-and-ask-ai.md",
+    doc: "using-breezify/search-and-ask-ai.md",
   },
 ]
 
@@ -116,19 +116,19 @@ const POPULAR_GUIDES: readonly DocCard[] = [
     icon: "pen-line",
     title: "Create and edit documents",
     body: "The editor, document structure, and what makes a page retrievable.",
-    doc: "using-bread/create-and-edit-documents.md",
+    doc: "using-breezify/create-and-edit-documents.md",
   },
   {
     icon: "folder-tree",
     title: "Organize your knowledge base",
     body: "Folders, nesting, visibility, and ordering across your workspace.",
-    doc: "using-bread/organize-your-knowledge-base.md",
+    doc: "using-breezify/organize-your-knowledge-base.md",
   },
   {
     icon: "list-checks",
     title: "Review librarian proposals",
     body: "Approve, edit, or reject what the librarian wants to change.",
-    doc: "using-bread/review-librarian-proposals.md",
+    doc: "using-breezify/review-librarian-proposals.md",
   },
 ]
 
@@ -191,12 +191,12 @@ function requireEntry(
 }
 
 /**
- * Build the Bread Docs home tree. Throws when a linked document or section is
+ * Build the Breezify Docs home tree. Throws when a linked document or section is
  * missing rather than emitting a dead card — a missing entry means the seed
  * script's document list and this page have drifted, which is a bug to fix at
  * publish time, not a broken link to ship.
  */
-export function buildBreadDocsHomeTree(input: BreadDocsHomeInput): DslNode {
+export function buildBreezifyDocsHomeTree(input: BreezifyDocsHomeInput): DslNode {
   const { base, assetOrigin, folderIds, docSlugs, sections } = input
   const assets = input.assets ?? new Set<string>()
   const origin = assetOrigin.replace(/\/+$/, "")
@@ -263,8 +263,8 @@ export function buildBreadDocsHomeTree(input: BreadDocsHomeInput): DslNode {
       id: "home-hero",
       type: "Hero",
       props: {
-        eyebrow: "Bread Documentation",
-        heading: "Use Bread with confidence",
+        eyebrow: "Breezify Documentation",
+        heading: "Use Breezify with confidence",
         subtitle:
           "Capture what your team knows, keep it organized, and serve it to people and AI agents — then publish the parts your customers need.",
       },
@@ -278,7 +278,7 @@ export function buildBreadDocsHomeTree(input: BreadDocsHomeInput): DslNode {
       id: "home-intro",
       type: "Text",
       props: {
-        text: "Bread is a shared knowledge base for teams and the AI agents they work with. These guides cover the whole loop: capture raw context, review what the librarian proposes, retrieve answers with citations, and publish the parts of your workspace that belong in front of customers.",
+        text: "Breezify is a shared knowledge base for teams and the AI agents they work with. These guides cover the whole loop: capture raw context, review what the librarian proposes, retrieve answers with citations, and publish the parts of your workspace that belong in front of customers.",
         tone: "muted",
       },
     },
@@ -370,7 +370,7 @@ export function buildBreadDocsHomeTree(input: BreadDocsHomeInput): DslNode {
       type: "Callout",
       props: {
         tone: "info",
-        title: "This site is a Bread workspace",
+        title: "This site is a Breezify workspace",
         body: `<p>Every page you are reading is a document in our own knowledge base, published through the same portal editor you get in yours. When you are ready to do the same, start with <a href="${docHref(
           "publishing/create-a-docs-project.md",
         )}">Create a docs project</a>.</p>`,
@@ -423,7 +423,7 @@ export function buildBreadDocsHomeTree(input: BreadDocsHomeInput): DslNode {
     {
       id: "home-agents",
       type: "Section",
-      props: { title: "Build with Bread", gap: "md" },
+      props: { title: "Build with Breezify", gap: "md" },
       children: [
         ...sectionVisual(
           "home-agents-visual",
@@ -474,7 +474,7 @@ export function buildBreadDocsHomeTree(input: BreadDocsHomeInput): DslNode {
       id: "home-next-app",
       type: "Button",
       props: {
-        label: "Open Bread",
+        label: "Open Breezify",
         href: process.env.NEXT_PUBLIC_APP_URL || "/",
         variant: "primary",
       },

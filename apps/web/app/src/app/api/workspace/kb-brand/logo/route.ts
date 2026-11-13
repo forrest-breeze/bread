@@ -64,7 +64,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .upload(path, file, { upsert: true, contentType: file.type });
 
   if (uploadError) {
-    console.error("[Bread] Failed to upload KB brand logo:", uploadError.message);
+    console.error("[Breezify] Failed to upload KB brand logo:", uploadError.message);
     return NextResponse.json(
       { error: "Failed to upload logo" },
       { status: 500 },

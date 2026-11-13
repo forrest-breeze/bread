@@ -31,14 +31,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url)
 
   const returnPath = sanitizeOAuthReturnPath(
-    request.cookies.get('bread-github-oauth-return')?.value,
+    request.cookies.get('breezify-github-oauth-return')?.value,
     '/settings/integrations/github',
   )
   const redirectWithResult = (params: { error?: string; connected?: string }) => {
     const response = NextResponse.redirect(
       absoluteOAuthReturnUrl(request, appendOAuthResult(returnPath, params)),
     )
-    response.cookies.delete('bread-github-oauth-return')
+    response.cookies.delete('breezify-github-oauth-return')
     return response
   }
 
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // scope, so the settings page must not reuse one after GitHub redirects.
     await getTokenCache().clear(installationId)
   } catch (err) {
-    console.error('[Bread] GitHub App callback — failed to fetch installation details:', err)
+    console.error('[Breezify] GitHub App callback — failed to fetch installation details:', err)
     return redirectWithResult({ error: 'github_api_error' })
   }
 
@@ -159,7 +159,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (error) throw error
   } catch (err) {
-    console.error('[Bread] GitHub App callback upsert failed:', err)
+    console.error('[Breezify] GitHub App callback upsert failed:', err)
     return redirectWithResult({ error: 'db_error' })
   }
 

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Bread portal glyphs — the brand icon set.
+// Breezify portal glyphs — the brand icon set.
 //
 // Hand-drawn duotone marks: a soft currentColor fill (12–16% opacity) under
 // crisp 1.75px rounded strokes, plus a small filled "knowledge node" accent on

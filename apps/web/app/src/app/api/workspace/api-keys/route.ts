@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { type WorkspaceRole, ROLE_RANKS } from "@bread/core";
+import { type WorkspaceRole, ROLE_RANKS } from "@breezify/core";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveWorkspace } from "@/lib/db/workspace";
@@ -64,7 +64,7 @@ export async function GET(): Promise<NextResponse> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("[Bread] Failed to fetch API keys:", error.message);
+    console.error("[Breezify] Failed to fetch API keys:", error.message);
     return NextResponse.json({ error: "Failed to fetch API keys" }, { status: 500 });
   }
 
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error || !data) {
-    console.error("[Bread] Failed to create API key:", error?.message);
+    console.error("[Breezify] Failed to create API key:", error?.message);
     return NextResponse.json({ error: "Failed to create API key" }, { status: 500 });
   }
 
@@ -210,7 +210,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] Failed to rename API key:", error.message);
+    console.error("[Breezify] Failed to rename API key:", error.message);
     return NextResponse.json({ error: "Failed to rename API key" }, { status: 500 });
   }
   if (!data) {
@@ -254,7 +254,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     .eq("workspace_id", workspace.workspace_id);
 
   if (error) {
-    console.error("[Bread] Failed to revoke API key:", error.message);
+    console.error("[Breezify] Failed to revoke API key:", error.message);
     return NextResponse.json({ error: "Failed to revoke API key" }, { status: 500 });
   }
 

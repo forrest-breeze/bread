@@ -106,7 +106,7 @@ async function cachedRender<T>(
       } catch (err) {
         // The data cache is an optimization. Outside a Next request scope, or
         // if the cache backend is unavailable, render directly.
-        console.warn("[Bread] public render cache unavailable:", err)
+        console.warn("[Breezify] public render cache unavailable:", err)
         value = render(content)
       }
     }

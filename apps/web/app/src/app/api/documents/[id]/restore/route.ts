@@ -45,7 +45,7 @@ export async function POST(
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] Failed to restore document:", error.message);
+    console.error("[Breezify] Failed to restore document:", error.message);
     return NextResponse.json(
       { error: "Failed to restore document" },
       { status: 500 },

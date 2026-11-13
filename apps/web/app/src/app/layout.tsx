@@ -29,9 +29,9 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bread - The AI Knowledge Base",
+  title: "Breezify - The AI Knowledge Base",
   description:
-    "Bread turns messy Slack threads and terminal dumps into clean, permanent runbooks. It's an automated SRE on your shoulder.",
+    "Breezify turns messy Slack threads and terminal dumps into clean, permanent runbooks. It's an automated SRE on your shoulder.",
   robots: {
     index: false,
     follow: false,

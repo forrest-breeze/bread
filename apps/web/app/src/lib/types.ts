@@ -14,7 +14,7 @@ export type {
   DashboardActivity,
   DashboardStats,
   TopicAliasRow,
-} from "@bread/core";
+} from "@breezify/core";
 
 // ---------------------------------------------------------------------------
 // Topic taxonomy — merge result returned by the merge_topic_folders RPC and
@@ -166,7 +166,7 @@ export interface MediaObject {
 // ---------------------------------------------------------------------------
 // Workflows — node-graph recipes triggered by Slack or GitHub events
 // ---------------------------------------------------------------------------
-// Shared shapes live in `@bread/core`; re-exported here so web code can keep
+// Shared shapes live in `@breezify/core`; re-exported here so web code can keep
 // importing from `@/lib/types` without reaching into the monorepo package.
 export type {
   WorkflowTriggerType,
@@ -181,10 +181,10 @@ export type {
   WorkflowRunStatus,
   WorkflowRun,
   WorkflowRunStep,
-} from "@bread/core";
+} from "@breezify/core";
 
 // ---------------------------------------------------------------------------
-// What's new — the in-app feed of Bread's own public changelog portal
+// What's new — the in-app feed of Breezify's own public changelog portal
 // (served by /api/whats-new, rendered in the dashboard top bar).
 // ---------------------------------------------------------------------------
 export interface WhatsNewEntry {

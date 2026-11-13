@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { syncReadmeSource } from './readme-service'
 

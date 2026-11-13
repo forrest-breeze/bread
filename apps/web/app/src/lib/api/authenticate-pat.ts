@@ -8,7 +8,7 @@ import {
   type PatScope,
   type WorkspaceRole,
   ROLE_RANKS,
-} from "@bread/core";
+} from "@breezify/core";
 
 export async function authenticatePAT(request: NextRequest): Promise<{
   data?: {
@@ -87,11 +87,11 @@ export async function authenticatePAT(request: NextRequest): Promise<{
   }
 
   // 3. Extract and validate the workspace slug from headers
-  const workspaceSlug = request.headers.get("x-bread-workspace")?.trim();
+  const workspaceSlug = request.headers.get("x-breezify-workspace")?.trim();
   if (!workspaceSlug) {
     return {
       error: NextResponse.json(
-        { error: "Missing x-bread-workspace header" },
+        { error: "Missing x-breezify-workspace header" },
         { status: 400 },
       ),
     };

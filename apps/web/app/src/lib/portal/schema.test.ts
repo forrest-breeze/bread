@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest"
 import {
   PORTAL_SCHEMA_VERSION,
   parseStoredHeader,
+  portalDefaultPage,
+  portalNavEntries,
   portalPagePresentation,
+  resolvePortalNavRoute,
   validatePortalLayout,
   type PortalLayout,
 } from "./schema"
@@ -555,5 +558,42 @@ describe("validatePortalLayout", () => {
       ],
     }
     expect(validatePortalLayout(bad).ok).toBe(false)
+  })
+})
+
+describe("portal nav order", () => {
+  const pages = [
+    { id: "a", title: "API", slug: "api", scope: null },
+    { id: "b", title: "Changelog", slug: "changelog", scope: null },
+  ]
+
+  it("defaults to Home in the first slot", () => {
+    expect(portalNavEntries({ pages })[0]).toEqual({ kind: "home" })
+    expect(portalDefaultPage({ pages })).toBeNull()
+    expect(resolvePortalNavRoute({ pages }, "home")).toEqual({ kind: "home" })
+  })
+
+  it("serves the first page at the root and moves Home to /page/home", () => {
+    const layout = { pages, homePosition: 1 }
+    expect(portalNavEntries(layout).map((e) => e.kind)).toEqual([
+      "page",
+      "home",
+      "page",
+    ])
+    expect(portalDefaultPage(layout)?.slug).toBe("api")
+    expect(resolvePortalNavRoute(layout, "home")).toEqual({
+      kind: "page",
+      page: pages[0],
+    })
+    expect(resolvePortalNavRoute(layout, "page", "home")).toEqual({
+      kind: "home",
+    })
+    expect(resolvePortalNavRoute(layout, "page", "missing")).toBeNull()
+  })
+
+  it("clamps an out-of-range home position", () => {
+    expect(portalNavEntries({ pages: [], homePosition: 5 })).toEqual([
+      { kind: "home" },
+    ])
   })
 })

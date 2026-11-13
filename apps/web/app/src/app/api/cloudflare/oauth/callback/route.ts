@@ -48,7 +48,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!query.success || !state) return redirect({ cloudflare_error: "invalid_state" });
   if (query.data.error) {
     console.error(
-      "[Bread] Cloudflare OAuth denied:",
+      "[Breezify] Cloudflare OAuth denied:",
       query.data.error,
       query.data.error_description ?? "",
     );
@@ -87,14 +87,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       tokens,
     });
   } catch (error) {
-    console.error("[Bread] Cloudflare OAuth callback:", error);
+    console.error("[Breezify] Cloudflare OAuth callback:", error);
     return redirect({ cloudflare_error: "token_exchange_failed" });
   }
 
   try {
     await deployWorkspacePortalToCloudflare(state.workspaceId, state.targetDomain);
   } catch (error) {
-    console.error("[Bread] Cloudflare initial deployment:", error);
+    console.error("[Breezify] Cloudflare initial deployment:", error);
     return redirect({
       cloudflare_connected: "1",
       cloudflare_error: "deployment_failed",

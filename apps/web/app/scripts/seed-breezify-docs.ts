@@ -5,14 +5,14 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import { generateEmbedding } from "../src/lib/embeddings"
-import { buildBreadDocsHomeTree } from "./bread-docs-home"
+import { buildBreezifyDocsHomeTree } from "./breezify-docs-home"
 import { ingestDocument, textToProseMirrorDoc } from "../src/rag/ingest"
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "../../../..")
 const DOCS_ROOT = path.join(REPO_ROOT, "docs/kb-docs")
 const CANONICAL_PREFIX = "docs/kb-docs/"
-const LEGACY_PREFIXES = ["docs/bread-docs/", "docs/product/"]
+const LEGACY_PREFIXES = ["docs/breezify-docs/", "docs/product/"]
 const PROJECT_SLUG = "docs"
 
 async function loadLocalEnv(): Promise<void> {
@@ -50,11 +50,11 @@ const SECTIONS: Record<string, SectionConfig> = {
     sortOrder: 0,
     preferredName: "website-docs-getting-started",
   },
-  "using-bread": {
-    displayName: "Using Bread",
+  "using-breezify": {
+    displayName: "Using Breezify",
     icon: "book-open",
     sortOrder: 1,
-    preferredName: "bread-docs-using-bread",
+    preferredName: "breezify-docs-using-breezify",
   },
   integrations: {
     displayName: "Integrations",
@@ -66,7 +66,7 @@ const SECTIONS: Record<string, SectionConfig> = {
     displayName: "Publishing",
     icon: "send",
     sortOrder: 3,
-    preferredName: "bread-docs-publishing",
+    preferredName: "breezify-docs-publishing",
   },
   developers: {
     displayName: "Developers & AI",
@@ -78,7 +78,7 @@ const SECTIONS: Record<string, SectionConfig> = {
     displayName: "Administration",
     icon: "shield-check",
     sortOrder: 5,
-    preferredName: "bread-docs-administration",
+    preferredName: "breezify-docs-administration",
   },
 }
 
@@ -92,13 +92,13 @@ const CHILD_ALIASES: Record<string, SectionConfig> = {
     displayName: "API",
     icon: "file-text",
     sortOrder: 0,
-    preferredName: "bread-docs-developer-api",
+    preferredName: "breezify-docs-developer-api",
   },
   "developers/api-reference": {
     displayName: "API Reference",
     icon: "code",
     sortOrder: 1,
-    preferredName: "bread-docs-api-reference",
+    preferredName: "breezify-docs-api-reference",
   },
   "developers/mcp": {
     displayName: "MCP",
@@ -110,25 +110,25 @@ const CHILD_ALIASES: Record<string, SectionConfig> = {
     displayName: "Documents",
     icon: "file-text",
     sortOrder: 3,
-    preferredName: "bread-docs-api-reference-documents",
+    preferredName: "breezify-docs-api-reference-documents",
   },
   "developers/api-reference/search": {
     displayName: "Search",
     icon: "search",
     sortOrder: 4,
-    preferredName: "bread-docs-api-reference-search",
+    preferredName: "breezify-docs-api-reference-search",
   },
   "developers/api-reference/captures": {
     displayName: "Captures",
     icon: "inbox",
     sortOrder: 5,
-    preferredName: "bread-docs-api-reference-captures",
+    preferredName: "breezify-docs-api-reference-captures",
   },
   "developers/api-reference/github-documents": {
     displayName: "GitHub documents",
     icon: "github",
     sortOrder: 6,
-    preferredName: "bread-docs-api-reference-github-documents",
+    preferredName: "breezify-docs-api-reference-github-documents",
   },
 }
 
@@ -136,8 +136,8 @@ const CHILD_ALIASES: Record<string, SectionConfig> = {
 // directory: a reverse-proxied sub-folder mount would resolve a root-relative
 // src against the PROXY host and 404. Required; no fallback.
 const HOME_ASSET_ORIGIN = process.env.NEXT_PUBLIC_APP_URL ?? ""
-// GitHub repo ("owner/name") the Bread docs are synced from. Required.
-const BREAD_DOCS_REPO = process.env.BREAD_DOCS_REPO ?? ""
+// GitHub repo ("owner/name") the Breezify docs are synced from. Required.
+const BREEZIFY_DOCS_REPO = process.env.BREEZIFY_DOCS_REPO ?? ""
 const HOME_ASSET_DIR = path.join(SCRIPT_DIR, "../public/portal/docs")
 
 /** Image files actually shipped for the home page, so none is published dead. */
@@ -164,18 +164,18 @@ const CHANGELOG_SECTION: SectionConfig = {
   displayName: "Changelog",
   icon: "megaphone",
   sortOrder: 6,
-  preferredName: "bread-docs-changelog",
+  preferredName: "breezify-docs-changelog",
 }
 
 const DOC_ORDER = [
   "getting-started/introduction.md",
   "getting-started/quickstart.md",
   "getting-started/core-concepts.md",
-  "using-bread/create-and-edit-documents.md",
-  "using-bread/organize-your-knowledge-base.md",
-  "using-bread/capture-knowledge.md",
-  "using-bread/review-librarian-proposals.md",
-  "using-bread/search-and-ask-ai.md",
+  "using-breezify/create-and-edit-documents.md",
+  "using-breezify/organize-your-knowledge-base.md",
+  "using-breezify/capture-knowledge.md",
+  "using-breezify/review-librarian-proposals.md",
+  "using-breezify/search-and-ask-ai.md",
   "integrations/overview.md",
   "integrations/import-existing-content.md",
   "integrations/github.md",
@@ -261,7 +261,7 @@ function parseDoc(raw: string, relPath: string, sortOrder: number): ParsedDoc {
     throw new Error(`${relPath}: changelog entries require a "date" field`)
   }
   return {
-    id: fields.bread_document_id!,
+    id: fields.breezify_document_id!,
     title: fields.title!,
     content,
     relPath,
@@ -318,7 +318,7 @@ async function findRootFolder(admin: SupabaseClient, workspaceId: string): Promi
     .from("github_hosted_docs_sources")
     .select("root_folder_id")
     .eq("workspace_id", workspaceId)
-    .eq("repo_full_name", BREAD_DOCS_REPO)
+    .eq("repo_full_name", BREEZIFY_DOCS_REPO)
     .maybeSingle()
   if (source?.root_folder_id) return source.root_folder_id as string
 
@@ -327,10 +327,10 @@ async function findRootFolder(admin: SupabaseClient, workspaceId: string): Promi
     .select("id")
     .eq("workspace_id", workspaceId)
     .eq("kind", "user")
-    .eq("display_name", "Bread Docs")
+    .eq("display_name", "Breezify Docs")
     .is("parent_folder_id", null)
     .maybeSingle()
-  if (error || !data) throw new Error(`Bread Docs root not found: ${error?.message ?? "missing"}`)
+  if (error || !data) throw new Error(`Breezify Docs root not found: ${error?.message ?? "missing"}`)
   return data.id as string
 }
 
@@ -437,7 +437,7 @@ async function upsertDocs(
     const metadata = {
       ...((existing?.source_metadata as Record<string, unknown> | null) ?? {}),
       canonical_repo_path: doc.canonicalPath,
-      synced_by: "seed-bread-docs",
+      synced_by: "seed-breezify-docs",
       github_hosted_sync: true,
     }
     const publicSlug =
@@ -454,7 +454,7 @@ async function upsertDocs(
       folder_id: folderId,
       sort_order: sortOrder,
       source: "docs",
-      author: "Bread",
+      author: "Breezify",
       status: "Published",
       source_metadata: metadata,
       deleted_at: null,
@@ -519,7 +519,7 @@ async function setGitHubSourceRoot(admin: SupabaseClient, workspaceId: string): 
     .from("github_hosted_docs_sources")
     .update({ paths: ["docs"], updated_at: new Date().toISOString() })
     .eq("workspace_id", workspaceId)
-    .eq("repo_full_name", BREAD_DOCS_REPO)
+    .eq("repo_full_name", BREEZIFY_DOCS_REPO)
   if (error) throw new Error(`GitHub docs source update: ${error.message}`)
 }
 
@@ -560,7 +560,7 @@ async function publishDocsProject(
     title: config.displayName,
     description: {
       "getting-started": "Set up your workspace and learn the core workflow.",
-      "using-bread": "Write, organize, capture, review, and find knowledge.",
+      "using-breezify": "Write, organize, capture, review, and find knowledge.",
       integrations: "Connect the tools where your team's context already lives.",
       publishing: "Turn selected knowledge into a polished public docs site.",
       developers: "Connect AI agents and build with the API.",
@@ -574,12 +574,12 @@ async function publishDocsProject(
     schemaVersion: 1,
     theme: {
       ...theme,
-      brandName: "Bread Docs",
+      brandName: "Breezify Docs",
       logoText: "Docs",
-      tagline: "Learn how to capture, organize, retrieve, and publish your team's knowledge with Bread.",
+      tagline: "Learn how to capture, organize, retrieve, and publish your team's knowledge with Breezify.",
       icon: "📚",
       navLinks: [],
-      cta: HOME_ASSET_ORIGIN ? { label: "Open Bread", href: HOME_ASSET_ORIGIN } : null,
+      cta: HOME_ASSET_ORIGIN ? { label: "Open Breezify", href: HOME_ASSET_ORIGIN } : null,
       assistant: { enabled: true, placement: "header", label: "Ask AI" },
     },
     chrome: { headerMode: "workspace", footerMode: "workspace" },
@@ -615,11 +615,11 @@ async function publishDocsProject(
     ],
     body: [
       {
-        id: "bread-docs-hero",
+        id: "breezify-docs-hero",
         type: "hero",
         placement: "full",
-        eyebrow: "Bread Documentation",
-        heading: "Use Bread with confidence",
+        eyebrow: "Breezify Documentation",
+        heading: "Use Breezify with confidence",
         subtitle: "Start with the quickstart, then learn how to capture knowledge, connect agents, and publish documentation.",
       },
       { id: "categories", type: "category-grid", placement: "main", items: categoryItems },
@@ -631,7 +631,7 @@ async function publishDocsProject(
   // section links. `body` above stays as the fallback any build without tree
   // support still renders, and the stale component/pack registries from the old
   // developer-docs tree are dropped.
-  ;(spec as Record<string, unknown>).tree = buildBreadDocsHomeTree({
+  ;(spec as Record<string, unknown>).tree = buildBreezifyDocsHomeTree({
     base: `/p/${PROJECT_SLUG}`,
     assetOrigin: HOME_ASSET_ORIGIN,
     folderIds: folders,
@@ -652,7 +652,7 @@ async function publishDocsProject(
   if (draftId) {
     const { error: updateError } = await admin
       .from("workspace_experiences")
-      .update({ name: "Bread Docs", template: "docs", scope, spec, visibility: "public", updated_at: new Date().toISOString() })
+      .update({ name: "Breezify Docs", template: "docs", scope, spec, visibility: "public", updated_at: new Date().toISOString() })
       .eq("id", draftId)
     if (updateError) throw new Error(`docs draft update: ${updateError.message}`)
   } else {
@@ -663,7 +663,7 @@ async function publishDocsProject(
         workspace_id: workspaceId,
         kind: "kb",
         audience: "public",
-        name: "Bread Docs",
+        name: "Breezify Docs",
         slug: PROJECT_SLUG,
         template: "docs",
         status: "draft",
@@ -737,8 +737,8 @@ async function main(): Promise<void> {
     return
   }
 
-  const workspaceId = process.env.NEXT_PUBLIC_BREAD_WORKSPACE_ID
-  if (!workspaceId) throw new Error("NEXT_PUBLIC_BREAD_WORKSPACE_ID is required")
+  const workspaceId = process.env.NEXT_PUBLIC_BREEZIFY_WORKSPACE_ID
+  if (!workspaceId) throw new Error("NEXT_PUBLIC_BREEZIFY_WORKSPACE_ID is required")
   const admin = makeAdminClient()
   const rootFolderId = await findRootFolder(admin, workspaceId)
   const folders = await ensureFolderTree(admin, workspaceId, rootFolderId)

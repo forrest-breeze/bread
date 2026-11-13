@@ -83,7 +83,7 @@ vi.mock("@/lib/api/folders", () => ({
 
 import { DocumentsSubNav } from "./documents-sub-nav"
 
-const FOLDER_DRAG_TYPE = "application/x-bread-folder-id"
+const FOLDER_DRAG_TYPE = "application/x-breezify-folder-id"
 
 function createDataTransfer(initialData: Record<string, string>) {
   const data = new Map(Object.entries(initialData))

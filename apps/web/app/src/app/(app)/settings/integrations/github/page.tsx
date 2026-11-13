@@ -4,7 +4,7 @@ import React, { Suspense, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { AlertTriangle, CheckCircle2, ExternalLink, GitBranch, RefreshCw } from "lucide-react"
-import type { GitHubHostedDocsSourceRow } from "@bread/core"
+import type { GitHubHostedDocsSourceRow } from "@breezify/core"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -95,17 +95,17 @@ function PublishModeField({
       value: "direct",
       title: "Commit directly",
       description:
-        "Publishing commits straight to the synced branch, as ReadMe does. A protected branch must let the Bread GitHub App bypass its rules.",
+        "Publishing commits straight to the synced branch, as ReadMe does. A protected branch must let the Breezify GitHub App bypass its rules.",
     },
     {
       value: "pull_request",
       title: "Open a pull request",
       description:
-        "Publishing collects changes on a Bread branch and opens one pull request. Use this when the branch is protected.",
+        "Publishing collects changes on a Breezify branch and opens one pull request. Use this when the branch is protected.",
     },
   ]
   return (
-    <div role="radiogroup" aria-label="How Bread publishes to GitHub" className="space-y-2">
+    <div role="radiogroup" aria-label="How Breezify publishes to GitHub" className="space-y-2">
       {options.map((option) => (
         <label
           key={option.value}
@@ -376,7 +376,7 @@ function LinkedSource({
             <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <span>
               {source.conflict_count} page{source.conflict_count === 1 ? " was" : "s were"} changed
-              in both Bread and GitHub. Bread kept its version. Publishing asks
+              in both Breezify and GitHub. Breezify kept its version. Publishing asks
               before overwriting GitHub, or use &quot;Use GitHub&quot; below to take the
               repository&apos;s version everywhere.
             </span>
@@ -489,7 +489,7 @@ function LinkedSource({
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirm === "replace"
-                ? "Every linked page takes the repository's content, title, order and folder. Edits made in Bread that were not published are replaced; the previous versions stay in each page's history. Pages that exist only in Bread are kept."
+                ? "Every linked page takes the repository's content, title, order and folder. Edits made in Breezify that were not published are replaced; the previous versions stay in each page's history. Pages that exist only in Breezify are kept."
                 : "Syncing stops. Pages already in the workspace and files already in the repository stay as they are."}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -546,7 +546,7 @@ function GithubIntegrationContent(): React.JSX.Element {
       ) : !connected ? (
         <section className="max-w-xl space-y-3">
           <p className="text-sm text-muted-foreground">
-            Install the Bread GitHub App on the repository that holds the docs.
+            Install the Breezify GitHub App on the repository that holds the docs.
             It needs read and write access to <strong>Contents</strong>, and to{" "}
             <strong>Pull requests</strong> if publishing goes through pull
             requests.
@@ -563,7 +563,7 @@ function GithubIntegrationContent(): React.JSX.Element {
         <section className="max-w-xl space-y-3">
           <p className="text-sm text-muted-foreground">
             This workspace is linked to{" "}
-            <span className="font-mono">{source.repo_full_name}</span> in the Bread
+            <span className="font-mono">{source.repo_full_name}</span> in the Breezify
             document format. Unlink it to link a repository in the ReadMe layout
             instead.
           </p>

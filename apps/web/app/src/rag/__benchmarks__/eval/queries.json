@@ -38,7 +38,7 @@
   {
     "id": "lex-07",
     "category": "lexical",
-    "query": "BREAD_CLI_API_KEY Netlify env",
+    "query": "BREEZIFY_CLI_API_KEY Netlify env",
     "relevant_chunk_ids": []
   },
   {

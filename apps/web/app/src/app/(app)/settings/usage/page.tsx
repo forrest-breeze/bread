@@ -72,7 +72,7 @@ export default function UsagePage(): React.ReactElement {
         {
           label: "Media storage",
           value: `${formatBytes(usage.storage.mediaBytes)} / ${formatBytes(usage.storage.mediaLimitBytes)}`,
-          hint: "S3/R2 media used and plan limit",
+          hint: "S3/R2 media used and storage limit",
         },
         {
           label: "Active members",

@@ -31,7 +31,7 @@ describe("Cloudflare portal route generation", () => {
       "060ae386-b752-4683-ac46-94c30c616a91",
       "customer.com",
     );
-    expect(name).toMatch(/^bread-portal-[a-f0-9]{20}$/);
+    expect(name).toMatch(/^breezify-portal-[a-f0-9]{20}$/);
     expect(name).toBe(
       cloudflareScriptName("060ae386-b752-4683-ac46-94c30c616a91", "customer.com"),
     );

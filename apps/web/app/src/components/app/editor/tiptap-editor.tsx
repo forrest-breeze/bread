@@ -221,7 +221,7 @@ export const TiptapEditor = forwardRef<TiptapEditorRef, TiptapEditorProps>(
       editable,
       editorProps: {
         attributes: {
-          class: "bread-editor outline-none",
+          class: "breezify-editor outline-none",
         },
         // tiptap-markdown doesn't know tab/card directives and would flatten
         // them into text; render them ourselves when pasted as plain text.

@@ -62,7 +62,7 @@ async function getWorkspace(request: NextRequest): Promise<NextResponse> {
   // pre-rollout behavior where a stale cookie didn't break the page.
   const rawSwitchId =
     request.nextUrl.searchParams.get("id") ??
-    request.cookies.get("bread-workspace")?.value ??
+    request.cookies.get("breezify-workspace")?.value ??
     null;
   const preferredId = rawSwitchId
     ? switchIdSchema.safeParse(rawSwitchId).data ?? null
@@ -84,9 +84,9 @@ async function getWorkspace(request: NextRequest): Promise<NextResponse> {
         .single();
 
       if (!error && data) {
-        // Business-tier gate drives the Agent, scheduled auto-ingestion, and
-        // the portal AI builder; portal editor/reporting have their own plan
-        // caps derived from the same subscription row.
+        // Portal feature flags. Billing is gone, so these resolve to the
+        // enterprise limits; the assistant and translations additionally
+        // require ANTHROPIC_API_KEY.
         const portal_entitlements = await getPortalEntitlementsForWorkspace(
           membership.workspace_id,
         );
@@ -95,6 +95,7 @@ async function getWorkspace(request: NextRequest): Promise<NextResponse> {
           user_role: membership.role,
           portal_editor_enabled: portal_entitlements.portalEditor,
           portal_ai_builder_enabled: portal_entitlements.portalAiBuilder,
+          portal_assistant_enabled: portal_entitlements.portalAssistant,
           portal_translations_enabled: portal_entitlements.portalTranslations,
           portal_reporting_enabled: portal_entitlements.portalReporting,
           portal_reporting_max_days: portal_entitlements.portalReportingMaxDays,
@@ -123,7 +124,7 @@ async function getWorkspace(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error("[Bread] Failed to fetch workspace:", error.message);
+    console.error("[Breezify] Failed to fetch workspace:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch workspace" },
       { status: 500 }
@@ -138,6 +139,7 @@ async function getWorkspace(request: NextRequest): Promise<NextResponse> {
     user_role: membership.role,
     portal_editor_enabled: portal_entitlements.portalEditor,
     portal_ai_builder_enabled: portal_entitlements.portalAiBuilder,
+    portal_assistant_enabled: portal_entitlements.portalAssistant,
     portal_translations_enabled: portal_entitlements.portalTranslations,
     portal_reporting_enabled: portal_entitlements.portalReporting,
     portal_reporting_max_days: portal_entitlements.portalReportingMaxDays,
@@ -151,14 +153,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return await getWorkspace(request);
   } catch (err) {
     if (isTransientSupabaseError(err)) {
-      console.warn("[Bread] Workspace lookup temporarily unavailable:", err);
+      console.warn("[Breezify] Workspace lookup temporarily unavailable:", err);
       return NextResponse.json(
         { error: "Service temporarily unavailable" },
         { status: 503 },
       );
     }
 
-    console.error("[Bread] Failed to fetch workspace:", err);
+    console.error("[Breezify] Failed to fetch workspace:", err);
     return NextResponse.json(
       { error: "Failed to fetch workspace" },
       { status: 500 },
@@ -246,7 +248,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     if (currentWorkspaceError) {
       console.error(
-        "[Bread] Failed to load current workspace settings:",
+        "[Breezify] Failed to load current workspace settings:",
         currentWorkspaceError.message,
       );
       return NextResponse.json(
@@ -277,7 +279,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         { status: 409 },
       );
     }
-    console.error("[Bread] Failed to update workspace:", error.message);
+    console.error("[Breezify] Failed to update workspace:", error.message);
     return NextResponse.json(
       { error: "Failed to update workspace" },
       { status: 500 }
@@ -298,6 +300,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     user_role: membership.role,
     portal_editor_enabled: portal_entitlements.portalEditor,
     portal_ai_builder_enabled: portal_entitlements.portalAiBuilder,
+    portal_assistant_enabled: portal_entitlements.portalAssistant,
     portal_translations_enabled: portal_entitlements.portalTranslations,
     portal_reporting_enabled: portal_entitlements.portalReporting,
     portal_reporting_max_days: portal_entitlements.portalReportingMaxDays,
@@ -339,7 +342,7 @@ export async function DELETE(): Promise<NextResponse> {
       .eq("id", membership.workspace_id);
 
     if (error) {
-      console.error("[Bread] Failed to delete workspace:", error.message);
+      console.error("[Breezify] Failed to delete workspace:", error.message);
       return NextResponse.json(
         { error: "Failed to delete workspace" },
         { status: 500 }
@@ -348,7 +351,7 @@ export async function DELETE(): Promise<NextResponse> {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[Bread] Failed to delete workspace:", err);
+    console.error("[Breezify] Failed to delete workspace:", err);
     return NextResponse.json(
       { error: "Failed to delete workspace" },
       { status: 500 }

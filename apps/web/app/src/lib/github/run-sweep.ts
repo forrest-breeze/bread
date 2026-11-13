@@ -3,7 +3,7 @@ import { isBusinessTierForWorkspace } from '@/lib/db/subscription'
 import { syncGitHubRepository } from './github-repo-ingest'
 import { syncGitHubHostedDocs } from './github-hosted-docs'
 import { syncReadmeSource } from './readme/readme-service'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 
 export interface GitHubSweepResult {
   /** Number of repositories and hosted-docs links refreshed this run. */
@@ -56,7 +56,7 @@ export async function runGitHubSweep(
 
   if (reposError) {
     console.error(
-      '[Bread] GitHub sweep: failed to fetch monitored repos:',
+      '[Breezify] GitHub sweep: failed to fetch monitored repos:',
       reposError.message,
     )
     return { error: 'Service temporarily unavailable' }
@@ -71,7 +71,7 @@ export async function runGitHubSweep(
   const { data: hostedRows, error: hostedError } = await hostedQuery
   if (hostedError) {
     console.error(
-      '[Bread] GitHub sweep: failed to fetch hosted docs links:',
+      '[Breezify] GitHub sweep: failed to fetch hosted docs links:',
       hostedError.message,
     )
     return { error: 'Service temporarily unavailable' }
@@ -122,7 +122,7 @@ export async function runGitHubSweep(
       repoSyncErrors += result.failed
     } catch (err) {
       console.error(
-        '[Bread] GitHub sweep: repository sync failed for',
+        '[Breezify] GitHub sweep: repository sync failed for',
         repo.repo_full_name,
         ':',
         err,
@@ -166,7 +166,7 @@ async function syncHostedDocsSources(
       })
     } catch (err) {
       console.error(
-        '[Bread] GitHub sweep: hosted docs link failed for',
+        '[Breezify] GitHub sweep: hosted docs link failed for',
         source.repo_full_name,
         ':',
         err,

@@ -87,7 +87,7 @@ export function GitHubDocumentToolbar({
     `Update ${state.repository.file_path}`,
   )
   const [pullRequestBody, setPullRequestBody] = useState(
-    `Updates \`${state.repository.file_path}\` from Bread's collaborative editor.`,
+    `Updates \`${state.repository.file_path}\` from Breezify's collaborative editor.`,
   )
   const [busy, setBusy] = useState<
     "idle" | "publishing" | "discarding" | "resolving"
@@ -207,13 +207,13 @@ export function GitHubDocumentToolbar({
       await refresh()
       setConflictDialogOpen(false)
       setAnnouncement(
-        "Conflict resolved in favor of the Bread draft. Publish again when ready.",
+        "Conflict resolved in favor of the Breezify draft. Publish again when ready.",
       )
     } catch (error) {
       setAnnouncement(
         error instanceof Error
           ? error.message
-          : "Could not keep the Bread draft.",
+          : "Could not keep the Breezify draft.",
       )
     } finally {
       setBusy("idle")
@@ -384,12 +384,12 @@ export function GitHubDocumentToolbar({
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3 text-xs font-medium text-muted-foreground">
                   <span>Current GitHub file</span>
-                  <span>Bread draft</span>
+                  <span>Breezify draft</span>
                 </div>
                 <TextDiffViewer
                   previousText={state.repository_content}
                   nextText={session.draft_content}
-                  emptyMessage="The Bread draft already matches GitHub."
+                  emptyMessage="The Breezify draft already matches GitHub."
                   className="max-h-[38vh] overflow-auto shadow-none"
                 />
               </div>
@@ -481,7 +481,7 @@ export function GitHubDocumentToolbar({
           <AlertDialogHeader>
             <AlertDialogTitle>Discard the shared draft?</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the unpublished Bread draft. The deployment branch
+              This removes the unpublished Breezify draft. The deployment branch
               and any commits already saved to GitHub will not change.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -513,7 +513,7 @@ export function GitHubDocumentToolbar({
           <DialogHeader>
             <DialogTitle>Review conflicting changes</DialogTitle>
             <DialogDescription>
-              GitHub and the shared Bread draft changed overlapping lines.
+              GitHub and the shared Breezify draft changed overlapping lines.
               Compare both versions, then choose which complete file should be
               the starting point. This choice does not write to GitHub.
             </DialogDescription>
@@ -522,7 +522,7 @@ export function GitHubDocumentToolbar({
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3 text-xs font-medium text-muted-foreground">
               <span>GitHub deployment version</span>
-              <span>Bread shared draft</span>
+              <span>Breezify shared draft</span>
             </div>
             <TextDiffViewer
               previousText={state.repository_content}
@@ -555,7 +555,7 @@ export function GitHubDocumentToolbar({
                 {busy === "resolving" && (
                   <Loader2 className="size-3.5 animate-spin" />
                 )}
-                Keep Bread draft
+                Keep Breezify draft
               </Button>
             </div>
           </DialogFooter>

@@ -203,7 +203,7 @@ describe('handleRepositoryPush', () => {
     root_folder_id: 'folder-1',
     document_count: 2,
     last_sync_commit_sha: 'previous-sha',
-    pending_sync_mode: 'replace_bread' as const,
+    pending_sync_mode: 'replace_breezify' as const,
   }
 
   function pushAdmin(source: Record<string, unknown> = hostedSource) {
@@ -267,7 +267,7 @@ describe('handleRepositoryPush', () => {
       sourceId: 'source-1',
       ref: 'commit-sha',
       paths: ['docs'],
-      mode: 'replace_bread',
+      mode: 'replace_breezify',
     }))
     expect(syncHostedDocs.mock.invocationCallOrder[0]).toBeLessThan(
       syncRepository.mock.invocationCallOrder[0]!,

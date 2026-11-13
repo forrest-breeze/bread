@@ -13,10 +13,11 @@ import {
   portalThemeCssVars,
   portalThemeDataAttributes,
 } from "@/lib/portal/theme-vars"
-import { isBreadBrandedPortal } from "@/lib/feature-gates"
+import { isBreezifyBrandedPortal } from "@/lib/feature-gates"
 import { cn } from "@/lib/utils"
 import type { PublicWorkspace } from "@/lib/public-kb"
 import {
+  portalHomePosition,
   portalPagePresentation,
   type PortalLayout,
   type PortalPage,
@@ -79,7 +80,7 @@ export function PortalShell({
   base,
   hrefBase,
   askAiEnabled,
-  canRemoveBreadBranding,
+  canRemoveBreezifyBranding,
   translationsEnabled,
   preferredLanguage,
   navigationPages,
@@ -93,7 +94,7 @@ export function PortalShell({
   base: string
   hrefBase: string
   askAiEnabled: boolean
-  canRemoveBreadBranding: boolean
+  canRemoveBreezifyBranding: boolean
   translationsEnabled: boolean
   /** Cookie-backed visitor preference, used to prevent a pre-hydration source-language paint. */
   preferredLanguage?: string | null
@@ -119,11 +120,11 @@ export function PortalShell({
     : null
   const theme = effectivePublished?.theme ?? buildPortalTheme(workspace)
   const header = effectivePublished?.header ?? buildDefaultHeader()
-  // Official Bread docs/help portals are named projects, while personalized
+  // Official Breezify docs/help portals are named projects, while personalized
   // projects in the same workspace use customer brand names. Use the rendered
   // brand—not URL depth—so published chrome matches the preview without leaking
-  // Bread's marketing links into customer-branded portals.
-  const isFirstParty = isBreadBrandedPortal(workspace.id, theme.brandName)
+  // Breezify's marketing links into customer-branded portals.
+  const isFirstParty = isBreezifyBrandedPortal(workspace.id, theme.brandName)
   const localization =
     translationsEnabled && effectivePublished?.localization?.enabledLanguages.length
       ? effectivePublished.localization
@@ -149,7 +150,7 @@ export function PortalShell({
   const themeInitScript =
     preview || theme.appearanceLocked
       ? null
-      : `(function(){try{var r=document.currentScript.parentElement,s=localStorage.getItem("bread-public-portal-theme"),a=${JSON.stringify(theme.appearance)},m=s==="light"||s==="dark"?s:a==="dark"||a==="light"?a:window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";r.classList.toggle("dark",m==="dark");r.classList.toggle("light",m==="light")}catch(e){}})()`
+      : `(function(){try{var r=document.currentScript.parentElement,s=localStorage.getItem("breezify-public-portal-theme"),a=${JSON.stringify(theme.appearance)},m=s==="light"||s==="dark"?s:a==="dark"||a==="light"?a:window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";r.classList.toggle("dark",m==="dark");r.classList.toggle("light",m==="light")}catch(e){}})()`
   const googleFontsHref = portalGoogleFontsHref(theme)
   const fontFaceCss = portalFontFaceCss(theme)
   const pages = navigationPages ?? effectivePublished?.pages ?? []
@@ -202,6 +203,10 @@ export function PortalShell({
         isFirstParty={isFirstParty}
         previewThemeMode={preview?.themeMode}
         pages={pages}
+        homePosition={portalHomePosition({
+          pages,
+          homePosition: effectivePublished?.homePosition,
+        })}
         activePageSlug={preview ? (preview.activePageSlug ?? null) : activePageSlug}
         previewProjectSlug={preview ? preview.projectSlug : undefined}
         askAiEnabled={askAiEnabled && theme.assistant?.enabled === true}

@@ -31,7 +31,7 @@ export async function GET(
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] GET /api/import/jobs/[id]:", error.message);
+    console.error("[Breezify] GET /api/import/jobs/[id]:", error.message);
     return NextResponse.json({ error: "Service unavailable" }, { status: 500 });
   }
   if (!job) {

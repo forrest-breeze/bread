@@ -74,7 +74,7 @@ async function runExclusive<R>(key: string, fn: () => Promise<R>): Promise<R> {
 
   const capTimer = setTimeout(() => {
     console.warn(
-      "[Bread] process-lock: holder exceeded HOLD_CAP_MS, releasing queue for session lock"
+      "[Breezify] process-lock: holder exceeded HOLD_CAP_MS, releasing queue for session lock"
     )
     release()
   }, HOLD_CAP_MS)

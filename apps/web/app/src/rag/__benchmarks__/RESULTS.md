@@ -37,10 +37,10 @@ Three honest reasons:
    paper's own results, both BM25 and dense embedders cluster around 0.32
    NDCG@10 here — the lex/dense gap is unusually small on medical abstracts.
    The +22 pp Supabase figure aggregates across more lex-friendly datasets.
-2. **Bread's production corpus shape is more lex-friendly than medical
+2. **Breezify's production corpus shape is more lex-friendly than medical
    abstracts.** Runbooks, decisions, and postmortems carry heavy lexical
    signal (service names, owner handles, error codes, CLI flags) that BM25
-   excels on and dense embedders blur. Expect Bread-side lift > NFCorpus lift.
+   excels on and dense embedders blur. Expect Breezify-side lift > NFCorpus lift.
 3. **We used nomic-embed-text locally, not Gemini.** Different embedding
    model shifts absolute numbers; the lift delta typically holds to within
    ~30 % across embedding models.
@@ -57,7 +57,7 @@ Three honest reasons:
 
 ## What it does NOT prove
 
-- The exact +N pp lift Bread will see in production with Gemini embeddings on
+- The exact +N pp lift Breezify will see in production with Gemini embeddings on
   the workspace corpus. That requires shadow-running both modes against
   prod traffic with judged answers — out of scope for this PR.
 

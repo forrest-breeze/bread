@@ -93,7 +93,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
     return NextResponse.json(body)
   } catch (err) {
-    console.error('[Bread] GET /api/github/hosted-docs/tree failed:', err)
+    console.error('[Breezify] GET /api/github/hosted-docs/tree failed:', err)
     return NextResponse.json({ error: 'Could not load the repository folders.' }, { status: 502 })
   }
 }

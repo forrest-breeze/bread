@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import type { CredentialRole, PatScope, WorkspaceRole } from "@bread/core";
+import type { CredentialRole, PatScope, WorkspaceRole } from "@breezify/core";
 import { authenticatePAT } from "@/lib/api/authenticate-pat";
 import { authenticateApiKey } from "@/lib/api/authenticate-api-key";
 import { authenticateSupabaseSession } from "@/lib/api/authenticate-supabase";
@@ -46,7 +46,7 @@ export function callerRoleFromAuth(auth: BearerAuth): string | null {
 
 /**
  * Supabase access tokens are JWTs — three base64url segments joined by `.`.
- * PATs and workspace API keys use the `bread_sk_` / `bread_pk_` schemes and
+ * PATs and workspace API keys use the `breezify_sk_` / `breezify_pk_` schemes and
  * never contain `.` characters, so this check is a safe discriminator.
  */
 function looksLikeJwt(token: string): boolean {
@@ -57,7 +57,7 @@ function looksLikeJwt(token: string): boolean {
 /**
  * Try each accepted credential type in priority order:
  *   1. Supabase session JWT — only when
- *      `x-bread-workspace` is present AND the token looks like a JWT.
+ *      `x-breezify-workspace` is present AND the token looks like a JWT.
  *   2. Personal Access Token.
  *   3. Workspace API key (integrations / MCP / API clients).
  *
@@ -70,7 +70,7 @@ export async function authenticateBearer(request: NextRequest): Promise<{
 }> {
   const authHeader = request.headers.get("authorization") ?? "";
   const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-  const workspaceSlug = request.headers.get("x-bread-workspace")?.trim() ?? "";
+  const workspaceSlug = request.headers.get("x-breezify-workspace")?.trim() ?? "";
 
   // 1. Supabase session path — only attempt when the shape matches a JWT and
   //    the workspace header is present (required for the membership lookup).

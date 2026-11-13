@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { portalDocumentToMarkdown } from '@/lib/portal/portal-doc-markdown'
 import { getInstallationToken, getPullRequest } from '../github'
@@ -141,7 +141,7 @@ export async function syncReadmeSource(
         last_sync_error: safeSyncError(error),
       })
       .catch((statusError: unknown) => {
-        console.error('[Bread] readme sync status update failed:', statusError)
+        console.error('[Breezify] readme sync status update failed:', statusError)
       })
     throw error
   }
@@ -182,7 +182,7 @@ export async function reconcileReadmePublishPullRequest(
   } catch (error) {
     // Keep the pointer through a transient GitHub failure; the next poll or
     // sync reconciles it again.
-    console.error('[Bread] readme publish PR reconciliation failed:', error)
+    console.error('[Breezify] readme publish PR reconciliation failed:', error)
     return source
   }
 }
@@ -274,7 +274,7 @@ export async function writeOpenApiSourceToLinkedRepository(
       ...(outcome.committed ? {} : { reason: 'unchanged' as const }),
     }
   } catch (error) {
-    console.error('[Bread] OpenAPI definition push to GitHub failed:', error)
+    console.error('[Breezify] OpenAPI definition push to GitHub failed:', error)
     return {
       committed: false,
       path: null,
@@ -334,7 +334,7 @@ export async function removeOpenApiSourceFromLinkedRepository(
       ...(outcome.committed ? {} : { reason: 'unchanged' as const }),
     }
   } catch (error) {
-    console.error('[Bread] OpenAPI definition removal from GitHub failed:', error)
+    console.error('[Breezify] OpenAPI definition removal from GitHub failed:', error)
     return {
       committed: false,
       path: input.repoPath,

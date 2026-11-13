@@ -137,7 +137,7 @@ export async function POST(
       .single();
 
     if (error) {
-      console.error("[Bread] message feedback upsert:", error.message);
+      console.error("[Breezify] message feedback upsert:", error.message);
       return NextResponse.json(
         { error: "Failed to save feedback" },
         { status: 500 },
@@ -146,7 +146,7 @@ export async function POST(
 
     return NextResponse.json({ feedback: data }, { status: 200 });
   } catch (err) {
-    console.error("[Bread] message feedback POST:", err);
+    console.error("[Breezify] message feedback POST:", err);
     return NextResponse.json(
       { error: "Failed to save feedback" },
       { status: 500 },
@@ -184,7 +184,7 @@ export async function DELETE(
       .eq("user_id", user.id);
 
     if (error) {
-      console.error("[Bread] message feedback delete:", error.message);
+      console.error("[Breezify] message feedback delete:", error.message);
       return NextResponse.json(
         { error: "Failed to clear feedback" },
         { status: 500 },
@@ -193,7 +193,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err) {
-    console.error("[Bread] message feedback DELETE:", err);
+    console.error("[Breezify] message feedback DELETE:", err);
     return NextResponse.json(
       { error: "Failed to clear feedback" },
       { status: 500 },

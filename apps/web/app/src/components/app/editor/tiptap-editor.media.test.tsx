@@ -25,7 +25,7 @@ describe("TiptapEditor document media drag and drop", () => {
       />,
     )
     await waitFor(() => {
-      expect(document.querySelector(".bread-editor")).not.toBeNull()
+      expect(document.querySelector(".breezify-editor")).not.toBeNull()
     })
     expect(screen.queryByRole("button", { name: "Image" })).toBeNull()
     expect(screen.queryByRole("button", { name: "Video" })).toBeNull()
@@ -51,9 +51,9 @@ describe("TiptapEditor document media drag and drop", () => {
     )
 
     await waitFor(() => {
-      expect(document.querySelector(".bread-editor")).not.toBeNull()
+      expect(document.querySelector(".breezify-editor")).not.toBeNull()
     })
-    const editor = document.querySelector<HTMLElement>(".bread-editor")
+    const editor = document.querySelector<HTMLElement>(".breezify-editor")
     expect(editor).not.toBeNull()
     if (!editor) return
     const file = new File(["image"], "architecture.png", {
@@ -97,9 +97,9 @@ describe("TiptapEditor document media drag and drop", () => {
     )
 
     await waitFor(() => {
-      expect(document.querySelector(".bread-editor")).not.toBeNull()
+      expect(document.querySelector(".breezify-editor")).not.toBeNull()
     })
-    const editor = document.querySelector<HTMLElement>(".bread-editor")
+    const editor = document.querySelector<HTMLElement>(".breezify-editor")
     expect(editor).not.toBeNull()
     if (!editor) return
     fireEvent.drop(editor, {

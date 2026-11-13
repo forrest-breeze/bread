@@ -17,7 +17,7 @@ const TONE_CLASSES: Record<NonNullable<PortalBannerConfig["tone"]>, string> = {
 function storageKey(scope: string, text: string): string {
   let hash = 0
   for (const char of text) hash = (hash * 31 + char.charCodeAt(0)) | 0
-  return `bread:portal-banner:${scope}:${hash}`
+  return `breezify:portal-banner:${scope}:${hash}`
 }
 
 /** Announcement bar shown above the portal header. */

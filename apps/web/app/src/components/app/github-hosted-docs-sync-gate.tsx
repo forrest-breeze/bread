@@ -50,7 +50,7 @@ export function GithubHostedDocsSyncGate({
             <GitMerge className="size-5 text-muted-foreground" />
           </div>
           <h1 className="mt-4 text-lg font-semibold">
-            Syncing Bread docs from GitHub
+            Syncing Breezify docs from GitHub
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Knowledge and portal editing are temporarily locked so local edits

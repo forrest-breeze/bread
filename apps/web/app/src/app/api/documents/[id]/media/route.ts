@@ -100,7 +100,7 @@ async function discardRejectedUpload(
     // GC still knows which paid object must be retried later.
     await deleteObject(storageKey)
   } catch (error) {
-    console.error("[Bread] Failed to delete rejected media object:", error)
+    console.error("[Breezify] Failed to delete rejected media object:", error)
     return
   }
   const { error } = await admin
@@ -110,7 +110,7 @@ async function discardRejectedUpload(
     .eq("content_hash", contentHash)
   if (error) {
     console.error(
-      "[Bread] Failed to release rejected media reservation:",
+      "[Breezify] Failed to release rejected media reservation:",
       error.message,
     )
   }
@@ -196,7 +196,7 @@ export async function POST(
     .maybeSingle()
   if (existingError) {
     console.error(
-      "[Bread] Failed to check existing media object:",
+      "[Breezify] Failed to check existing media object:",
       existingError.message,
     )
     return NextResponse.json(
@@ -225,7 +225,7 @@ export async function POST(
           { status: 409 },
         )
       } catch (error) {
-        console.error("[Bread] Failed to verify existing media:", error)
+        console.error("[Breezify] Failed to verify existing media:", error)
         return NextResponse.json(
           { error: "Could not verify existing media" },
           { status: 503 },
@@ -253,7 +253,7 @@ export async function POST(
       )
       if (rateLimitError) {
         console.error(
-          "[Bread] Failed to enforce media upload rate limit:",
+          "[Breezify] Failed to enforce media upload rate limit:",
           rateLimitError.message,
         )
         return NextResponse.json(
@@ -301,7 +301,7 @@ export async function POST(
           )
         }
         console.error(
-          "[Bread] Failed to register pending media upload:",
+          "[Breezify] Failed to register pending media upload:",
           pendingError.message,
         )
         return NextResponse.json(
@@ -328,7 +328,7 @@ export async function POST(
         },
       })
     } catch (error) {
-      console.error("[Bread] Failed to sign media upload:", error)
+      console.error("[Breezify] Failed to sign media upload:", error)
       return NextResponse.json(
         { error: "Could not prepare media upload" },
         { status: 503 },
@@ -377,7 +377,7 @@ export async function POST(
       )
     }
   } catch (error) {
-    console.error("[Bread] Failed to verify media upload:", error)
+    console.error("[Breezify] Failed to verify media upload:", error)
     return NextResponse.json(
       { error: "The media upload was not found in S3" },
       { status: 409 },
@@ -416,7 +416,7 @@ export async function POST(
       )
     }
     console.error(
-      "[Bread] Failed to register document media:",
+      "[Breezify] Failed to register document media:",
       registerError?.message,
     )
     return NextResponse.json(

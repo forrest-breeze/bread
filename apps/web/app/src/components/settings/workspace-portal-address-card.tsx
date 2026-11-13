@@ -50,7 +50,7 @@ import {
   type PortalAddressScope,
   type CustomDomainDnsRecord,
 } from "@/lib/workspace-settings"
-import type { WorkspaceRole } from "@bread/core"
+import type { WorkspaceRole } from "@breezify/core"
 import { PortalDnsInstructions } from "@/components/portal-dns-instructions"
 import { PortalReverseProxyInstructions } from "@/components/portal-reverse-proxy-instructions"
 import type { CloudflareConnectorStatusResult } from "@/lib/api/cloudflare"
@@ -157,7 +157,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
       cloudflareStatus.deployment.needsDeploy,
   )
   const connStatus: PortalConnectionStatus =
-    mode === "bread"
+    mode === "breezify"
       ? isPublic
         ? "connected"
         : "pending"
@@ -232,9 +232,9 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
     rawDomain: string,
   ): Promise<void> {
     const validation = validateCustomDomain(rawDomain, savedDomain)
-    if (nextMode !== "bread" && (!validation.domain || validation.error)) return
+    if (nextMode !== "breezify" && (!validation.domain || validation.error)) return
     const nextDomain = validation.domain
-    const nextDomainDirty = nextMode !== "bread" && nextDomain !== savedDomain
+    const nextDomainDirty = nextMode !== "breezify" && nextDomain !== savedDomain
     const configDirty = nextMode !== savedMode || scope !== savedScope
     if (!nextDomainDirty && !configDirty) {
       setDomainStatus("Saved automatically.")
@@ -284,7 +284,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
     setDomainError(null)
     setDomainStatus(null)
     const validation = validateCustomDomain(rawDomain, savedDomain)
-    if (nextMode !== "bread" && (!validation.domain || validation.error)) return
+    if (nextMode !== "breezify" && (!validation.domain || validation.error)) return
     setDomainStatus("Saving automatically…")
     addressSaveTimerRef.current = setTimeout(() => {
       addressSaveTimerRef.current = null
@@ -308,7 +308,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
     }
     const configResult = await updateWorkspacePortalAddressConfig({
       scope,
-      mode: "bread",
+      mode: "breezify",
     })
     if (!configResult.ok || !configResult.workspace) {
       setSavingDomain(false)
@@ -322,7 +322,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
     void mutate(configResult.workspace, false)
     window.dispatchEvent(new Event("workspace-updated"))
     setDomainInput("")
-    setMode("bread")
+    setMode("breezify")
     setDomainStatus("Custom domain removed.")
   }
 
@@ -388,7 +388,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
               render={<Link href="/knowledge" />}
               onClick={() => {
                 window.sessionStorage.setItem(
-                  "bread-kb-builder-sidebar-view",
+                  "breezify-kb-builder-sidebar-view",
                   "customize",
                 )
               }}
@@ -400,10 +400,10 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
           <div className="space-y-3">
             <div role="radiogroup" aria-label="Workspace hosting method" className="space-y-2">
               <PortalOption
-                selected={mode === "bread"}
+                selected={mode === "breezify"}
                 onSelect={() => {
-                  setMode("bread")
-                  scheduleAddressSave("bread", domainInput, 0)
+                  setMode("breezify")
+                  scheduleAddressSave("breezify", domainInput, 0)
                 }}
                 disabled={!isAdmin || scopeSaving}
                 title="Breeze URL"
@@ -445,7 +445,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
               />
             </div>
 
-            {mode === "bread" ? (
+            {mode === "breezify" ? (
               directUrl ? (
                 <UrlRow
                   url={directUrl}
@@ -493,7 +493,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
                               ? `/p/${workspace.slug}`
                               : `/p/${workspace.slug}/${project.slug}`,
                         }))}
-                      breadOrigin={
+                      breezifyOrigin={
                         process.env.NEXT_PUBLIC_APP_URL ?? ""
                       }
                       connectorReady={
@@ -562,7 +562,7 @@ export function WorkspacePortalAddressCard(): React.ReactElement | null {
             )}
 
             <div className="flex flex-wrap items-center gap-2">
-              {savedDomain && mode !== "bread" && isAdmin ? (
+              {savedDomain && mode !== "breezify" && isAdmin ? (
                 <Button
                   type="button"
                   variant="ghost"

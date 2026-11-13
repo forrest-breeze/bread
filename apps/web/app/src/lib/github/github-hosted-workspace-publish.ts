@@ -1,5 +1,5 @@
 import { createHash } from 'crypto'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import {
   createRepositoryBranch,
   createRepositoryFilesCommit,
@@ -187,7 +187,7 @@ function isManagedWorkspacePath(path: string, targetPath: string): boolean {
 }
 
 /**
- * Compare the deterministic Bread export to a repository tree without
+ * Compare the deterministic Breezify export to a repository tree without
  * downloading file bodies. Git tree blob SHAs use the same object hash as
  * gitBlobSha, so identical files never produce a no-op commit.
  */
@@ -412,7 +412,7 @@ async function resolveHostedWorkspacePublishComparison(
     input.source.last_sync_commit_sha !== defaultCommit.sha
   ) {
     throw new HostedWorkspacePublishError(
-      'GitHub has changes that Bread has not synchronized yet. Sync the docs root before publishing.',
+      'GitHub has changes that Breezify has not synchronized yet. Sync the docs root before publishing.',
       409,
       'github_sync_required',
       {
@@ -507,7 +507,7 @@ async function resolveHostedWorkspacePublishComparison(
       .filter((entry) => entry.type === 'blob')
       .map((entry) => entry.path),
   )
-  // New files created by an earlier commit on this dedicated Bread branch do
+  // New files created by an earlier commit on this dedicated Breezify branch do
   // not have default-branch repository companions yet. They are nevertheless
   // safe to delete on an update, provided the reviewer-SHA guard passes.
   const branchOnlyPaths = usesReservedBranch
@@ -554,7 +554,7 @@ function assertHostedWorkspacePublishBranchIsSafe(
     reserved.branchReference.object.sha !== source.publish_last_commit_sha
   ) {
     throw new HostedWorkspacePublishError(
-      'The open workspace pull request branch has commits that Bread did not create. Review those commits before publishing again.',
+      'The open workspace pull request branch has commits that Breezify did not create. Review those commits before publishing again.',
       409,
       'publish_branch_changed',
       {
@@ -566,7 +566,7 @@ function assertHostedWorkspacePublishBranchIsSafe(
   }
   if (reserved?.pullRequest && !source.publish_last_commit_sha && hasChanges) {
     throw new HostedWorkspacePublishError(
-      'The recovered workspace pull request branch changed before Bread could record its commit. Review it before publishing again.',
+      'The recovered workspace pull request branch changed before Breezify could record its commit. Review it before publishing again.',
       409,
       'publish_branch_changed',
       {
@@ -585,7 +585,7 @@ function assertHostedWorkspacePublishBranchIsSafe(
     reserved.branchReference.object.sha !== comparison.defaultCommit.sha
   ) {
     throw new HostedWorkspacePublishError(
-      'The reserved workspace publish branch changed before Bread could finish publishing.',
+      'The reserved workspace publish branch changed before Breezify could finish publishing.',
       409,
       'publish_branch_changed',
       { branch: reserved.branch, target_path: targetPath },
@@ -672,7 +672,7 @@ function workspacePullRequestBody(
   deletedFileCount: number,
 ): string {
   return [
-    `Makes the Markdown and MDX tree under \`${targetPath}\` match the current Bread workspace.`,
+    `Makes the Markdown and MDX tree under \`${targetPath}\` match the current Breezify workspace.`,
     '',
     `${writtenFileCount} file${writtenFileCount === 1 ? '' : 's'} written; ` +
       `${deletedFileCount} deleted.`,
@@ -736,7 +736,7 @@ export async function publishHostedWorkspaceToGitHub(
         deps.createPullRequest(token, input.source.repo_full_name, {
           head: branch,
           base: repository.default_branch,
-          title: `docs: Publish Bread workspace to ${targetPath}`,
+          title: `docs: Publish Breezify workspace to ${targetPath}`,
           body: workspacePullRequestBody(targetPath, 0, 0),
         }),
       )
@@ -753,7 +753,7 @@ export async function publishHostedWorkspaceToGitHub(
       }
     }
     throw new HostedWorkspacePublishError(
-      'The GitHub docs root already matches the Bread workspace.',
+      'The GitHub docs root already matches the Breezify workspace.',
       409,
       'no_changes',
     )
@@ -774,7 +774,7 @@ export async function publishHostedWorkspaceToGitHub(
       branch,
       baseCommitSha: commitBeforePublish.sha,
       baseTreeSha: commitBeforePublish.commit.tree.sha,
-      message: `docs: publish Bread workspace to ${targetPath}`,
+      message: `docs: publish Breezify workspace to ${targetPath}`,
       files: plan.files,
       deletePaths: plan.deletePaths,
     }),
@@ -785,7 +785,7 @@ export async function publishHostedWorkspaceToGitHub(
       deps.createPullRequest(token, input.source.repo_full_name, {
         head: branch,
         base: repository.default_branch,
-        title: `docs: Publish Bread workspace to ${targetPath}`,
+        title: `docs: Publish Breezify workspace to ${targetPath}`,
         body: workspacePullRequestBody(
           targetPath,
           plan.files.length,

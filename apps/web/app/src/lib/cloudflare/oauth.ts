@@ -6,7 +6,7 @@ import {
   decryptCloudflareToken,
   encryptCloudflareToken,
 } from "@/lib/cloudflare/token-crypto";
-import type { CloudflareConnectionRow } from "@bread/core";
+import type { CloudflareConnectionRow } from "@breezify/core";
 
 const AUTHORIZE_ENDPOINT = "https://dash.cloudflare.com/oauth2/auth";
 const TOKEN_ENDPOINT = "https://dash.cloudflare.com/oauth2/token";
@@ -128,7 +128,7 @@ export async function consumeCloudflareOAuthState(
     .select("workspace_id, user_id, target_domain, return_path")
     .maybeSingle();
   if (error) {
-    console.error("[Bread] Cloudflare OAuth state consume:", error.message);
+    console.error("[Breezify] Cloudflare OAuth state consume:", error.message);
     return null;
   }
   if (!data) return null;
@@ -283,7 +283,7 @@ export async function getCloudflareAccessToken(
     if (updateError) return null;
     return tokens.access_token;
   } catch (error) {
-    console.error("[Bread] Cloudflare token refresh:", error);
+    console.error("[Breezify] Cloudflare token refresh:", error);
     return null;
   }
 }

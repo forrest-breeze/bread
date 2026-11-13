@@ -1,14 +1,14 @@
-const BREAD_DOCUMENT_ID_PATTERN =
+const BREEZIFY_DOCUMENT_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-export const BREAD_HOSTED_DOC_MAX_BYTES = 256 * 1024
+export const BREEZIFY_HOSTED_DOC_MAX_BYTES = 256 * 1024
 
-export interface BreadDocsFormatIssue {
+export interface BreezifyDocsFormatIssue {
   path: string
   message: string
 }
 
-export interface BreadDocsFormatFile {
+export interface BreezifyDocsFormatFile {
   path: string
   content: string
 }
@@ -26,15 +26,15 @@ function parseJsonString(value: string): string | null {
   }
 }
 
-export function validateBreadHostedDocument(
-  file: BreadDocsFormatFile,
-): BreadDocsFormatIssue[] {
-  const issues: BreadDocsFormatIssue[] = []
+export function validateBreezifyHostedDocument(
+  file: BreezifyDocsFormatFile,
+): BreezifyDocsFormatIssue[] {
+  const issues: BreezifyDocsFormatIssue[] = []
   const normalized = file.content.replace(/\r\n?/g, '\n')
-  if (Buffer.byteLength(file.content, 'utf8') > BREAD_HOSTED_DOC_MAX_BYTES) {
+  if (Buffer.byteLength(file.content, 'utf8') > BREEZIFY_HOSTED_DOC_MAX_BYTES) {
     issues.push({
       path: file.path,
-      message: `exceeds the ${BREAD_HOSTED_DOC_MAX_BYTES}-byte Bread sync limit`,
+      message: `exceeds the ${BREEZIFY_HOSTED_DOC_MAX_BYTES}-byte Breezify sync limit`,
     })
   }
   if (normalized.includes('\u0000') || normalized.includes('\uFFFD')) {
@@ -48,7 +48,7 @@ export function validateBreadHostedDocument(
   if (!normalized.startsWith('---\n') || boundary === -1) {
     issues.push({
       path: file.path,
-      message: 'must start with Bread frontmatter',
+      message: 'must start with Breezify frontmatter',
     })
     return issues
   }
@@ -59,13 +59,13 @@ export function validateBreadHostedDocument(
     issues.push({
       path: file.path,
       message:
-        'frontmatter must contain title, bread_document_id, and an optional date',
+        'frontmatter must contain title, breezify_document_id, and an optional date',
     })
     return issues
   }
 
   const titleMatch = /^title: (.+)$/.exec(lines[0]!)
-  const idMatch = /^bread_document_id: (.+)$/.exec(lines[1]!)
+  const idMatch = /^breezify_document_id: (.+)$/.exec(lines[1]!)
   const title = titleMatch ? parseJsonString(titleMatch[1]!) : null
   const documentId = idMatch ? parseJsonString(idMatch[1]!) : null
   if (!title?.trim() || lines[0] !== `title: ${JSON.stringify(title)}`) {
@@ -76,12 +76,12 @@ export function validateBreadHostedDocument(
   }
   if (
     !documentId ||
-    !BREAD_DOCUMENT_ID_PATTERN.test(documentId) ||
-    lines[1] !== `bread_document_id: ${JSON.stringify(documentId)}`
+    !BREEZIFY_DOCUMENT_ID_PATTERN.test(documentId) ||
+    lines[1] !== `breezify_document_id: ${JSON.stringify(documentId)}`
   ) {
     issues.push({
       path: file.path,
-      message: 'bread_document_id must be a valid quoted UUID',
+      message: 'breezify_document_id must be a valid quoted UUID',
     })
   }
   // Optional third line. Dated entries (changelog releases) carry their own
@@ -119,25 +119,25 @@ export function validateBreadHostedDocument(
   return issues
 }
 
-export function validateBreadHostedDocsFiles(
-  files: BreadDocsFormatFile[],
-): BreadDocsFormatIssue[] {
+export function validateBreezifyHostedDocsFiles(
+  files: BreezifyDocsFormatFile[],
+): BreezifyDocsFormatIssue[] {
   const docs = files.filter((file) => /\.(?:md|mdx)$/i.test(file.path))
-  const issues = docs.flatMap((file) => validateBreadHostedDocument(file))
+  const issues = docs.flatMap((file) => validateBreezifyHostedDocument(file))
 
   const ids = new Map<string, string>()
   for (const file of docs) {
     const match =
-      /^---\r?\ntitle: .+\r?\nbread_document_id: (.+)(?:\r?\ndate: .+)?\r?\n---(?:\r?\n|$)/.exec(
+      /^---\r?\ntitle: .+\r?\nbreezify_document_id: (.+)(?:\r?\ndate: .+)?\r?\n---(?:\r?\n|$)/.exec(
         file.content,
       )
     const documentId = match ? parseJsonString(match[1]!) : null
-    if (!documentId || !BREAD_DOCUMENT_ID_PATTERN.test(documentId)) continue
+    if (!documentId || !BREEZIFY_DOCUMENT_ID_PATTERN.test(documentId)) continue
     const previous = ids.get(documentId)
     if (previous) {
       issues.push({
         path: file.path,
-        message: `reuses bread_document_id from ${previous}`,
+        message: `reuses breezify_document_id from ${previous}`,
       })
     } else {
       ids.set(documentId, file.path)
@@ -146,20 +146,20 @@ export function validateBreadHostedDocsFiles(
   return issues
 }
 
-export class BreadDocsFormatError extends Error {
-  constructor(readonly issues: BreadDocsFormatIssue[]) {
+export class BreezifyDocsFormatError extends Error {
+  constructor(readonly issues: BreezifyDocsFormatIssue[]) {
     super(
       issues.length === 1
         ? `${issues[0]!.path}: ${issues[0]!.message}`
-        : `${issues.length} files do not follow the Bread document format`,
+        : `${issues.length} files do not follow the Breezify document format`,
     )
-    this.name = 'BreadDocsFormatError'
+    this.name = 'BreezifyDocsFormatError'
   }
 }
 
-export function assertBreadHostedDocsFiles(
-  files: BreadDocsFormatFile[],
+export function assertBreezifyHostedDocsFiles(
+  files: BreezifyDocsFormatFile[],
 ): void {
-  const issues = validateBreadHostedDocsFiles(files)
-  if (issues.length > 0) throw new BreadDocsFormatError(issues)
+  const issues = validateBreezifyHostedDocsFiles(files)
+  if (issues.length > 0) throw new BreezifyDocsFormatError(issues)
 }

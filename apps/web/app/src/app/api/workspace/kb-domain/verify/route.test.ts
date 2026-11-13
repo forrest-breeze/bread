@@ -6,7 +6,7 @@ afterEach(() => {
 });
 
 describe("probePortalUrl", () => {
-  it("does not treat a redirect to the Bread URL as connected", async () => {
+  it("does not treat a redirect to the Breezify URL as connected", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () =>
@@ -33,8 +33,8 @@ describe("probePortalUrl", () => {
       vi.fn(async () =>
         new Response("ok", {
           headers: {
-            "x-bread-portal": "acme",
-            "x-bread-proxy": "cloudflare-worker-v1",
+            "x-breezify-portal": "acme",
+            "x-breezify-proxy": "cloudflare-worker-v1",
           },
         })),
     );
@@ -54,7 +54,7 @@ describe("probePortalUrl", () => {
       "fetch",
       vi.fn(async () =>
         new Response("ok", {
-          headers: { "x-bread-proxy": "cloudflare-worker-v1" },
+          headers: { "x-breezify-proxy": "cloudflare-worker-v1" },
         })),
     );
 
@@ -74,7 +74,7 @@ describe("probePortalUrl", () => {
       "fetch",
       vi.fn(async () =>
         new Response("ok", {
-          headers: { "x-bread-proxy": "cloudflare-worker-v1" },
+          headers: { "x-breezify-proxy": "cloudflare-worker-v1" },
         })),
     );
 
@@ -95,8 +95,8 @@ describe("probePortalUrl", () => {
       vi.fn(async () =>
         new Response("ok", {
           headers: {
-            "x-bread-portal": "other-workspace",
-            "x-bread-proxy": "cloudflare-worker-v1",
+            "x-breezify-portal": "other-workspace",
+            "x-breezify-proxy": "cloudflare-worker-v1",
           },
         })),
     );

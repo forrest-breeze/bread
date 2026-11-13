@@ -9,7 +9,7 @@ import { countActiveMembers } from "@/lib/db/workspace";
 import { getPostHogClient } from "@/lib/posthog-server";
 import { getAllowedDomains } from "@/lib/workspace-settings";
 import { safeJsonBody, safeSearchParams } from "@/lib/validation";
-import type { WorkspaceRole } from "@bread/core";
+import type { WorkspaceRole } from "@breezify/core";
 import { requireRouteUser } from "@/lib/auth/route-auth";
 
 const postBodySchema = z
@@ -231,7 +231,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (memberLimit !== null && currentMembers >= memberLimit) {
     return NextResponse.json(
       {
-        error: `This workspace is at its plan member limit (${memberLimit}).`,
+        error: `This workspace has reached its member limit (${memberLimit}).`,
         code: "member_limit_reached",
         memberLimit,
       },
@@ -247,7 +247,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .eq("id", existing.id);
 
     if (activateError) {
-      console.error("[Bread] Failed to activate workspace membership:", activateError.message);
+      console.error("[Breezify] Failed to activate workspace membership:", activateError.message);
       return NextResponse.json(
         { error: "Failed to join workspace" },
         { status: 500 }
@@ -268,7 +268,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
   if (joinError) {
-    console.error("[Bread] Failed to join workspace:", joinError.message);
+    console.error("[Breezify] Failed to join workspace:", joinError.message);
     return NextResponse.json(
       { error: "Failed to join workspace" },
       { status: 500 }
@@ -296,7 +296,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             .eq("id", usedLink.id);
         }
       } catch (err) {
-        console.error("[Bread] Failed to increment invite link use count:", err);
+        console.error("[Breezify] Failed to increment invite link use count:", err);
       }
     });
   }
@@ -315,7 +315,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
       await posthog.shutdown();
     } catch (err) {
-      console.error("[Bread] workspace_joined posthog flush failed:", err);
+      console.error("[Breezify] workspace_joined posthog flush failed:", err);
     }
   });
 
@@ -370,7 +370,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     if (currentMembers >= memberLimit) {
       return NextResponse.json(
         {
-          error: `This workspace is at its plan member limit (${memberLimit}).`,
+          error: `This workspace has reached its member limit (${memberLimit}).`,
           code: "member_limit_reached",
           memberLimit,
         },
@@ -385,7 +385,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     .eq("id", invite.id);
 
   if (error) {
-    console.error("[Bread] Failed to accept invite:", error.message);
+    console.error("[Breezify] Failed to accept invite:", error.message);
     return NextResponse.json({ error: "Failed to accept invite" }, { status: 500 });
   }
 
@@ -403,7 +403,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       });
       await posthogInvite.shutdown();
     } catch (err) {
-      console.error("[Bread] invite_accepted posthog flush failed:", err);
+      console.error("[Breezify] invite_accepted posthog flush failed:", err);
     }
   });
 
@@ -445,7 +445,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     .eq("id", invite.id);
 
   if (error) {
-    console.error("[Bread] Failed to decline invite:", error.message);
+    console.error("[Breezify] Failed to decline invite:", error.message);
     return NextResponse.json({ error: "Failed to decline invite" }, { status: 500 });
   }
 

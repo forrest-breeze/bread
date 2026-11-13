@@ -49,7 +49,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!(await isPortalEditorEnabledForWorkspace(membership.workspace_id))) {
     return NextResponse.json(
       {
-        error: "Portal editor requires a paid plan",
+        error: "The portal editor is not enabled for this workspace",
         message: "This workspace cannot upload portal logos.",
         code: "payment_required",
       },
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .upload(path, file, { upsert: true, contentType: file.type })
 
   if (uploadError) {
-    console.error("[Bread] portal logo upload:", uploadError.message)
+    console.error("[Breezify] portal logo upload:", uploadError.message)
     return NextResponse.json({ error: "Failed to upload logo" }, { status: 500 })
   }
 

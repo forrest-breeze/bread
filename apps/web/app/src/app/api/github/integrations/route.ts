@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getActiveWorkspace } from '@/lib/db/workspace'
-import type { GitHubIntegrationRow } from '@bread/core'
+import type { GitHubIntegrationRow } from '@breezify/core'
 
 // ---------------------------------------------------------------------------
 // Auth helpers — mirror the Slack integrations route.
@@ -68,7 +68,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ integration: data as GitHubIntegrationRow })
   } catch (err) {
-    console.error('[Bread] GET /api/github/integrations failed:', err)
+    console.error('[Breezify] GET /api/github/integrations failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 500 },
@@ -105,7 +105,7 @@ export async function DELETE(_request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('[Bread] DELETE /api/github/integrations failed:', err)
+    console.error('[Breezify] DELETE /api/github/integrations failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 500 },

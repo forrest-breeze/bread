@@ -7,7 +7,7 @@ import { storageToMarkdown } from "@/lib/import/confluence-converter";
 // Confluence Cloud bulk importer.
 //
 // Auth: HTTP Basic with email + API token (Cloud convention).
-// One-time migration. Bread becomes canonical post-import.
+// One-time migration. Breezify becomes canonical post-import.
 //
 // Strategy:
 //   1. If space_keys[] is provided, iterate each space; else search the

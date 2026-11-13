@@ -52,7 +52,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   if (visibleFolders.error) {
     console.error(
-      "[Bread] API v1 fetch visible folders failed:",
+      "[Breezify] API v1 fetch visible folders failed:",
       visibleFolders.error.message,
     );
     return withCors(
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .range(offset, offset + limit - 1);
 
   if (primary.error) {
-    console.error("[Bread] API v1 fetch documents failed:", primary.error.message);
+    console.error("[Breezify] API v1 fetch documents failed:", primary.error.message);
     return withCors(
       request,
       NextResponse.json({ error: "Failed to fetch documents" }, { status: 500 }),

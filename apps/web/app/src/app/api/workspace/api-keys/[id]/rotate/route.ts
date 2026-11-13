@@ -62,7 +62,7 @@ export async function POST(
     .maybeSingle();
 
   if (error) {
-    console.error("[Bread] Failed to rotate API key:", error.message);
+    console.error("[Breezify] Failed to rotate API key:", error.message);
     return NextResponse.json({ error: "Failed to rotate API key" }, { status: 500 });
   }
   // No row matched: either the id doesn't exist or it belongs to another

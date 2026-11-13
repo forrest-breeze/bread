@@ -76,8 +76,8 @@ describe("getPortalChromeScope", () => {
     expect(getPortalChromeScope({})).toBe("workspace")
   })
 
-  it("returns project only when explicitly configured", () => {
-    expect(getPortalChromeScope({ portal_chrome_scope: "project" })).toBe("project")
+  it("always shares the header/footer, even when project was stored", () => {
+    expect(getPortalChromeScope({ portal_chrome_scope: "project" })).toBe("workspace")
     expect(getPortalChromeScope({ portal_chrome_scope: "workspace" })).toBe("workspace")
   })
 
@@ -95,7 +95,7 @@ describe("portal address ownership", () => {
       "domain",
     )
     expect(getPortalAddressScope({})).toBe("workspace")
-    expect(getPortalAddressMode({})).toBe("bread")
+    expect(getPortalAddressMode({})).toBe("breezify")
   })
 
   it("returns explicit scope and hosting mode values", () => {
@@ -106,8 +106,8 @@ describe("portal address ownership", () => {
       "project",
     )
     expect(getPortalAddressMode({ portal_address_mode: "path" })).toBe("path")
-    expect(getPortalAddressMode({ portal_address_mode: "bread" })).toBe(
-      "bread",
+    expect(getPortalAddressMode({ portal_address_mode: "breezify" })).toBe(
+      "breezify",
     )
   })
 })
@@ -139,7 +139,7 @@ describe("normalizeWorkspaceSettings", () => {
   it("normalizes the portal header/footer scope", () => {
     expect(
       normalizeWorkspaceSettings({ portal_chrome_scope: "project" }).portal_chrome_scope,
-    ).toBe("project")
+    ).toBe("workspace")
     expect(
       normalizeWorkspaceSettings({ portal_chrome_scope: "invalid" }).portal_chrome_scope,
     ).toBe("workspace")

@@ -1,6 +1,6 @@
-export const PORTAL_PREVIEW_THEME_MESSAGE = "bread:portal-preview-theme"
+export const PORTAL_PREVIEW_THEME_MESSAGE = "breezify:portal-preview-theme"
 export const PORTAL_PREVIEW_THEME_READY_MESSAGE =
-  "bread:portal-preview-theme-ready"
+  "breezify:portal-preview-theme-ready"
 
 export type PortalPreviewThemeMode = "light" | "dark"
 

@@ -51,7 +51,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
     return NextResponse.redirect(buildCloudflareAuthorizeUrl(config, state));
   } catch (error) {
-    console.error("[Bread] Cloudflare OAuth start:", error);
+    console.error("[Breezify] Cloudflare OAuth start:", error);
     return fail("invalid_configuration");
   }
 }

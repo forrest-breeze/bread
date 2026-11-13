@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 // ---------------------------------------------------------------------------
 // GET /api/workspace/export
 //
-// Streams a strict Bread-format workspace backup as JSON. Only user-kind
+// Streams a strict Breezify-format workspace backup as JSON. Only user-kind
 // folders are included; auto-generated topic folders are regenerated on
 // ingest so they don't need to live in the backup.
 //
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .single();
 
     if (wsRes.error || !wsRes.data) {
-      console.error("[Bread] export: workspace fetch failed:", wsRes.error?.message);
+      console.error("[Breezify] export: workspace fetch failed:", wsRes.error?.message);
       return NextResponse.json(
         { error: "Failed to load workspace" },
         { status: 500 },
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const folderRes = await folderQuery;
     if (folderRes.error) {
-      console.error("[Bread] export: folders fetch failed:", folderRes.error.message);
+      console.error("[Breezify] export: folders fetch failed:", folderRes.error.message);
       return NextResponse.json(
         { error: "Failed to load folders" },
         { status: 500 },
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const docRes = await docQuery;
     if (docRes.error) {
-      console.error("[Bread] export: documents fetch failed:", docRes.error.message);
+      console.error("[Breezify] export: documents fetch failed:", docRes.error.message);
       return NextResponse.json(
         { error: "Failed to load documents" },
         { status: 500 },
@@ -196,7 +196,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const today = new Date().toISOString().slice(0, 10);
     const slugPart = ws.slug ?? workspace.workspace_id.slice(0, 8);
     const scopePart = scopeFolderId ? "-folder" : "";
-    const filename = `bread-export-${slugPart}${scopePart}-${today}.json`;
+    const filename = `breezify-export-${slugPart}${scopePart}-${today}.json`;
 
     return new NextResponse(body, {
       status: 200,
@@ -206,7 +206,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       },
     });
   } catch (err) {
-    console.error("[Bread] export failed:", err);
+    console.error("[Breezify] export failed:", err);
     return NextResponse.json(
       { error: "Failed to export workspace" },
       { status: 500 },

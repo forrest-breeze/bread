@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { requireRouteUser } from '@/lib/auth/route-auth'
 import { getActiveWorkspace } from '@/lib/db/workspace'
 import { isWorkspaceOnPaidTier } from '@/lib/db/subscription'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { buildBreadWorkspaceExport } from '@/lib/github/github-hosted-workspace'
+import { buildBreezifyWorkspaceExport } from '@/lib/github/github-hosted-workspace'
 import { ReadmePublishError } from '@/lib/github/readme/readme-publish'
 import {
   diffReadmeSourcePublish,
@@ -70,7 +70,7 @@ export async function GET(): Promise<NextResponse> {
   }
   if (!(await isWorkspaceOnPaidTier(workspace.workspace_id))) {
     return privateJson(
-      { error: 'GitHub publishing requires a paid plan.', code: 'paid_plan_required' },
+      { error: 'GitHub publishing is not enabled for this workspace.', code: 'feature_not_enabled' },
       402,
     )
   }
@@ -113,7 +113,7 @@ export async function GET(): Promise<NextResponse> {
     }
 
     const targetPath = source.paths[0]!
-    const exported = await buildBreadWorkspaceExport(admin, {
+    const exported = await buildBreezifyWorkspaceExport(admin, {
       workspaceId: workspace.workspace_id,
       targetPath,
       repoId: source.repo_id,
@@ -136,7 +136,7 @@ export async function GET(): Promise<NextResponse> {
     if (err instanceof HostedWorkspacePublishError || err instanceof ReadmePublishError) {
       return privateJson({ error: err.message, code: err.code }, err.status)
     }
-    console.error('[Bread] workspace publish diff:', err)
+    console.error('[Breezify] workspace publish diff:', err)
     return privateJson(
       { error: 'Could not build the workspace diff.', code: 'diff_failed' },
       500,

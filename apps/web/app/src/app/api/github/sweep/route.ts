@@ -14,7 +14,7 @@ export const runtime = 'nodejs'
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const cronSecret = process.env.CRON_SECRET ?? ''
   if (!cronSecret) {
-    console.error('[Bread] GitHub sweep: CRON_SECRET env var is not set')
+    console.error('[Breezify] GitHub sweep: CRON_SECRET env var is not set')
     return NextResponse.json(
       { error: 'Server misconfigured' },
       { status: 500 },
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(result)
   } catch (err) {
-    console.error('[Bread] GET /api/github/sweep failed:', err)
+    console.error('[Breezify] GET /api/github/sweep failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 500 },

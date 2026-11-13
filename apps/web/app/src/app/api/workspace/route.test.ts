@@ -132,13 +132,13 @@ describe("PUT /api/workspace — validation", () => {
     mockAuthed()
 
     const readSingle = vi.fn().mockResolvedValue({
-      data: { settings: { kb_public: false, kb_brand_name: "Bread" } },
+      data: { settings: { kb_public: false, kb_brand_name: "Breezify" } },
       error: null,
     })
     const writeSingle = vi.fn().mockResolvedValue({
       data: {
         id: "ws-1",
-        settings: { kb_public: true, kb_brand_name: "Bread" },
+        settings: { kb_public: true, kb_brand_name: "Breezify" },
       },
       error: null,
     })
@@ -164,7 +164,7 @@ describe("PUT /api/workspace — validation", () => {
     expect(res.status).toBe(200)
     expect(table.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        settings: { kb_public: true, kb_brand_name: "Bread" },
+        settings: { kb_public: true, kb_brand_name: "Breezify" },
       }),
     )
     expect(mockRevalidateTag).toHaveBeenCalledWith("public-kb", { expire: 0 })

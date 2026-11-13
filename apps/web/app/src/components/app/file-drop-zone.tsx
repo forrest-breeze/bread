@@ -131,7 +131,7 @@ export function FileDropZone({
       )
       return true
     } catch (err) {
-      console.error("[Bread] upload failed:", err)
+      console.error("[Breezify] upload failed:", err)
       const reason = err instanceof Error ? err.message : "Network error"
       setUploads((prev) =>
         prev.map((u) =>

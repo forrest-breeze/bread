@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 
 const mocks = vi.hoisted(() => ({
   syncReadmeRepository: vi.fn(),
@@ -111,7 +111,7 @@ beforeEach(() => {
 
 describe('syncReadmeSource', () => {
   it('claims the source, then syncs the configured root and branch at the given commit', async () => {
-    const row = source({ paths: ['site'], branch: 'v2.0', pending_sync_mode: 'replace_bread' })
+    const row = source({ paths: ['site'], branch: 'v2.0', pending_sync_mode: 'replace_breezify' })
     const { admin, calls } = fakeAdmin({ github_hosted_docs_sources: row })
     mocks.syncReadmeRepository.mockResolvedValue({ commitSha: 'sha-2' })
     await expect(syncReadmeSource(row, { ref: 'sha-2' }, admin)).resolves.toEqual({ commitSha: 'sha-2' })
@@ -126,7 +126,7 @@ describe('syncReadmeSource', () => {
         branch: 'v2.0',
         ref: 'sha-2',
         lastSyncCommitSha: 'sha-1',
-        mode: 'replace_bread',
+        mode: 'replace_breezify',
       }),
       expect.anything(),
     )
@@ -162,7 +162,7 @@ describe('reconcileReadmePublishPullRequest', () => {
   const withPullRequest = source({
     publish_mode: 'pull_request',
     publish_pull_request_number: 5,
-    publish_pull_request_head: 'bread/readme-sync-abc',
+    publish_pull_request_head: 'breezify/readme-sync-abc',
   })
 
   it('keeps the pointer while the pull request is open', async () => {
@@ -186,7 +186,7 @@ describe('reconcileReadmePublishPullRequest', () => {
   })
 
   it('ignores pull requests it did not open and survives GitHub being down', async () => {
-    const foreign = source({ publish_pull_request_number: 5, publish_pull_request_head: 'bread/docs-docs-workspace-abc' })
+    const foreign = source({ publish_pull_request_number: 5, publish_pull_request_head: 'breezify/docs-docs-workspace-abc' })
     expect(await reconcileReadmePublishPullRequest(foreign, fakeAdmin({}).admin)).toBe(foreign)
     expect(mocks.getPullRequest).not.toHaveBeenCalled()
 
@@ -202,10 +202,10 @@ describe('OpenAPI definitions and the linked repository', () => {
 
   it('does nothing unless a ReadMe-format repository is linked', async () => {
     expect(await writeOpenApiSourceToLinkedRepository(fakeAdmin({}).admin, 'ws-1', 'payments-api')).toBeNull()
-    const bread = fakeAdmin({ github_hosted_docs_sources: source({ format: 'bread' }), openapi_sources: spec })
-    expect(await writeOpenApiSourceToLinkedRepository(bread.admin, 'ws-1', 'payments-api')).toBeNull()
+    const breezify = fakeAdmin({ github_hosted_docs_sources: source({ format: 'breezify' }), openapi_sources: spec })
+    expect(await writeOpenApiSourceToLinkedRepository(breezify.admin, 'ws-1', 'payments-api')).toBeNull()
     expect(mocks.commitReadmeSpecFile).not.toHaveBeenCalled()
-    expect(isReadmeFormatSource(source({ format: 'bread' }))).toBe(false)
+    expect(isReadmeFormatSource(source({ format: 'breezify' }))).toBe(false)
     expect(isReadmeFormatSource(null)).toBe(false)
   })
 

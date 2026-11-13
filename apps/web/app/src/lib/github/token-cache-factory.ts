@@ -72,7 +72,7 @@ export class TieredTokenCache implements TokenCache {
     try {
       return await tier.get(installationId);
     } catch (err) {
-      console.warn("[Bread] TieredTokenCache.get tier failed:", err);
+      console.warn("[Breezify] TieredTokenCache.get tier failed:", err);
       return null;
     }
   }
@@ -86,7 +86,7 @@ export class TieredTokenCache implements TokenCache {
     try {
       await tier.set(installationId, token, expiresAtMs);
     } catch (err) {
-      console.warn("[Bread] TieredTokenCache.set tier failed:", err);
+      console.warn("[Breezify] TieredTokenCache.set tier failed:", err);
     }
   }
 
@@ -97,7 +97,7 @@ export class TieredTokenCache implements TokenCache {
     try {
       await tier.clear(installationId);
     } catch (err) {
-      console.warn("[Bread] TieredTokenCache.clear tier failed:", err);
+      console.warn("[Breezify] TieredTokenCache.clear tier failed:", err);
     }
   }
 }
@@ -124,7 +124,7 @@ export function getTokenCache(): TokenCache {
 // intent; the NODE_ENV check enforces it.
 function assertNotProd(fn: string): void {
   if (process.env.NODE_ENV === "production") {
-    throw new Error(`[Bread] ${fn} is a test-only seam and must not be called in production`);
+    throw new Error(`[Breezify] ${fn} is a test-only seam and must not be called in production`);
   }
 }
 

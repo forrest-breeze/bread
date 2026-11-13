@@ -577,7 +577,7 @@ describe("buildDefaultPortalLayout", () => {
     const hero = layout.body[0]
     if (hero?.type === "hero") {
       expect(hero.subtitle).toBe(
-        "Your knowledge base is ready. Publish your first docs from Bread to share them here.",
+        "Your knowledge base is ready. Publish your first docs from Breezify to share them here.",
       )
     }
     expect(validatePortalLayout(layout).ok).toBe(true)
@@ -793,14 +793,14 @@ describe("normalizePortalLayoutForPublicData", () => {
   it("removes stale topic navigation and keeps docs categorized by folder", () => {
     const taxonomy: PublicTaxonomy = {
       topics: [folder("topic-1", "Streaming", "topic")],
-      rootFolders: [folder("folder-1", "Bread Help Center", "user")],
+      rootFolders: [folder("folder-1", "Breezify Help Center", "user")],
       allFolders: [
-        folder("folder-1", "Bread Help Center", "user"),
+        folder("folder-1", "Breezify Help Center", "user"),
         folder("child-1", "Setup", "user", "folder-1"),
       ],
     }
     const documents = [
-      doc("doc-1", "Install Bread", "install-bread", "child-1"),
+      doc("doc-1", "Install Breezify", "install-breezify", "child-1"),
       doc("doc-2", "Invite teammates", undefined, "folder-1"),
       doc("doc-3", "Publish docs", undefined, null),
     ]
@@ -840,7 +840,7 @@ describe("normalizePortalLayoutForPublicData", () => {
           },
           {
             id: "folder-1",
-            title: "Bread Help Center",
+            title: "Breezify Help Center",
             description: "12 documents",
             icon: "folder",
             href: "/p/acme/folder/folder-1",
@@ -898,7 +898,7 @@ describe("normalizePortalLayoutForPublicData", () => {
     ])
     expect(
       normalized.sidebar?.groups[0]?.children?.[0]?.items.map((item) => item.href),
-    ).toEqual(["/p/acme/doc/install-bread"])
+    ).toEqual(["/p/acme/doc/install-breezify"])
     expect(normalized.sidebar?.groups[1]?.items.map((item) => item.href)).toEqual([
       "/p/acme/doc/doc-3",
     ])
@@ -916,9 +916,9 @@ describe("normalizePortalLayoutForPublicData", () => {
         folder("f-billing", "Billing", "user"),
       ],
     }
-    const documents = [doc("d1", "Install Bread", "install-bread")]
+    const documents = [doc("d1", "Install Breezify", "install-breezify")]
     const base = buildDefaultPortalLayout({
-      slug: "bread-help",
+      slug: "breezify-help",
       workspace: workspace(),
       taxonomy: emptyTaxonomy,
       rootDocs: [],
@@ -934,7 +934,7 @@ describe("normalizePortalLayoutForPublicData", () => {
     ]
 
     const normalized = normalizePortalLayoutForPublicData({
-      slug: "bread-help",
+      slug: "breezify-help",
       layout: base,
       taxonomy,
       documents,
@@ -949,7 +949,7 @@ describe("normalizePortalLayoutForPublicData", () => {
       ])
       expect(grid.items[0]).toMatchObject({
         icon: "folder",
-        href: "/p/bread-help/folder/f-getting-started",
+        href: "/p/breezify-help/folder/f-getting-started",
       })
       expect(grid.items[0]?.description).toBeUndefined()
     }
@@ -1035,7 +1035,7 @@ describe("normalizePortalLayoutForPublicData", () => {
 
   it("drops an empty category-grid when there are no folders to populate it", () => {
     const base = buildDefaultPortalLayout({
-      slug: "bread-help",
+      slug: "breezify-help",
       workspace: workspace(),
       taxonomy: emptyTaxonomy,
       rootDocs: [],
@@ -1045,7 +1045,7 @@ describe("normalizePortalLayoutForPublicData", () => {
     ]
 
     const normalized = normalizePortalLayoutForPublicData({
-      slug: "bread-help",
+      slug: "breezify-help",
       layout: base,
       taxonomy: emptyTaxonomy,
       documents: [],

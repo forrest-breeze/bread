@@ -94,7 +94,7 @@ function syncErrorResponse(error: unknown): NextResponse {
       { status: error.status },
     )
   }
-  console.error("[Bread] GitHub document sync failed:", error)
+  console.error("[Breezify] GitHub document sync failed:", error)
   return NextResponse.json(
     {
       error:

@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { PortalChromeScopeCard } from "@/components/settings/portal-chrome-scope-card"
 import { WorkspacePortalAddressCard } from "@/components/settings/workspace-portal-address-card"
 import { useWorkspace } from "@/hooks/swr"
 import { useHasHydrated } from "@/hooks/use-has-hydrated"
@@ -50,8 +49,6 @@ export default function ProjectsSettingsPage() {
       </div>
 
       <WorkspacePortalAddressCard />
-
-      <PortalChromeScopeCard />
     </div>
   )
 }

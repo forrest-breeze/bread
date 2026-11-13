@@ -102,10 +102,10 @@ export function normalizePortalMountPath(
  * Absolute public base URL of the portal serving this request, derived from the
  * proxy's forwarding headers:
  *
- *   x-bread-portal-host      set by the custom-domain rewrite (real Host)
+ *   x-breezify-portal-host      set by the custom-domain rewrite (real Host)
  *   x-forwarded-host          set by the Worker proxy (trusted only with a marker)
- *   x-bread-base-path        Worker mount path
- *   x-bread-portal-mount-path custom-domain / subdomain mount path
+ *   x-breezify-base-path        Worker mount path
+ *   x-breezify-portal-mount-path custom-domain / subdomain mount path
  *
  * Falls back to the request Host and the internal `/p/<base>` path, which is
  * always a valid address for the portal.
@@ -115,10 +115,10 @@ export function resolvePortalPublicUrl(
   internalBase: string,
 ): string {
   const proxied = PORTAL_PROXY_MARKERS.has(
-    headers.get("x-bread-proxy")?.trim() ?? "",
+    headers.get("x-breezify-proxy")?.trim() ?? "",
   )
   const host =
-    hostOnly(headers.get("x-bread-portal-host")) ||
+    hostOnly(headers.get("x-breezify-portal-host")) ||
     (proxied ? hostOnly(headers.get("x-forwarded-host")) : "") ||
     hostOnly(headers.get("host"))
   const forwardedProto = firstHeaderValue(headers.get("x-forwarded-proto"))
@@ -129,8 +129,8 @@ export function resolvePortalPublicUrl(
   const authority = isLocal && port ? `${host}:${port}` : host
 
   const mount =
-    normalizePortalMountPath(headers.get("x-bread-base-path")) ??
-    normalizePortalMountPath(headers.get("x-bread-portal-mount-path"))
+    normalizePortalMountPath(headers.get("x-breezify-base-path")) ??
+    normalizePortalMountPath(headers.get("x-breezify-portal-mount-path"))
   const path = mount === "/" ? "" : (mount ?? `/p/${internalBase}`)
 
   return `${protocol}://${authority}${path}`

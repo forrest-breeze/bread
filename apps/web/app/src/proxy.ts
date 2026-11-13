@@ -53,9 +53,9 @@ const REVERSE_PROXY_MOUNT_RE =
   /^\/(?:[a-z0-9](?:[a-z0-9-]{0,48}[a-z0-9])?)$/;
 
 function reverseProxyHost(request: NextRequest, actualHost: string): string | null {
-  const marker = request.headers.get("x-bread-proxy") ?? "";
+  const marker = request.headers.get("x-breezify-proxy") ?? "";
   if (!REVERSE_PROXY_MARKERS.has(marker)) return null;
-  // Only accept forwarding metadata at Bread's own origin. A request that
+  // Only accept forwarding metadata at Breezify's own origin. A request that
   // already arrived on a customer host must be resolved from its real Host.
   if (APP_HOST && actualHost !== APP_HOST) return null;
   const forwarded = (request.headers.get("x-forwarded-host") ?? "")
@@ -74,7 +74,7 @@ function reverseProxyMountPath(
   pathname: string,
   fallback: string,
 ): string {
-  const raw = (request.headers.get("x-bread-base-path") ?? "")
+  const raw = (request.headers.get("x-breezify-base-path") ?? "")
     .trim()
     .replace(/\/+$/, "");
   if (
@@ -136,13 +136,13 @@ async function publicKbRewrite(
   // portal request so metadata and llms.txt both emit clean host-root URLs
   // instead of leaking the internal /p/<slug> rewrite target.
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-bread-portal-mount-path", "/");
+  requestHeaders.set("x-breezify-portal-mount-path", "/");
   const rewrite = NextResponse.rewrite(url, {
     request: { headers: requestHeaders },
   });
   // Marker the connection-verify endpoint reads to confirm a host resolves to
   // this exact workspace (see /api/workspace/kb-domain/verify).
-  rewrite.headers.set("x-bread-portal", slug);
+  rewrite.headers.set("x-breezify-portal", slug);
   return rewrite;
 }
 
@@ -215,8 +215,8 @@ async function publicKbCustomDomainRewrite(
   if (proxiedHost) {
     const apiPrefix =
       mountPath === "/"
-        ? "/_bread/api/"
-        : `${mountPath}/_bread/api/`;
+        ? "/_breezify/api/"
+        : `${mountPath}/_breezify/api/`;
     if (pathname.startsWith(apiPrefix)) {
       const endpoint = pathname.slice(apiPrefix.length);
       if (!PORTAL_PROXY_API_ENDPOINTS.has(endpoint)) return null;
@@ -234,31 +234,31 @@ async function publicKbCustomDomainRewrite(
   const url = request.nextUrl.clone();
   if (!applyPortalLlmsTarget(url, rewrittenPath)) url.pathname = rewrittenPath;
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-bread-portal-host", host);
-  requestHeaders.set("x-bread-portal-mount-path", mountPath);
+  requestHeaders.set("x-breezify-portal-host", host);
+  requestHeaders.set("x-breezify-portal-mount-path", mountPath);
   if (proxiedHost) {
-    requestHeaders.set("x-bread-base-path", mountPath);
+    requestHeaders.set("x-breezify-base-path", mountPath);
   }
   if (route.projectSlug) {
-    requestHeaders.set("x-bread-portal-project", route.projectSlug);
+    requestHeaders.set("x-breezify-portal-project", route.projectSlug);
   }
   const rewrite = NextResponse.rewrite(url, {
     request: { headers: requestHeaders },
   });
-  rewrite.headers.set("x-bread-portal", route.workspaceSlug);
-  rewrite.headers.set("x-bread-portal-mount-path", mountPath);
+  rewrite.headers.set("x-breezify-portal", route.workspaceSlug);
+  rewrite.headers.set("x-breezify-portal-mount-path", mountPath);
   return rewrite;
 }
 
 // A trusted reverse proxy (Cloudflare Worker / customer reverse proxy) maps
 // its mount path straight onto the internal /p/<slug> tree, and /p/* skips the
-// rewrite pipeline above — so the x-bread-portal marker the kb-domain
+// rewrite pipeline above — so the x-breezify-portal marker the kb-domain
 // verifier reads would never be stamped for worker-proxied mounts. Recover the
 // slug from the requested path when the proxy metadata is trustworthy.
 function reverseProxyPortalSlug(request: NextRequest): string | null {
   const { pathname } = request.nextUrl;
   if (!pathname.startsWith("/p/")) return null;
-  const marker = request.headers.get("x-bread-proxy") ?? "";
+  const marker = request.headers.get("x-breezify-proxy") ?? "";
   if (!REVERSE_PROXY_MARKERS.has(marker)) return null;
   return pathname.split("/").filter(Boolean)[1] ?? null;
 }
@@ -293,14 +293,14 @@ export default async function proxy(request: NextRequest) {
   // A /p/... path reaches here two ways: addressed directly on the app host, or
   // forwarded by the Worker proxy (which addresses /p/<ws>/<project> and so skips
   // the rewrites above). Both need the llms.txt files mapped to the text route;
-  // the Worker's own x-bread-base-path header still supplies the public mount.
+  // the Worker's own x-breezify-base-path header still supplies the public mount.
   const llmsUrl = request.nextUrl.clone();
   if (applyPortalLlmsTarget(llmsUrl, request.nextUrl.pathname)) {
     return withSessionCookies(NextResponse.rewrite(llmsUrl, { request }), session);
   }
 
   const proxiedSlug = reverseProxyPortalSlug(request);
-  if (proxiedSlug) session.headers.set("x-bread-portal", proxiedSlug);
+  if (proxiedSlug) session.headers.set("x-breezify-portal", proxiedSlug);
   return session;
 }
 
@@ -311,6 +311,6 @@ export const config = {
      * in /public. Matching by extension (the old `.*\\.(png|svg|…)$` rule)
      * let any route whose URL ends in ".png" skip authentication.
      */
-    "/((?!_next/static|_next/image|breeze-mark\\.png|icon\\.png).*)",
+    "/((?!_next/static|_next/image|breeze-mark\\.png|breeze-icon\\.png|icon\\.png).*)",
   ],
 };

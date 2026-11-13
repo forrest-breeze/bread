@@ -10,6 +10,7 @@ import {
   resolveDefaultPublishedProjectByWorkspace,
   resolvePublishedProjectByWorkspace,
 } from "@/lib/portal/experiences"
+import type { PortalLayout } from "@/lib/portal/schema"
 
 // ---------------------------------------------------------------------------
 // Public portal "base" resolution for the unauthenticated public APIs
@@ -42,6 +43,12 @@ export interface ResolvedPortalBase {
   scope: PublicKbScope
   /** Canonical base path, for building hrefs back into this portal. */
   base: string
+  /**
+   * The project's validated published layout, or null for the implicit default
+   * project / a stored spec that failed validation. Lets public APIs check
+   * per-portal settings (e.g. enabled translation languages).
+   */
+  layout: PortalLayout | null
 }
 
 /**
@@ -82,5 +89,6 @@ export async function resolvePortalBase(
     experienceId: project?.experienceId ?? null,
     scope: project?.contentScope ?? null,
     base: named ? `${wsKey}/${named}` : wsKey,
+    layout: project?.layout ?? null,
   }
 }

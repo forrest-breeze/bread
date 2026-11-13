@@ -38,7 +38,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
   }
   if (!(await isWorkspaceOnPaidTier(auth.workspaceId))) {
     return NextResponse.json(
-      { error: 'Integrations require a paid plan.' },
+      { error: 'Integrations are not enabled for this workspace.' },
       { status: 402 },
     )
   }
@@ -70,7 +70,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ repositories })
   } catch (err) {
-    console.error('[Bread] GET /api/github/repos/available failed:', err)
+    console.error('[Breezify] GET /api/github/repos/available failed:', err)
     return NextResponse.json(
       { error: 'Service temporarily unavailable' },
       { status: 500 },

@@ -4,10 +4,10 @@
  * save promise synchronously, mirroring the Service Worker `waitUntil` shape.
  */
 export const PREPARE_WORKSPACE_PUBLISH_EVENT =
-  "bread:prepare-workspace-publish"
+  "breezify:prepare-workspace-publish"
 
 export const WORKSPACE_DOCUMENT_SAVED_EVENT =
-  "bread:workspace-document-saved"
+  "breezify:workspace-document-saved"
 
 export interface WorkspaceDocumentSavedEventDetail {
   documentId: string

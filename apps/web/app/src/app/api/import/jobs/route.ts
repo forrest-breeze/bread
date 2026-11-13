@@ -57,7 +57,7 @@ export async function GET(_req: NextRequest): Promise<NextResponse> {
     .limit(50);
 
   if (error) {
-    console.error("[Bread] GET /api/import/jobs:", error.message);
+    console.error("[Breezify] GET /api/import/jobs:", error.message);
     return NextResponse.json({ error: "Service unavailable" }, { status: 500 });
   }
   return NextResponse.json({ jobs: data ?? [] });
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error || !data) {
-    console.error("[Bread] POST /api/import/jobs insert:", error?.message);
+    console.error("[Breezify] POST /api/import/jobs insert:", error?.message);
     return NextResponse.json({ error: "Failed to create job" }, { status: 500 });
   }
 
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
       await runImportJob(jobId);
     } catch (err) {
-      console.error("[Bread] import runner crashed:", jobId, err);
+      console.error("[Breezify] import runner crashed:", jobId, err);
     }
   });
 

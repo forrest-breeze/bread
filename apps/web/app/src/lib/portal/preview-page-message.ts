@@ -6,7 +6,7 @@
 // render so the builder can keep its page switcher, document rail, and page
 // controls pointed at whatever the preview is actually showing.
 
-export const PORTAL_PREVIEW_PAGE_MESSAGE = "bread:portal-preview-page"
+export const PORTAL_PREVIEW_PAGE_MESSAGE = "breezify:portal-preview-page"
 
 export interface PortalPreviewPageMessage {
   type: typeof PORTAL_PREVIEW_PAGE_MESSAGE

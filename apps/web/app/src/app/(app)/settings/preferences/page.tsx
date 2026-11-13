@@ -46,7 +46,7 @@ export default function PreferencesPage(): React.ReactElement {
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
           <CardDescription>
-            Choose how Bread looks to you
+            Choose how Breezify looks to you
           </CardDescription>
         </CardHeader>
         <CardContent>

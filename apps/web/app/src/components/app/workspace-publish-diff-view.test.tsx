@@ -167,13 +167,13 @@ describe("WorkspacePublishDiffView", () => {
       selectedCount: 0,
       selectedPaths: new Set(),
       unavailableReason:
-        "GitHub has changes Bread has not pulled in yet.",
+        "GitHub has changes Breezify has not pulled in yet.",
     }
 
     render(<WorkspacePublishDiffView />)
 
     expect(
-      screen.getByText("GitHub has changes Bread has not pulled in yet."),
+      screen.getByText("GitHub has changes Breezify has not pulled in yet."),
     ).toBeTruthy()
   })
 

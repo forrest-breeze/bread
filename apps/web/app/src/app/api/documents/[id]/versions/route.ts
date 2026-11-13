@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getActiveWorkspace } from "@/lib/db/workspace";
 import { fireDocumentEmbeddingUpdate, fireIngestFromText } from "@/rag/ingest";
 import { safeJsonBody, safeRouteParams, uuidParamSchema } from "@/lib/validation";
-import type { DocumentVersionRow } from "@bread/core";
+import type { DocumentVersionRow } from "@breezify/core";
 import { requireRouteUser } from "@/lib/auth/route-auth";
 
 const postBodySchema = z.object({
@@ -44,7 +44,7 @@ export async function GET(
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("[Bread] Failed to fetch document versions:", error.message);
+    console.error("[Breezify] Failed to fetch document versions:", error.message);
     return NextResponse.json(
       { error: "Failed to fetch versions" },
       { status: 500 },
@@ -136,7 +136,7 @@ export async function POST(
 
   if (snapshotError) {
     console.error(
-      "[Bread] Failed to snapshot document before restore:",
+      "[Breezify] Failed to snapshot document before restore:",
       snapshotError.message,
     );
     return NextResponse.json(
@@ -157,7 +157,7 @@ export async function POST(
     .eq("workspace_id", workspace.workspace_id);
 
   if (updateError) {
-    console.error("[Bread] Failed to restore document version:", updateError.message);
+    console.error("[Breezify] Failed to restore document version:", updateError.message);
     return NextResponse.json({ error: "Failed to restore version" }, { status: 500 });
   }
 

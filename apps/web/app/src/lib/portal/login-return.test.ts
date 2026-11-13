@@ -52,7 +52,7 @@ describe("sanitizePostLoginNext", () => {
 
   it("allows an absolute URL only when it resolves to a configured portal route", async () => {
     resolveCustomDomainRoute.mockResolvedValueOnce({
-      workspaceSlug: "bread",
+      workspaceSlug: "breezify",
       projectSlug: "docs",
       pathPrefix: "/docs",
     })

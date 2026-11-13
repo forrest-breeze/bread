@@ -1,4 +1,4 @@
-import { portalUrl } from "@bread/core"
+import { portalUrl } from "@breezify/core"
 import { resolveFeedDate } from "@/lib/documents/published-date"
 import { uniqueIconsForCategoryEntries } from "@/lib/portal/category-icons"
 import {
@@ -65,7 +65,7 @@ const OLD_DEFAULT_SEARCH_PLACEHOLDERS = new Set([
  * Header nav links + CTA derived from the workspace's own landing page, when one
  * was captured during onboarding (`workspaces.settings.landing_page_url`). This
  * lets a generated portal link "Home" at the customer's real site instead of the
- * Bread marketing placeholders the header otherwise falls back to. Both the nav
+ * Breezify marketing placeholders the header otherwise falls back to. Both the nav
  * link and the CTA point at the exact URL the admin entered — we only ever link
  * pages we know exist. A guessed `<origin>/pricing` was dropped: onboarding never
  * captures a pricing URL, so the convention 404s for any site without one.
@@ -303,7 +303,7 @@ function defaultHeroSubtitle(
   fallback: string = DEFAULT_HERO_SUBTITLE,
 ): string {
   if (isEmpty) {
-    return "Your knowledge base is ready. Publish your first docs from Bread to share them here."
+    return "Your knowledge base is ready. Publish your first docs from Breezify to share them here."
   }
   if (theme.tagline) return theme.tagline
   return fallback
@@ -1154,7 +1154,7 @@ export function resolvePortalLayout(input: {
   if (!validated.ok) {
     // Built layout is valid by construction; this guards future drift and is the
     // single render path stored/agent-authored layouts also flow through.
-    console.error("[Bread] default portal layout failed validation:", validated.error)
+    console.error("[Breezify] default portal layout failed validation:", validated.error)
   }
   return normalizePortalLayoutForPublicData({
     slug,

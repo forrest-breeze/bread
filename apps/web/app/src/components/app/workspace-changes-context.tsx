@@ -278,7 +278,7 @@ export function WorkspaceChangesProvider({
       : !canPublish
         ? "Only workspace editors, admins, and owners can review workspace changes."
         : hostedDocsError
-          ? "Bread could not load the GitHub publishing setup."
+          ? "Breezify could not load the GitHub publishing setup."
           : !source
             ? "GitHub publishing is not configured for this workspace."
             : !sourceReady
@@ -289,14 +289,14 @@ export function WorkspaceChangesProvider({
                     "Resolve the hosted docs sync error before reviewing changes."
                   : "Hosted documents are still syncing."
               : publishStatusError
-                ? "Bread could not compare the workspace with GitHub."
+                ? "Breezify could not compare the workspace with GitHub."
                 : publishStatus && publishStatus.status !== "changes"
                   ? publishStatus.message ??
                     (publishStatus.status === "sync_required"
-                      ? "GitHub has changes Bread has not pulled in yet. Sync the docs root, then review again."
+                      ? "GitHub has changes Breezify has not pulled in yet. Sync the docs root, then review again."
                       : publishStatus.status === "up_to_date"
                         ? "Nothing has changed since the last publish."
-                        : "Bread cannot compare the workspace with GitHub right now.")
+                        : "Breezify cannot compare the workspace with GitHub right now.")
                   : null
 
   const toggleSelectedPath = useCallback(
@@ -338,7 +338,7 @@ export function WorkspaceChangesProvider({
         body: JSON.stringify({
           paths,
           ...(source && source.conflict_count > 0
-            ? { conflict_resolution: "bread" }
+            ? { conflict_resolution: "breezify" }
             : {}),
         }),
       })

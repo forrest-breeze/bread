@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 
 const mocks = vi.hoisted(() => ({
   getWorkspace: vi.fn(),
@@ -64,19 +64,19 @@ vi.mock('@/lib/github/github-hosted-workspace-publish', () => ({
   isHostedWorkspacePublishBranch: vi.fn(() => true),
 }))
 vi.mock('@/lib/github/github-hosted-workspace', () => ({
-  buildBreadWorkspaceExport: mocks.buildExport,
-  linkBreadWorkspaceDocuments: mocks.linkDocuments,
+  buildBreezifyWorkspaceExport: mocks.buildExport,
+  linkBreezifyWorkspaceDocuments: mocks.linkDocuments,
   MAX_HOSTED_WORKSPACE_BYTES: 8 * 1024 * 1024,
   MAX_HOSTED_WORKSPACE_DOCUMENTS: 500,
 }))
 vi.mock('@/lib/github/github-hosted-format', () => {
-  class BreadDocsFormatError extends Error {
+  class BreezifyDocsFormatError extends Error {
     issues: unknown[] = []
   }
   return {
-    assertBreadHostedDocsFiles: mocks.assertFormat,
-    BreadDocsFormatError,
-    BREAD_HOSTED_DOC_MAX_BYTES: 256 * 1024,
+    assertBreezifyHostedDocsFiles: mocks.assertFormat,
+    BreezifyDocsFormatError,
+    BREEZIFY_HOSTED_DOC_MAX_BYTES: 256 * 1024,
   }
 })
 
@@ -209,7 +209,7 @@ describe('PUT /api/github/hosted-docs reconfiguration safety', () => {
     const leased = source({
       publish_pull_request_number: 17,
       publish_pull_request_url: 'https://github.com/acme/docs/pull/17',
-      publish_pull_request_head: 'bread/docs-docs-workspace-open',
+      publish_pull_request_head: 'breezify/docs-docs-workspace-open',
       publish_last_commit_sha: 'publish-sha',
       publish_operation_id: 'lease-from-db',
       publish_operation_started_at: '2026-08-18T12:01:00.000Z',
@@ -321,7 +321,7 @@ describe('PUT /api/github/hosted-docs reconfiguration safety', () => {
     const updated = source({
       sync_status: 'pending',
       root_folder_id: null,
-      pending_sync_mode: 'replace_bread',
+      pending_sync_mode: 'replace_breezify',
     })
     const sourceUpdateBuilder = updateBuilder(updated)
     fromQueue = [
@@ -360,7 +360,7 @@ describe('PUT /api/github/hosted-docs reconfiguration safety', () => {
     expect(sourceUpdateBuilder.update).toHaveBeenCalledWith(
       expect.objectContaining({
         root_folder_id: null,
-        pending_sync_mode: 'replace_bread',
+        pending_sync_mode: 'replace_breezify',
         sync_status: 'pending',
       }),
     )
@@ -368,7 +368,7 @@ describe('PUT /api/github/hosted-docs reconfiguration safety', () => {
     await mocks.afterCallbacks[0]!()
 
     expect(mocks.syncDocs).toHaveBeenCalledWith(
-      expect.objectContaining({ mode: 'replace_bread', force: true }),
+      expect.objectContaining({ mode: 'replace_breezify', force: true }),
     )
   })
 

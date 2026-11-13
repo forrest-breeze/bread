@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "cd ../../.. && npm ci && bash scripts/install-native-bindings.sh",
-  "buildCommand": "cd ../../.. && npx turbo run build --filter=@bread/app",
+  "buildCommand": "cd ../../.. && npx turbo run build --filter=@breezify/app",
   "headers": [
     {
       "source": "/_next/static/(.*)",

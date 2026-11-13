@@ -99,7 +99,7 @@ export async function GET(
     .maybeSingle();
 
   if (folderErr) {
-    console.error("[Bread] Failed to fetch folder detail:", folderErr.message);
+    console.error("[Breezify] Failed to fetch folder detail:", folderErr.message);
     return NextResponse.json(
       { error: "Failed to fetch folder" },
       { status: 500 },
@@ -131,7 +131,7 @@ export async function GET(
         return NextResponse.json({ error: "Folder not found" }, { status: 404 });
       }
     } catch (err) {
-      console.error("[Bread] Failed to resolve folder detail project scope:", err);
+      console.error("[Breezify] Failed to resolve folder detail project scope:", err);
       return NextResponse.json(
         { error: "Invalid project scope" },
         { status: 400 },
@@ -171,7 +171,7 @@ export async function GET(
   ]);
 
   if (childrenRes.error) {
-    console.error("[Bread] Failed to fetch folder children:", childrenRes.error.message);
+    console.error("[Breezify] Failed to fetch folder children:", childrenRes.error.message);
     return NextResponse.json(
       { error: "Failed to fetch folder children" },
       { status: 500 },
@@ -179,7 +179,7 @@ export async function GET(
   }
 
   if (docsRes.error) {
-    console.error("[Bread] Failed to fetch folder documents:", docsRes.error.message);
+    console.error("[Breezify] Failed to fetch folder documents:", docsRes.error.message);
     return NextResponse.json(
       { error: "Failed to fetch folder documents" },
       { status: 500 },
@@ -370,7 +370,7 @@ export async function PATCH(
     .single();
 
   if (error || !data) {
-    console.error("[Bread] Failed to update folder:", error?.message);
+    console.error("[Breezify] Failed to update folder:", error?.message);
     return NextResponse.json(
       { error: "Failed to update folder" },
       { status: 500 },
@@ -428,7 +428,7 @@ async function renameOrMergeTopic(args: {
         },
       );
       if (mergeError) {
-        console.error("[Bread] folders PATCH: rename-merge failed:", mergeError.message);
+        console.error("[Breezify] folders PATCH: rename-merge failed:", mergeError.message);
         return NextResponse.json({ error: "Failed to rename topic" }, { status: 500 });
       }
       return NextResponse.json({ merged: true, ...(result as TopicMergeResult) });
@@ -440,7 +440,7 @@ async function renameOrMergeTopic(args: {
   try {
     embedding = await generateEmbedding(newDisplay, "RETRIEVAL_DOCUMENT");
   } catch (err) {
-    console.error("[Bread] folders PATCH: topic embedding failed:", err);
+    console.error("[Breezify] folders PATCH: topic embedding failed:", err);
   }
 
   const { data: updated, error: updateError } = await admin
@@ -458,7 +458,7 @@ async function renameOrMergeTopic(args: {
     )
     .single();
   if (updateError || !updated) {
-    console.error("[Bread] folders PATCH: topic rename failed:", updateError?.message);
+    console.error("[Breezify] folders PATCH: topic rename failed:", updateError?.message);
     const status = updateError?.code === "23505" ? 409 : 500;
     return NextResponse.json(
       {
@@ -483,7 +483,7 @@ async function renameOrMergeTopic(args: {
       { onConflict: "workspace_id,alias_name" },
     );
     if (aliasError) {
-      console.error("[Bread] folders PATCH: alias write failed:", aliasError.message);
+      console.error("[Breezify] folders PATCH: alias write failed:", aliasError.message);
     }
   }
 
@@ -551,7 +551,7 @@ export async function DELETE(
         .eq("document_type", "topic_page");
 
       if (pageDeleteError) {
-        console.error("[Bread] Failed to delete topic page:", pageDeleteError.message);
+        console.error("[Breezify] Failed to delete topic page:", pageDeleteError.message);
         return NextResponse.json(
           { error: "Failed to delete topic" },
           { status: 500 },
@@ -566,7 +566,7 @@ export async function DELETE(
         .is("deleted_at", null);
 
       if (unfileError) {
-        console.error("[Bread] Failed to unfile topic documents:", unfileError.message);
+        console.error("[Breezify] Failed to unfile topic documents:", unfileError.message);
         return NextResponse.json(
           { error: "Failed to delete topic" },
           { status: 500 },
@@ -581,7 +581,7 @@ export async function DELETE(
         .eq("kind", "topic");
 
       if (error) {
-        console.error("[Bread] Failed to delete topic:", error.message);
+        console.error("[Breezify] Failed to delete topic:", error.message);
         return NextResponse.json(
           { error: "Failed to delete topic" },
           { status: 500 },
@@ -591,7 +591,7 @@ export async function DELETE(
       revalidateTag(PUBLIC_KB_CACHE_TAG, { expire: 0 });
       return NextResponse.json({ success: true });
     } catch (err) {
-      console.error("[Bread] Failed to delete topic:", err);
+      console.error("[Breezify] Failed to delete topic:", err);
       return NextResponse.json(
         { error: "Failed to delete topic" },
         { status: 500 },
@@ -615,7 +615,7 @@ export async function DELETE(
         .eq("workspace_id", workspace.workspace_id)
         .in("parent_folder_id", frontier);
       if (childError) {
-        console.error("[Bread] Failed to load folder subtree:", childError.message);
+        console.error("[Breezify] Failed to load folder subtree:", childError.message);
         return NextResponse.json(
           { error: "Failed to delete folder" },
           { status: 500 },
@@ -644,7 +644,7 @@ export async function DELETE(
 
     if (docsError) {
       console.error(
-        "[Bread] Failed to trash documents in folder subtree:",
+        "[Breezify] Failed to trash documents in folder subtree:",
         docsError.message,
       );
       return NextResponse.json(
@@ -660,7 +660,7 @@ export async function DELETE(
       .eq("workspace_id", workspace.workspace_id);
 
     if (error) {
-      console.error("[Bread] Failed to delete folder:", error.message);
+      console.error("[Breezify] Failed to delete folder:", error.message);
       return NextResponse.json(
         { error: "Failed to delete folder" },
         { status: 500 },
@@ -673,7 +673,7 @@ export async function DELETE(
     revalidateTag(PUBLIC_KB_CACHE_TAG, { expire: 0 });
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[Bread] Failed to delete folder:", err);
+    console.error("[Breezify] Failed to delete folder:", err);
     return NextResponse.json(
       { error: "Failed to delete folder" },
       { status: 500 },

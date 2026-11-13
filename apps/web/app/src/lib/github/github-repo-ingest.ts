@@ -13,7 +13,7 @@ import {
 } from './github'
 import { withGitHubRetry } from './retry'
 import { syncGitHubHostedDocs } from './github-hosted-docs'
-import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import type { GitHubHostedDocsSourceRow } from '@breezify/core'
 import { syncReadmeSource } from './readme/readme-service'
 
 const MAX_FILE_BYTES = 96 * 1024
@@ -155,7 +155,7 @@ function extensionOf(filePath: string): string {
 /**
  * Conservative repository-file allowlist. Besides excluding dependencies and
  * build output, it deliberately refuses common credential and private-key
- * filenames so connecting a repository cannot turn Bread into a secret index.
+ * filenames so connecting a repository cannot turn Breezify into a secret index.
  */
 export function shouldIndexRepositoryFile(entry: GitHubTreeEntry): boolean {
   if (entry.type !== 'blob') return false
@@ -354,7 +354,7 @@ export async function handleRepositoryPush(
         root_folder_id: string | null
         document_count: number
         last_sync_commit_sha: string | null
-        pending_sync_mode: 'merge' | 'replace_bread'
+        pending_sync_mode: 'merge' | 'replace_breezify'
       }
       return (deps.syncHostedDocs ?? syncGitHubHostedDocs)({
         sourceId: source.id,
@@ -708,12 +708,12 @@ async function performGitHubRepositorySync(
         embeddingQuotaReached = true
         deferred++
         console.warn(
-          '[Bread] GitHub repository indexing paused at embedding quota; remaining files stay pending.',
+          '[Breezify] GitHub repository indexing paused at embedding quota; remaining files stay pending.',
         )
         return
       }
       failed++
-      console.error('[Bread] GitHub repo file ingest failed:', entry.path, err)
+      console.error('[Breezify] GitHub repo file ingest failed:', entry.path, err)
     }
   })
 
@@ -853,7 +853,7 @@ async function persistRepositorySyncState(
     // Telemetry must never stop content ingestion. The migration and settings
     // UI are deployed together, but a best-effort write keeps rollout order
     // from dropping repository documents.
-    console.error('[Bread] GitHub repository sync state update failed:', error.message)
+    console.error('[Breezify] GitHub repository sync state update failed:', error.message)
   }
 }
 
@@ -869,7 +869,7 @@ async function loadRepositoryIndexingEnabled(
     .maybeSingle()
   if (error) {
     console.error(
-      '[Bread] GitHub repository cancellation state lookup failed:',
+      '[Breezify] GitHub repository cancellation state lookup failed:',
       error.message,
     )
     return true

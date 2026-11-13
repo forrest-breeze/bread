@@ -8,9 +8,9 @@ describe("makeDocumentPreview", () => {
   it("turns editor HTML into readable text", () => {
     expect(
       makeDocumentPreview(
-        '<div data-type="page-break" data-node-id="one"></div><h1>Getting started</h1><p>Use <strong>Bread</strong> with your team &amp; agents.</p>',
+        '<div data-type="page-break" data-node-id="one"></div><h1>Getting started</h1><p>Use <strong>Breezify</strong> with your team &amp; agents.</p>',
       ),
-    ).toBe("Getting started Use Bread with your team & agents.")
+    ).toBe("Getting started Use Breezify with your team & agents.")
   })
 
   it("cleans common imported Markdown", () => {

@@ -16,14 +16,14 @@ import type { PortalAnalyticsEventType } from "./analytics-types"
  * a server secret + workspace id + client IP + user-agent. We store only the
  * hash — never the raw IP/UA — so there is no PII at rest and no cookie/consent
  * surface. The same browser hitting the same portal hashes stably for as long
- * as BREAD_PORTAL_VISITOR_SALT is fixed, giving accurate unique-visitor counts
+ * as BREEZIFY_PORTAL_VISITOR_SALT is fixed, giving accurate unique-visitor counts
  * across the analysis window. Mixing workspace_id in means the same person on
  * two different workspaces' portals counts as two visitors (correct for
  * per-workspace analytics).
  */
 
 const VISITOR_SALT =
-  process.env.BREAD_PORTAL_VISITOR_SALT ?? "bread-portal-visitor-v1"
+  process.env.BREEZIFY_PORTAL_VISITOR_SALT ?? "breezify-portal-visitor-v1"
 
 export function portalVisitorId(
   ip: string,
@@ -41,20 +41,20 @@ function hashQuery(text: string): string {
 }
 
 // Kill-switch for the portal-analytics write path. Set
-// BREAD_PORTAL_ANALYTICS_DISABLED=1 to shed all portal_events inserts
+// BREEZIFY_PORTAL_ANALYTICS_DISABLED=1 to shed all portal_events inserts
 // instantly (no deploy) — reads still work off whatever has been captured.
 //
 // We also drop all captures outside production. Local dev (`next dev`,
 // NODE_ENV=development) talks to the SAME prod Supabase, so without this guard
 // your own localhost testing inflates unique-visitor and event counts (this is
 // exactly how localhost:3001 traffic showed up in prod analytics). Set
-// BREAD_PORTAL_ANALYTICS_FORCE=1 to capture anyway when intentionally testing
+// BREEZIFY_PORTAL_ANALYTICS_FORCE=1 to capture anyway when intentionally testing
 // the write path locally.
 function portalAnalyticsDisabled(): boolean {
-  if (process.env.BREAD_PORTAL_ANALYTICS_DISABLED === "1") return true
+  if (process.env.BREEZIFY_PORTAL_ANALYTICS_DISABLED === "1") return true
   if (
     process.env.NODE_ENV !== "production" &&
-    process.env.BREAD_PORTAL_ANALYTICS_FORCE !== "1"
+    process.env.BREEZIFY_PORTAL_ANALYTICS_FORCE !== "1"
   ) {
     return true
   }
@@ -92,10 +92,10 @@ export function logPortalEvent(input: LogPortalEventInput): void {
         referrer_host: input.referrerHost ?? null,
       })
       if (error) {
-        console.error("[Bread] logPortalEvent insert error:", error.message)
+        console.error("[Breezify] logPortalEvent insert error:", error.message)
       }
     } catch (err) {
-      console.error("[Bread] logPortalEvent threw:", err)
+      console.error("[Breezify] logPortalEvent threw:", err)
     }
   })()
 }

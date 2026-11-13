@@ -531,10 +531,10 @@ export function buildMarkdownExport(input: DocumentExportInput): string {
 export function buildHtmlExport(input: DocumentExportInput): string {
   const title = normalizeTitle(input.title)
   const updatedAt = input.updatedAt
-    ? `<p class="bread-meta">Exported from Bread. Last updated ${escapeHtml(
+    ? `<p class="breezify-meta">Exported from Breezify. Last updated ${escapeHtml(
         new Date(input.updatedAt).toLocaleString(),
       )}.</p>`
-    : `<p class="bread-meta">Exported from Bread.</p>`
+    : `<p class="breezify-meta">Exported from Breezify.</p>`
   const pages =
     input.pages.length > 0
       ? input.pages
@@ -544,7 +544,7 @@ export function buildHtmlExport(input: DocumentExportInput): string {
       const pageHeading = page.name.trim()
         ? `<h2>${escapeHtml(page.name.trim())}</h2>`
         : ""
-      return `<section class="bread-page" data-page="${index + 1}">${pageHeading}${sanitizeHtmlForExport(page.html)}</section>`
+      return `<section class="breezify-page" data-page="${index + 1}">${pageHeading}${sanitizeHtmlForExport(page.html)}</section>`
     })
     .join("\n")
 
@@ -570,8 +570,8 @@ export function buildHtmlExport(input: DocumentExportInput): string {
     .math-block { margin: 1rem 0; overflow-x: auto; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
     .math-inline { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
     .mermaid-source { white-space: pre-wrap; }
-    .bread-meta { margin: 0 0 32px; color: #6b7280; font-size: 0.875rem; }
-    .bread-page + .bread-page { margin-top: 32px; }
+    .breezify-meta { margin: 0 0 32px; color: #6b7280; font-size: 0.875rem; }
+    .breezify-page + .breezify-page { margin-top: 32px; }
     @media print {
       body { color: #111827; background: #ffffff; }
       main { max-width: none; padding: 0; }
@@ -991,8 +991,8 @@ function docxCorePropertiesXml(input: DocumentExportInput): string {
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <dc:title>${escapeXml(title)}</dc:title>
-  <dc:creator>Bread</dc:creator>
-  <cp:lastModifiedBy>Bread</cp:lastModifiedBy>
+  <dc:creator>Breezify</dc:creator>
+  <cp:lastModifiedBy>Breezify</cp:lastModifiedBy>
   <dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created>
   <dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified>
 </cp:coreProperties>`
@@ -1001,7 +1001,7 @@ function docxCorePropertiesXml(input: DocumentExportInput): string {
 function docxAppPropertiesXml(): string {
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
-  <Application>Bread</Application>
+  <Application>Breezify</Application>
 </Properties>`
 }
 

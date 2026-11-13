@@ -49,7 +49,7 @@ curl https://api.example.com/v1/balances/payin
 
 Use CommonMark headings, lists, links, inline code and fenced blocks, with GFM
 pipe tables. Do not require executable MDX or vendor-specific components for
-endpoint content. Example headings are a Bread presentation enhancement, not
+endpoint content. Example headings are a Breezify presentation enhancement, not
 an industry-standard layout directive; other renderers can show them inline.
 
 Keep the API contract as a separate OpenAPI 3.1 JSON/YAML document. Preserve

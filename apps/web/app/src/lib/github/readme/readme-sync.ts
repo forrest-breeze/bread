@@ -56,7 +56,7 @@ import type { ReadmeStore, ReadmeStoreDocument, ReadmeStoreFolder } from './read
  *
  * Only blobs that changed since the last sync are downloaded: a page whose
  * blob SHA still matches its document's checkpoint is left alone. When both
- * sides changed a page, Bread's copy is kept and the document is flagged as a
+ * sides changed a page, Breezify's copy is kept and the document is flagged as a
  * conflict; nothing is overwritten silently.
  */
 
@@ -65,7 +65,7 @@ const WRITE_CONCURRENCY = 6
 const MAX_SPEC_BYTES = 2 * 1024 * 1024
 const MAX_SKIPPED_RECORDED = 400
 
-export type ReadmeSyncMode = 'merge' | 'replace_bread'
+export type ReadmeSyncMode = 'merge' | 'replace_breezify'
 
 export interface ReadmeSyncTarget {
   installationId: number
@@ -91,7 +91,7 @@ export interface ReadmeSyncResult {
   created: number
   updated: number
   removed: number
-  /** Documents kept on Bread's version because both sides changed. */
+  /** Documents kept on Breezify's version because both sides changed. */
   preserved: number
   moved: number
   skipped: ReadmeSkippedFile[]
@@ -259,7 +259,7 @@ export async function syncReadmeRepository(
   }
 
   const state = readReadmeSyncState(target.syncState, root)
-  const force = target.force === true || target.mode === 'replace_bread'
+  const force = target.force === true || target.mode === 'replace_breezify'
   if (!force && target.lastSyncCommitSha === commit.sha && state.managed_paths.length > 0) {
     await store.updateSource({
       sync_status: 'synced',
@@ -291,10 +291,10 @@ export async function syncReadmeRepository(
     store.listSpecs(),
     store.listDeletedLinks(),
   ])
-  // Documents deleted in Bread whose file is still in the repository. Until
+  // Documents deleted in Breezify whose file is still in the repository. Until
   // that deletion is published the file must not be imported again, or any
   // unrelated push would bring the document back.
-  const deletedInBread = new Map(deletedLinks.map((link) => [link.path, link.blobSha]))
+  const deletedInBreezify = new Map(deletedLinks.map((link) => [link.path, link.blobSha]))
   const previouslyManaged = new Set(state.managed_paths)
   const usedSlugs = new Set(publicSlugs)
 
@@ -343,9 +343,9 @@ export async function syncReadmeRepository(
   const activePaths = new Set<string>()
   /** Paths that could not be read; their documents must not be removed. */
   const protectedPaths = new Set<string>()
-  /** Files whose deletion in Bread has not been published yet. */
+  /** Files whose deletion in Breezify has not been published yet. */
   const awaitingDeletion = new Set<string>()
-  const honorBreadDeletions = target.mode !== 'replace_bread'
+  const honorBreezifyDeletions = target.mode !== 'replace_breezify'
   const pagesToRead: ReadmeTreeFile[] = []
   for (const file of classification.pages) {
     const relative = relativeReadmePath(root, file.path)!
@@ -362,8 +362,8 @@ export async function syncReadmeRepository(
         activePaths.add(file.path)
         continue
       }
-      // The folder this landing page belonged to was deleted in Bread.
-      if (honorBreadDeletions && !folder && previouslyManaged.has(file.path)) {
+      // The folder this landing page belonged to was deleted in Breezify.
+      if (honorBreezifyDeletions && !folder && previouslyManaged.has(file.path)) {
         awaitingDeletion.add(file.path)
         continue
       }
@@ -374,13 +374,13 @@ export async function syncReadmeRepository(
         activePaths.add(file.path)
         continue
       }
-      // Deleted in Bread: either the trashed document still points at this
+      // Deleted in Breezify: either the trashed document still points at this
       // exact blob, or the document is gone entirely (trash emptied) while
-      // the file was one Bread had imported. A file that changed on GitHub
+      // the file was one Breezify had imported. A file that changed on GitHub
       // after it was trashed is imported again instead.
-      const trashedBlob = deletedInBread.get(file.path)
+      const trashedBlob = deletedInBreezify.get(file.path)
       if (
-        honorBreadDeletions &&
+        honorBreezifyDeletions &&
         !document &&
         (trashedBlob === file.sha ||
           (trashedBlob === undefined && previouslyManaged.has(file.path)))
@@ -416,7 +416,7 @@ export async function syncReadmeRepository(
       const index = isIndexPage(relative)
       const directory = directoryOf(relative)
       if (index && folderDirectoryOf(directory) === null) {
-        return skip('the guides root has no landing page in Bread', true)
+        return skip('the guides root has no landing page in Breezify', true)
       }
       const page: ParsedPage = {
         file,
@@ -479,7 +479,7 @@ export async function syncReadmeRepository(
   // --- Order files -----------------------------------------------------------
   const orderFiles: Record<string, ReadmeOrderFileState> = {}
   const orderChanged = new Set<string>()
-  // Only directories Bread mirrors have an order Bread can own. Order files
+  // Only directories Breezify mirrors have an order Breezify can own. Order files
   // elsewhere (for example inside the API reference tree ReadMe generates) are
   // left alone: never read, never rewritten, never deleted.
   const mirrored = new Set([full('docs'), ...directories.map((directory) => full(directory))])
@@ -534,7 +534,7 @@ export async function syncReadmeRepository(
 
     let folder = folderByDirectory.get(path) ?? null
     if (!folder) {
-      // A folder created in Bread and published from there has no recorded
+      // A folder created in Breezify and published from there has no recorded
       // path yet; recognize it by the documents that already live in it.
       const candidates = new Set<string>()
       for (const [documentPath, document] of [...documentByPath, ...pendingByPath]) {
@@ -595,12 +595,12 @@ export async function syncReadmeRepository(
           (link.indexTitle !== null && folder.displayName !== link.indexTitle)
         : Boolean(folder.content?.trim())
       const converged = currentHash === incomingHash
-      // When the landing page was edited on both sides, Bread's copy stays and
+      // When the landing page was edited on both sides, Breezify's copy stays and
       // is written back on the next publish; the link keeps the old checkpoint
       // so that publish sees the difference.
-      if (target.mode === 'replace_bread' || !edited || converged) {
+      if (target.mode === 'replace_breezify' || !edited || converged) {
         if (!converged) patch.content = index.markdown
-        if (folder.displayName !== index.title && (target.mode === 'replace_bread' || !edited)) {
+        if (folder.displayName !== index.title && (target.mode === 'replace_breezify' || !edited)) {
           patch.displayName = index.title
         }
         Object.assign(nextLink, {
@@ -625,7 +625,7 @@ export async function syncReadmeRepository(
       })
     }
 
-    if (target.mode === 'replace_bread' && folder.parentId !== parentId) {
+    if (target.mode === 'replace_breezify' && folder.parentId !== parentId) {
       patch.parentId = parentId
       moved++
     }
@@ -735,7 +735,7 @@ export async function syncReadmeRepository(
       link.markdownHash === currentHash &&
       (link.title === null || link.title === existing.title)
     const converged = currentHash === incomingHash && existing.title === page.title
-    if (target.mode !== 'replace_bread' && link !== null && !unedited && !converged) {
+    if (target.mode !== 'replace_breezify' && link !== null && !unedited && !converged) {
       await store.updateDocument(existing.id, {
         // A file that moved on GitHub keeps its document pointed at it, so
         // resolving the conflict later writes to the right place.
@@ -753,10 +753,10 @@ export async function syncReadmeRepository(
     }
 
     const patch: Parameters<ReadmeStore['updateDocument']>[1] = {}
-    if (link === null || link.hidden !== page.hidden || target.mode === 'replace_bread') {
+    if (link === null || link.hidden !== page.hidden || target.mode === 'replace_breezify') {
       if (existing.status !== status) patch.status = status
     }
-    const relocate = wasRenamed || link === null || target.mode === 'replace_bread'
+    const relocate = wasRenamed || link === null || target.mode === 'replace_breezify'
     if (relocate && !pending && existing.folderId !== folderId) {
       patch.folderId = folderId
       moved++
@@ -828,11 +828,11 @@ export async function syncReadmeRepository(
     const unedited =
       link.markdownHash === markdownHash(toMarkdown(document.content)) &&
       (link.title === null || link.title === document.title)
-    if (target.mode === 'replace_bread' || unedited) {
+    if (target.mode === 'replace_breezify' || unedited) {
       removable.push(document)
       continue
     }
-    // Edited in Bread, deleted on GitHub: keep the document and say so.
+    // Edited in Breezify, deleted on GitHub: keep the document and say so.
     await store.updateDocument(document.id, {
       metadata: {
         ...(document.metadata ?? {}),
@@ -847,7 +847,7 @@ export async function syncReadmeRepository(
   }
   if (removable.length > 0) {
     // Clear the link first: a soft-deleted document that is still linked means
-    // "deleted in Bread, not published yet", which this is not.
+    // "deleted in Breezify, not published yet", which this is not.
     await mapWithConcurrency(removable, WRITE_CONCURRENCY, (document) =>
       store.updateDocument(document.id, {
         metadata: { ...(document.metadata ?? {}), github_hosted_sync: false },
@@ -877,8 +877,8 @@ export async function syncReadmeRepository(
       skipped.push(carried)
       continue
     }
-    // The source was removed in Bread and that removal is not on GitHub yet.
-    if (honorBreadDeletions && !known && previouslyManaged.has(file.path)) {
+    // The source was removed in Breezify and that removal is not on GitHub yet.
+    if (honorBreezifyDeletions && !known && previouslyManaged.has(file.path)) {
       awaitingDeletion.add(file.path)
       continue
     }

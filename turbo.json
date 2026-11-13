@@ -14,14 +14,14 @@
         "URL",
         "VERCEL",
         "VERCEL_ENV",
-        "BREAD_PORTAL_ASSET_ORIGIN"
+        "BREEZIFY_PORTAL_ASSET_ORIGIN"
       ],
       "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
     },
     "dev": {
       // Workspace packages are consumed from dist/, so they must be compiled
       // before any app's dev server boots — otherwise next.config.mjs imports of
-      // @bread/core fail with ERR_MODULE_NOT_FOUND on a fresh/cleaned checkout.
+      // @breezify/core fail with ERR_MODULE_NOT_FOUND on a fresh/cleaned checkout.
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true

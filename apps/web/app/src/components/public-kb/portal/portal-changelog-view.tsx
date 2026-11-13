@@ -12,6 +12,7 @@ import {
   resolvePortalLayout,
 } from "@/lib/portal/build-default"
 import type { PortalLayout, PortalPage } from "@/lib/portal/schema"
+import { portalDefaultPage } from "@/lib/portal/schema"
 import {
   publicPortalHref,
   withPublicPortalBase,
@@ -43,7 +44,7 @@ interface PortalChangelogViewProps {
    * routes omit this and use the canonical page-local path.
    */
   entryHref?: (documentSlug: string | null) => string
-  canRemoveBreadBranding: boolean
+  canRemoveBreezifyBranding: boolean
   preview?: boolean
 }
 
@@ -57,16 +58,19 @@ export async function PortalChangelogView({
   documents,
   activeDocument,
   entryHref,
-  canRemoveBreadBranding,
+  canRemoveBreezifyBranding,
   preview = false,
 }: PortalChangelogViewProps): Promise<React.ReactElement> {
   const hrefForEntry =
     entryHref ??
     ((documentSlug: string | null): string =>
-      publicPortalHref(
-        hrefBase,
-        `/page/${page.slug}${documentSlug ? `/${documentSlug}` : ""}`,
-      ))
+      // The default page's feed lives at the portal root.
+      !documentSlug && portalDefaultPage(publishedLayout)?.id === page.id
+        ? hrefBase
+        : publicPortalHref(
+            hrefBase,
+            `/page/${page.slug}${documentSlug ? `/${documentSlug}` : ""}`,
+          ))
   const projectLayout = resolvePortalLayout({
     slug: base,
     workspace,
@@ -149,7 +153,7 @@ export async function PortalChangelogView({
       </div>
       <PortalFooter
         footer={layout.footer ?? buildDefaultFooter(workspace)}
-        allowPoweredByRemoval={canRemoveBreadBranding}
+        allowPoweredByRemoval={canRemoveBreezifyBranding}
         brandName={layout.theme.brandName}
         brandLogoUrl={layout.theme.logoUrl || null}
         brandDarkLogoUrl={layout.theme.darkLogoUrl || null}

@@ -75,7 +75,7 @@ async function main(): Promise<void> {
     userId = data.users.find((user) => user.email?.toLowerCase() === ownerEmail)?.id ?? null
     if (data.users.length < 200) break
   }
-  if (!userId) throw new Error(`no Bread user with email ${ownerEmail}`)
+  if (!userId) throw new Error(`no Breezify user with email ${ownerEmail}`)
 
   const { data: existing, error: lookupError } = await admin
     .from("workspaces")

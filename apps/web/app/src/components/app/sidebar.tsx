@@ -1,17 +1,20 @@
 "use client"
 
-import React, { useState, useEffect, useTransition, Suspense, useId } from "react"
+import React, { useState, Suspense, useId } from "react"
 import { HoverPrefetchLink } from "@/components/ui/hover-prefetch-link"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import Image from "next/image"
 import {
-  ChevronsUpDown,
+  Building2,
+  CircleUser,
+  LogOut,
   Menu,
+  SlidersHorizontal,
+  UserPlus,
   PanelLeftClose,
   PanelLeftOpen,
   PanelLeft,
-  Check,
   ChevronRight,
   ChevronLeft,
   Search,
@@ -30,15 +33,14 @@ import {
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { useSWRConfig } from "swr"
-import { useWorkspace, useWorkspaces } from "@/hooks/swr"
+import { useProfile, useWorkspace } from "@/hooks/swr"
+import { signOutAndRedirect } from "@/lib/auth/sign-out"
 import { useHasHydrated } from "@/hooks/use-has-hydrated"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -278,13 +280,6 @@ interface WorkspaceInfo {
   icon_url: string | null
 }
 
-function WorkspaceIconSkeleton({ size = "md" }: { size?: "sm" | "md" }) {
-  const s = size === "sm" ? "size-6" : "size-7"
-  const rounded = size === "sm" ? "rounded-sm" : "rounded-md"
-
-  return <Skeleton className={cn(s, rounded, "shrink-0")} />
-}
-
 function WorkspaceIcon({ workspace, size = "md" }: { workspace: WorkspaceInfo | null; size?: "sm" | "md" }) {
   const [loadedIconUrl, setLoadedIconUrl] = React.useState<string | null>(null)
   const [erroredIconUrl, setErroredIconUrl] = React.useState<string | null>(null)
@@ -325,124 +320,84 @@ function WorkspaceIcon({ workspace, size = "md" }: { workspace: WorkspaceInfo | 
   )
 }
 
-function switchWorkspace(id: string) {
-  document.cookie = `bread-workspace=${id}; path=/; max-age=31536000; samesite=lax`
+function ProfileAvatar({
+  name,
+  avatarUrl,
+}: {
+  name: string
+  avatarUrl: string | null
+}) {
+  const [erroredUrl, setErroredUrl] = React.useState<string | null>(null)
+  if (avatarUrl && erroredUrl !== avatarUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- avatars come from arbitrary auth-provider hosts
+      <img
+        src={avatarUrl}
+        alt=""
+        className="size-7 shrink-0 rounded-full object-cover"
+        onError={() => setErroredUrl(avatarUrl)}
+      />
+    )
+  }
+  return (
+    <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+      <span className="text-xs font-semibold !text-primary-foreground">
+        {name.charAt(0).toUpperCase()}
+      </span>
+    </div>
+  )
 }
 
-function WorkspaceMenu({ isMinimized }: { isMinimized?: boolean }) {
+/**
+ * Account menu pinned to the bottom of the sidebar. Breezify hosts one workspace,
+ * so this replaces the old workspace switcher: the workspace is shown as the
+ * menu's header, followed by account and workspace shortcuts and sign-out.
+ */
+function ProfileMenu({ isMinimized }: { isMinimized?: boolean }) {
   const router = useRouter()
   const instanceId = useId()
-  const { mutate: globalMutate } = useSWRConfig()
-  const { setSwitching } = useWorkspaceSwitch()
-  const [revalidating, setRevalidating] = useState(false)
-  const [isRefreshPending, startRefreshTransition] = useTransition()
   const { data: wsData, mutate, isLoading: wsLoading } = useWorkspace()
-  const {
-    data: allWorkspaces,
-    mutate: mutateList,
-    isLoading: listLoading,
-    error: listError,
-  } = useWorkspaces()
+  const { data: profile, isLoading: profileLoading } = useProfile()
   const isAdmin = wsData?.user_role === "admin" || wsData?.user_role === "owner"
   const { start: startTour } = useProductTour()
-  // The SWR cache is synchronously seeded from localStorage (see swr-provider),
-  // so on the client's first render `wsData` may already be populated while the
-  // server (no localStorage) rendered the skeleton. Branching the DOM structure
-  // (skeleton <div> vs trigger <button>) on that state mismatches hydration, so
-  // hold the server-shaped skeleton until hydration completes, then flip to live
-  // state. useHasHydrated() reads false during SSR + the first client render
-  // (no setState-in-effect), keeping that render identical to the server.
+  // The SWR cache is seeded synchronously from localStorage on the client, so
+  // hold the server-shaped skeleton until hydration to avoid a mismatch.
   const hasHydrated = useHasHydrated()
 
   const workspace: WorkspaceInfo | null = wsData
     ? { id: wsData.id, name: wsData.name, icon_url: wsData.icon_url ?? null }
     : null
 
-  // Re-validate when workspace settings are saved or when a workspace/membership
-  // row the user can see changes. RLS on the replication stream scopes events
-  // to this user, so we don't need a client-side filter. The channel is keyed
-  // on instanceId (stable for the mount) rather than wsData.id so it survives
-  // workspace switches — a per-workspace channel would drop events fired in
-  // the window between unsubscribe and resubscribe. Listening to
-  // workspace_members is required because /api/workspaces is derived from
-  // memberships: invites, joins, and removals all fire on that table and
-  // leave the workspaces row untouched.
+  // Keep the workspace name and icon fresh after settings saves or edits made
+  // elsewhere (another tab, another admin).
   React.useEffect(() => {
-    const refresh = () => {
-      void mutate()
-      void mutateList()
-    }
+    const refresh = () => void mutate()
     window.addEventListener("workspace-updated", refresh)
-
     const supabase = createClient()
     const channel = supabase
-      .channel(`sidebar-workspaces-${instanceId}`)
+      .channel(`sidebar-workspace-${instanceId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "workspaces" },
         refresh,
       )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "workspace_members" },
-        refresh,
-      )
       .subscribe()
-
     return () => {
       window.removeEventListener("workspace-updated", refresh)
       supabase.removeChannel(channel)
     }
-  }, [mutate, mutateList, instanceId])
+  }, [mutate, instanceId])
 
-  // Surface the switch as a global reload indicator. `revalidating` covers the
-  // SWR refetch phase; `isRefreshPending` covers the server-component refresh
-  // that follows. The indicator stays up until both settle.
-  useEffect(() => {
-    setSwitching(revalidating || isRefreshPending)
-  }, [revalidating, isRefreshPending, setSwitching])
+  const email = profile?.email ?? ""
+  const displayName = profile?.display_name?.trim() || email || "Account"
 
-  // Revalidate all SWR caches so workspace-scoped data refetches.
-  // `revalidate: true` forces network requests even within the dedupingInterval
-  // window; `populateCache: false` keeps the current data visible (no flash to
-  // empty skeletons) until each fresh response lands.
-  const revalidateAll = async () => {
-    await globalMutate(() => true, undefined, { revalidate: true, populateCache: false })
-  }
-
-  const handleSwitch = async (id: string) => {
-    if (id === workspace?.id) return
-    const target = (allWorkspaces ?? []).find((ws) => ws.id === id)
-    switchWorkspace(id)
-    setRevalidating(true)
-    try {
-      // Optimistically flip the sidebar header to the target workspace using
-      // the row we already have from the list, so the switch registers
-      // instantly with no skeleton flash. Optional flags fill in on
-      // revalidation.
-      if (target) {
-        await mutate(target, { revalidate: false, populateCache: true })
-      }
-      // Revalidate every workspace-scoped cache in place; the dimmed main area
-      // and top progress bar signal that the rest of the app is reloading.
-      await revalidateAll()
-    } finally {
-      setRevalidating(false)
-    }
-    // Re-render server components for the new workspace; isRefreshPending keeps
-    // the indicator up until the server render lands.
-    startRefreshTransition(() => router.refresh())
-  }
-
-  const displayName = workspace?.name ?? "Workspace"
-
-  if (!hasHydrated || (wsLoading && !wsData)) {
+  if (!hasHydrated || ((wsLoading && !wsData) || (profileLoading && !profile))) {
     return (
       <div className={cn(
         "flex w-full items-center rounded-lg p-2 gap-2.5",
         isMinimized && "justify-center gap-0"
       )}>
-        <WorkspaceIconSkeleton />
+        <Skeleton className="size-7 shrink-0 rounded-full" />
         {!isMinimized && (
           <div className="flex-1 space-y-1.5 overflow-hidden text-left">
             <div className="h-3 w-24 skeleton-pulse rounded bg-muted" />
@@ -453,87 +408,82 @@ function WorkspaceMenu({ isMinimized }: { isMinimized?: boolean }) {
     )
   }
 
+  const go = (href: string) => () => router.push(href)
+
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          className={cn(
-            "group/wsbtn flex w-full items-center p-2 text-left outline-none",
-            isMinimized
-              ? "justify-center gap-0 rounded-lg transition-colors hover:bg-muted"
-              : "gap-2.5"
-          )}
-          title={isMinimized ? "Workspaces" : undefined}
-        >
-          <WorkspaceIcon workspace={workspace} />
-          {!isMinimized && (
-            <div className="flex flex-1 items-center gap-2.5 overflow-hidden rounded-md px-2 py-1 -my-1 transition-colors group-hover/wsbtn:bg-muted">
-              <div className="flex-1 overflow-hidden">
-                <p className="truncate text-sm font-medium leading-tight">{displayName}</p>
-              </div>
-              <ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground" />
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={cn(
+          "group/profile flex w-full items-center rounded-lg p-2 text-left outline-none transition-colors hover:bg-muted data-[popup-open]:bg-muted",
+          isMinimized ? "justify-center gap-0" : "gap-2.5"
+        )}
+        title={isMinimized ? displayName : undefined}
+        aria-label="Account menu"
+      >
+        <ProfileAvatar name={displayName} avatarUrl={profile?.avatar_url ?? null} />
+        {!isMinimized && (
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium leading-tight">{displayName}</p>
+            {email && email !== displayName ? (
+              <p className="truncate text-[11px] leading-tight text-muted-foreground">{email}</p>
+            ) : null}
+          </div>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        side={isMinimized ? "right" : "top"}
+        align={isMinimized ? "end" : "start"}
+        sideOffset={8}
+        className="w-60"
+      >
+        <DropdownMenuGroup>
+          <DropdownMenuItem onClick={go("/settings/workspace")} className="gap-2.5 py-2">
+            <WorkspaceIcon workspace={workspace} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium leading-tight">
+                {workspace?.name ?? "Workspace"}
+              </p>
+              {email ? (
+                <p className="truncate text-[11px] leading-tight text-muted-foreground">{email}</p>
+              ) : null}
             </div>
-          )}
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          side={isMinimized ? "right" : "bottom"}
-          align={isMinimized ? "end" : "start"}
-          sideOffset={isMinimized ? 16 : 8}
-          className="w-56"
-        >
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
-            {listLoading && !allWorkspaces ? (
-              <div className="space-y-1 px-2 py-1.5">
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <div key={index} className="flex h-8 items-center">
-                    <WorkspaceIconSkeleton size="sm" />
-                    <Skeleton className="ml-2 h-3 w-28" />
-                  </div>
-                ))}
-              </div>
-            ) : listError ? (
-              <div className="px-2 py-1.5 text-xs text-destructive">
-                Failed to load workspaces.{" "}
-                <button
-                  onClick={() => void mutateList()}
-                  className="underline underline-offset-2 hover:text-destructive/80"
-                >
-                  Retry
-                </button>
-              </div>
-            ) : (allWorkspaces ?? []).length === 0 ? (
-              <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                No workspaces
-              </div>
-            ) : (
-              (allWorkspaces ?? []).map((ws) => (
-                <DropdownMenuItem
-                  key={ws.id}
-                  onClick={() => handleSwitch(ws.id)}
-                >
-                  <WorkspaceIcon
-                    workspace={{ id: ws.id, name: ws.name, icon_url: ws.icon_url ?? null }}
-                    size="sm"
-                  />
-                  <span className="ml-2 truncate">{ws.name}</span>
-                  {ws.id === workspace?.id && (
-                    <Check className="ml-auto size-4" />
-                  )}
-                </DropdownMenuItem>
-              ))
-            )}
-          </DropdownMenuGroup>
-          {/* Breeze internal tool: one workspace, so no create/join entries. */}
-          <DropdownMenuSeparator />
+            <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          {isAdmin ? (
+            <DropdownMenuItem onClick={go("/settings/workspace/members")}>
+              <UserPlus className="size-4" />
+              <span className="ml-2">Add teammates</span>
+            </DropdownMenuItem>
+          ) : null}
+          <DropdownMenuItem onClick={go("/settings/workspace")}>
+            <Building2 className="size-4" />
+            <span className="ml-2">Workspace settings</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={go("/settings/preferences")}>
+            <SlidersHorizontal className="size-4" />
+            <span className="ml-2">Preferences</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={go("/settings/profile")}>
+            <CircleUser className="size-4" />
+            <span className="ml-2">Profile</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
           <DropdownMenuItem onClick={startTour}>
             <Compass className="size-4" />
             <span className="ml-2">Take the tour</span>
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-    </>
+          <DropdownMenuItem onClick={() => void signOutAndRedirect()}>
+            <LogOut className="size-4" />
+            <span className="ml-2">Log out</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -610,7 +560,7 @@ function SidebarInner({ onNavigate, isMinimized, onToggleMinimize }: { onNavigat
       </div>
 
       <div className="border-t border-border p-2 space-y-1">
-        <WorkspaceMenu isMinimized={isMinimized} />
+        <ProfileMenu isMinimized={isMinimized} />
       </div>
     </div>
   )
@@ -674,7 +624,7 @@ function MobileHeader({
         >
           <div className="sr-only">
             <SheetTitle>Main navigation</SheetTitle>
-            <SheetDescription>Navigate between Bread sections.</SheetDescription>
+            <SheetDescription>Navigate between Breezify sections.</SheetDescription>
           </div>
           <SidebarInner onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
