@@ -8,8 +8,7 @@ name: "Cron: KB media GC"
 on:
   schedule:
     # Daily at 06:15 UTC. Offset off :00 — GitHub's scheduler is congested on
-    # the hour and routinely drops round-time cron events — and offset off the
-    # KB ingest cron (06:07) so the two daily jobs don't contend. This is only a
+    # the hour and routinely drops round-time cron events. This is only a
     # heartbeat: the reaper is idempotent and conservative (it only deletes
     # media past a grace period that no live document or capture references), so
     # a missed or doubled tick is harmless.
