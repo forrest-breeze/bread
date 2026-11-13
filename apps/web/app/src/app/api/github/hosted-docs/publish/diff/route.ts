@@ -6,6 +6,11 @@ import { isWorkspaceOnPaidTier } from '@/lib/db/subscription'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { buildBreadWorkspaceExport } from '@/lib/github/github-hosted-workspace'
+import { ReadmePublishError } from '@/lib/github/readme/readme-publish'
+import {
+  diffReadmeSourcePublish,
+  isReadmeFormatSource,
+} from '@/lib/github/readme/readme-service'
 import {
   HostedWorkspacePublishError,
   resolveHostedWorkspacePublishDiff,
@@ -97,6 +102,16 @@ export async function GET(): Promise<NextResponse> {
       )
     }
 
+    if (isReadmeFormatSource(source)) {
+      const diff = await diffReadmeSourcePublish(source, admin)
+      return privateJson({
+        files: diff.files,
+        changed_file_count: diff.changedFileCount,
+        truncated: diff.truncated,
+        compared_commit_sha: diff.comparedCommitSha,
+      })
+    }
+
     const targetPath = source.paths[0]!
     const exported = await buildBreadWorkspaceExport(admin, {
       workspaceId: workspace.workspace_id,
@@ -118,7 +133,7 @@ export async function GET(): Promise<NextResponse> {
       compared_commit_sha: diff.comparedCommitSha,
     })
   } catch (err) {
-    if (err instanceof HostedWorkspacePublishError) {
+    if (err instanceof HostedWorkspacePublishError || err instanceof ReadmePublishError) {
       return privateJson({ error: err.message, code: err.code }, err.status)
     }
     console.error('[Bread] workspace publish diff:', err)

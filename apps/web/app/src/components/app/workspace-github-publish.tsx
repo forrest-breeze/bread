@@ -92,6 +92,10 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
         url: source.publish_pull_request_url,
       }
     : null
+  // A ReadMe-format link can commit straight to the synced branch, the way
+  // ReadMe's own GitHub integration does, instead of opening a pull request.
+  const directCommit =
+    source?.format === "readme" && source.publish_mode === "direct"
   const exactStatusUpToDate = Boolean(
     canPublish && sourceReady && publishStatus?.status === "up_to_date",
   )
@@ -417,10 +421,21 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
                 : "Publish workspace changes?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Bread will compare all linked documents in {source.repo_full_name}
-              {" "}and put every saved change into {pullRequest ? "the open" : "one"}
-              {" "}pull request. The default branch will not change until that
-              pull request is merged.
+              {directCommit ? (
+                <>
+                  Bread will compare all linked documents in{" "}
+                  {source.repo_full_name} and commit every saved change straight
+                  to the {source.branch ?? "default"} branch.
+                </>
+              ) : (
+                <>
+                  Bread will compare all linked documents in{" "}
+                  {source.repo_full_name} and put every saved change into{" "}
+                  {pullRequest ? "the open" : "one"} pull request. The{" "}
+                  {source.branch ?? "default"} branch will not change until that
+                  pull request is merged.
+                </>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -430,7 +445,7 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
               <p>
                 {source.conflict_count} linked document
                 {source.conflict_count === 1 ? " has" : "s have"} changes in
-                both GitHub and Bread. This pull request will propose the Bread
+                both GitHub and Bread. This {directCommit ? "commit will write" : "pull request will propose"} the Bread
                 versions for those files. Review those conflicts before continuing.
               </p>
             </div>
@@ -448,9 +463,11 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
           {publishing ? (
             <LoadingBar
               label={
-                pullRequest
-                  ? "Pull request update progress"
-                  : "Pull request creation progress"
+                directCommit
+                  ? "GitHub commit progress"
+                  : pullRequest
+                    ? "Pull request update progress"
+                    : "Pull request creation progress"
               }
             />
           ) : null}
@@ -464,13 +481,17 @@ export function WorkspaceGitHubPublish(): React.ReactElement | null {
                 void publish()
               }}
             >
-              {publishing
-                ? pullRequest
-                  ? "Updating pull request"
-                  : "Creating pull request"
-                : pullRequest
-                  ? "Update pull request"
-                  : "Create pull request"}
+              {directCommit
+                ? publishing
+                  ? "Committing to GitHub"
+                  : "Commit to GitHub"
+                : publishing
+                  ? pullRequest
+                    ? "Updating pull request"
+                    : "Creating pull request"
+                  : pullRequest
+                    ? "Update pull request"
+                    : "Create pull request"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

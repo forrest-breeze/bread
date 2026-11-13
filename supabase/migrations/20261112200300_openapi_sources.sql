@@ -23,6 +23,8 @@ create table if not exists public.openapi_sources (
 alter table public.openapi_sources enable row level security;
 
 -- Members read; all writes go through the server (service role).
+-- Safe to run after 20261113120000_readme_github_sync.sql created the table.
+drop policy if exists "workspace members can read openapi sources" on public.openapi_sources;
 create policy "workspace members can read openapi sources"
   on public.openapi_sources for select
   using (workspace_id in (select public.get_user_workspace_ids()));

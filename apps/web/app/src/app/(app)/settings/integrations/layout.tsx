@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHasHydrated } from "@/hooks/use-has-hydrated";
 import { cn } from "@/lib/utils";
-import { FileJson, type LucideIcon } from "lucide-react";
-import { useOpenApiSources } from "@/hooks/swr";
+import { FileJson, GitBranch, type LucideIcon } from "lucide-react";
+import { useGithubHostedDocs, useOpenApiSources } from "@/hooks/swr";
 
 // ---------------------------------------------------------------------------
 // Settings → Integrations layout.
@@ -38,6 +38,13 @@ const CONNECTED_APPS: IntegrationDef[] = [
     icon: FileJson,
     href: "/settings/integrations/openapi",
   },
+  {
+    id: "github",
+    name: "GitHub",
+    description: "Two-way docs sync with a repository.",
+    icon: GitBranch,
+    href: "/settings/integrations/github",
+  },
 ];
 
 export default function IntegrationsLayout({
@@ -48,6 +55,7 @@ export default function IntegrationsLayout({
   const pathname = usePathname();
 
   const openApi = useOpenApiSources();
+  const hostedDocs = useGithubHostedDocs();
   // The SWR cache is seeded synchronously on the client, so `isLoading` is
   // false on the first client render while the server always rendered the
   // loading branch — rendering a status slot before hydration mismatches the
@@ -63,6 +71,12 @@ export default function IntegrationsLayout({
       return openApi.isLoading
         ? "loading"
         : (openApi.data?.sources.length ?? 0) > 0
+          ? "connected"
+          : "not_connected";
+    if (id === "github")
+      return hostedDocs.isLoading
+        ? "loading"
+        : hostedDocs.data?.source
           ? "connected"
           : "not_connected";
     return "not_connected";

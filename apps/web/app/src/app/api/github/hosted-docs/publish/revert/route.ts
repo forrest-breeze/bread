@@ -117,6 +117,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         409,
       )
     }
+    if (source.format === 'readme') {
+      // A ReadMe-format link has no per-file revert yet. "Use GitHub" in
+      // Settings discards every unpublished workspace change instead.
+      return privateJson(
+        {
+          error:
+            'Reverting single files is not available for a ReadMe-format repository. To discard workspace changes, re-sync with "Use GitHub" in GitHub settings.',
+          code: 'revert_not_supported',
+        },
+        409,
+      )
+    }
     leaseOperationId = randomUUID()
     const { data: leaseRows, error: leaseError } = await admin.rpc(
       'acquire_github_hosted_docs_publish_lease',

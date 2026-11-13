@@ -231,7 +231,7 @@ describe('handleGitHubDocsCheck', () => {
     })
 
     expect(admin.from).toHaveBeenCalledWith('github_hosted_docs_sources')
-    expect(admin.select).toHaveBeenCalledWith('paths')
+    expect(admin.select).toHaveBeenCalledWith('paths, format')
     expect(admin.eq).toHaveBeenNthCalledWith(1, 'installation_id', 7)
     expect(admin.eq).toHaveBeenNthCalledWith(2, 'repo_id', 42)
     expect(mocks.getToken).not.toHaveBeenCalled()

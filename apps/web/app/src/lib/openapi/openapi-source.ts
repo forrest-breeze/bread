@@ -85,7 +85,19 @@ export function parseOpenApiUpload(
 
 export async function syncOpenApiSource(
   admin: SupabaseClient,
-  input: { workspaceId: string; slug: string; raw: string; syncedBy: string },
+  input: {
+    workspaceId: string
+    slug: string
+    /** The definition as JSON or YAML. */
+    raw: string
+    syncedBy: string
+    /**
+     * Where this definition lives in the linked GitHub repository, when the
+     * sync was read from there. Omitted for uploads, which keep any existing
+     * repository link.
+     */
+    repository?: { path: string; blobSha: string }
+  },
 ): Promise<OpenApiSourceSyncOutcome> {
   const parsed = parseOpenApiUpload(input.slug, input.raw);
   if (!parsed.spec) return { ok: false, issues: parsed.issues };
@@ -227,6 +239,11 @@ export async function syncOpenApiSource(
       root_folder_id: rootFolderId,
       last_synced_at: syncedAt,
       last_synced_by: input.syncedBy,
+      // Kept so the definition can be written to the linked repository.
+      spec_raw: input.raw,
+      ...(input.repository
+        ? { repo_path: input.repository.path, repo_blob_sha: input.repository.blobSha }
+        : {}),
     },
     { onConflict: "workspace_id,slug" },
   );

@@ -185,11 +185,38 @@ describe('parseHostedOpenApiSpec', () => {
     expect(content).toContain('"email": "user@example.com"')
   })
 
+  it('reads YAML definitions the same way as JSON', () => {
+    const raw = [
+      'openapi: 3.0.3',
+      'info:',
+      '  title: Payments API',
+      '  version: 2025-01-15',
+      'paths:',
+      '  /payments:',
+      '    get:',
+      '      operationId: listPayments',
+      '      summary: List payments',
+      '      responses:',
+      "        '200':",
+      '          description: OK',
+    ].join('\n')
+    const { spec, issues } = parseHostedOpenApiSpec({ specPath: 'reference/payments.yaml', raw, repoId: 1 })
+    expect(issues).toEqual([])
+    expect(spec?.title).toBe('Payments API')
+    // No timestamp coercion: the version stays the string the author wrote.
+    expect(spec?.version).toBe('2025-01-15')
+    expect(spec?.operations.map((operation) => operation.key)).toEqual(['GET /payments'])
+    expect(spec?.operations[0]!.publicSlug).toMatch(/^github-1-reference-payments-listpayments-/)
+  })
+
   it('reports invalid specs as issues against the file', () => {
-    expect(parse('nope').issues).toEqual([{ path: 'docs/api/openapi.json', message: 'must be a JSON object' }])
+    expect(parse('nope').issues).toEqual([{ path: 'docs/api/openapi.json', message: 'must be a JSON or YAML object' }])
     expect(
       parseHostedOpenApiSpec({ specPath: 'docs/openapi.json', raw: '{', repoId: 1 }).issues[0]!.message,
-    ).toBe('must be valid JSON')
+    ).toBe('must be valid JSON or YAML')
+    expect(
+      parseHostedOpenApiSpec({ specPath: 'docs/openapi.yaml', raw: 'openapi: [unclosed', repoId: 1 }).issues[0]!.message,
+    ).toBe('must be valid JSON or YAML')
     expect(parse({ openapi: '2.5.0', paths: {} }).issues[0]!.message).toMatch(/must declare/)
     expect(parse({ openapi: '3.1.0' }).issues[0]!.message).toMatch(/paths/)
     expect(parse({ openapi: '3.1.0', paths: {} }).issues[0]!.message).toMatch(/does not define/)

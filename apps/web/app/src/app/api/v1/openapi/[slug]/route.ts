@@ -7,6 +7,11 @@ import {
   OPENAPI_SOURCE_SLUG_RE,
   syncOpenApiSource,
 } from "@/lib/openapi/openapi-source"
+import {
+  openApiSourceRepositoryPath,
+  removeOpenApiSourceFromLinkedRepository,
+  writeOpenApiSourceToLinkedRepository,
+} from "@/lib/github/readme/readme-service"
 
 // PUT /api/v1/openapi/<name> — publish an OpenAPI spec (replaces ReadMe's
 // `rdme openapi upload`). Called from CI with a workspace API key:
@@ -16,6 +21,10 @@ import {
 //     -H "x-bread-workspace: breeze" \
 //     -H "Content-Type: application/json" \
 //     --data-binary @src/openapi/specs/latest/openapi.json
+//
+// The body may be JSON or YAML. When the workspace is linked to a GitHub
+// repository in the ReadMe format, the spec is also committed to
+// reference/<name>.json|yaml there; the response reports it under `github`.
 //
 // DELETE removes the spec's generated pages. Both need a key with the
 // "admin" scope acting as editor or above.
@@ -71,7 +80,8 @@ export async function PUT(
   const raw = await request.text()
 
   try {
-    const outcome = await syncOpenApiSource(createAdminClient(), {
+    const admin = createAdminClient()
+    const outcome = await syncOpenApiSource(admin, {
       workspaceId: authorized.workspaceId,
       slug: authorized.slug,
       raw,
@@ -83,7 +93,14 @@ export async function PUT(
         { status: 422 },
       )
     }
-    return NextResponse.json(outcome.result)
+    // With a ReadMe-format repository linked, the definition is also written
+    // to reference/ on GitHub, as ReadMe does after `rdme openapi upload`.
+    const github = await writeOpenApiSourceToLinkedRepository(
+      admin,
+      authorized.workspaceId,
+      authorized.slug,
+    )
+    return NextResponse.json({ ...outcome.result, ...(github ? { github } : {}) })
   } catch (err) {
     console.error("[Breeze] OpenAPI upload failed:", err)
     return NextResponse.json({ error: "Failed to publish the spec." }, { status: 500 })
@@ -97,8 +114,18 @@ export async function DELETE(
   const authorized = await authorize(request, params)
   if (authorized instanceof NextResponse) return authorized
   try {
-    const result = await deleteOpenApiSource(createAdminClient(), authorized)
-    return NextResponse.json(result)
+    const admin = createAdminClient()
+    const repoPath = await openApiSourceRepositoryPath(
+      admin,
+      authorized.workspaceId,
+      authorized.slug,
+    )
+    const result = await deleteOpenApiSource(admin, authorized)
+    const github = await removeOpenApiSourceFromLinkedRepository(admin, authorized.workspaceId, {
+      slug: authorized.slug,
+      repoPath,
+    })
+    return NextResponse.json({ ...result, ...(github ? { github } : {}) })
   } catch (err) {
     console.error("[Breeze] OpenAPI source delete failed:", err)
     return NextResponse.json({ error: "Failed to remove the spec." }, { status: 500 })

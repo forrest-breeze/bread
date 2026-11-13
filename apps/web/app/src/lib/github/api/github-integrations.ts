@@ -110,6 +110,12 @@ export async function saveGithubHostedDocsSource(input: {
   repoId: number
   rootPath: string
   mode: "merge" | "github_wins"
+  /** "readme" links a repository in the layout ReadMe's GitHub sync uses. */
+  format?: "bread" | "readme"
+  /** ReadMe format only: commit directly, or collect changes in a pull request. */
+  publishMode?: "direct" | "pull_request"
+  /** ReadMe format only: branch to sync. Empty follows the default branch. */
+  branch?: string | null
 }): Promise<{
   source?: GitHubHostedDocsSourceRow
   error?: string
@@ -121,6 +127,9 @@ export async function saveGithubHostedDocsSource(input: {
       repo_id: input.repoId,
       root_path: input.rootPath,
       mode: input.mode,
+      ...(input.format ? { format: input.format } : {}),
+      ...(input.publishMode ? { publish_mode: input.publishMode } : {}),
+      ...(input.branch !== undefined ? { branch: input.branch } : {}),
     }),
   })
   const body = (await res.json().catch(() => ({}))) as {

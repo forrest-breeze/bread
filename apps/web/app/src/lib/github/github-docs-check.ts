@@ -185,14 +185,18 @@ async function loadLinkedRoots(
 ): Promise<{ linked: boolean; roots: string[] }> {
   const { data, error } = await admin
     .from('github_hosted_docs_sources')
-    .select('paths')
+    .select('paths, format')
     .eq('installation_id', info.installationId)
     .eq('repo_id', info.repoId)
   if (error) {
     throw new Error('Unable to look up linked Bread documentation roots.')
   }
 
-  const rows = (data ?? []) as LinkedSourceRow[]
+  // The check enforces the strict Bread frontmatter. A ReadMe-format link has
+  // no such contract, so it is treated as not linked for this check.
+  const rows = ((data ?? []) as LinkedSourceRow[]).filter(
+    (row) => (row as { format?: unknown }).format !== 'readme',
+  )
   const roots = normalizeHostedDocsPaths(
     rows.flatMap((row) =>
       Array.isArray(row.paths)

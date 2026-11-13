@@ -112,7 +112,8 @@ describe("parseOpenApiUpload", () => {
   })
 
   it("reports invalid specs instead of throwing", () => {
-    expect(parseOpenApiUpload("x", "not json").issues[0]?.message).toMatch(/valid JSON/)
+    expect(parseOpenApiUpload("x", "not json").issues[0]?.message).toMatch(/JSON or YAML object/)
+    expect(parseOpenApiUpload("x", "{ broken").issues[0]?.message).toMatch(/valid JSON or YAML/)
     expect(parseOpenApiUpload("x", JSON.stringify({ openapi: "3.1.0", paths: {} })).spec).toBeNull()
   })
 })

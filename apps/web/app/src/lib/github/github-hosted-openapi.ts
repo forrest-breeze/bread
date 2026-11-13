@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import yaml from 'js-yaml'
 import type { GitHubTreeEntry } from './github'
 
 /**
@@ -421,11 +422,15 @@ export function parseHostedOpenApiSpec(input: {
   }
   let parsed: unknown
   try {
-    parsed = JSON.parse(input.raw)
+    // JSON is tried first; anything that does not start like JSON is read as
+    // YAML, the other format OpenAPI definitions are commonly written in.
+    parsed = /^\s*[{[]/.test(input.raw)
+      ? JSON.parse(input.raw)
+      : yaml.load(input.raw, { schema: yaml.CORE_SCHEMA })
   } catch {
-    return fail('must be valid JSON')
+    return fail('must be valid JSON or YAML')
   }
-  if (!isObject(parsed)) return fail('must be a JSON object')
+  if (!isObject(parsed)) return fail('must be a JSON or YAML object')
   const openapi = text(parsed.openapi)
   const swagger = text(parsed.swagger)
   const isSwagger2 = swagger.startsWith('2.')
@@ -440,7 +445,7 @@ export function parseHostedOpenApiSpec(input: {
     : []
   const tagOrder = new Map(declaredTags.map((tag, index) => [tag, index]))
   const resolve = createResolver(parsed)
-  const specSlug = slugify(input.specPath.replace(/\.json$/i, '')).slice(0, 40).replace(/-+$/g, '')
+  const specSlug = slugify(input.specPath.replace(/\.(?:json|ya?ml)$/i, '')).slice(0, 40).replace(/-+$/g, '')
 
   const operations: GeneratedOpenApiOperation[] = []
   const countByTag = new Map<string, number>()

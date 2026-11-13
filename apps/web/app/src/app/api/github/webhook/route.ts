@@ -13,6 +13,10 @@ import { getTokenCache } from '@/lib/github/token-cache-factory'
 import { markGitHubDocumentPullRequestState } from '@/lib/github/github-document-sync'
 import { recordWebhookDelivery } from '@/lib/api/webhook-dedup'
 import { assertWebhookSecrets } from '@/lib/env/webhook-secrets'
+import {
+  extractHostedBranchPush,
+  handleHostedBranchPush,
+} from '@/lib/github/readme/readme-webhook'
 
 // ---------------------------------------------------------------------------
 // Runtime: Node.js required for crypto HMAC operations
@@ -64,6 +68,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const eventType = request.headers.get('x-github-event') ?? ''
   const pushInfo = extractRepositoryPushInfo(eventType, payload)
   const docsCheckInfo = extractGitHubDocsCheckInfo(eventType, payload)
+  // A ReadMe-format docs link can follow a branch other than the default.
+  const branchPushInfo = pushInfo ? null : extractHostedBranchPush(eventType, payload)
   const installationTokenScopeChanged =
     (eventType === 'installation' &&
       payload.action === 'new_permissions_accepted') ||
@@ -79,6 +85,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (
     eventType !== 'pull_request' &&
     !pushInfo &&
+    !branchPushInfo &&
     !docsCheckInfo &&
     !tokenScopeInstallationId
   ) {
@@ -125,6 +132,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         await markGitHubDocumentPullRequestState(payload)
       }
       if (pushInfo) await handleRepositoryPush(pushInfo)
+      if (branchPushInfo) await handleHostedBranchPush(branchPushInfo)
     } catch (err) {
       logWebhookFailure('[Bread] GitHub webhook handler failed:', err)
     }

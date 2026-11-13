@@ -13,6 +13,8 @@ import {
 } from './github'
 import { withGitHubRetry } from './retry'
 import { syncGitHubHostedDocs } from './github-hosted-docs'
+import type { GitHubHostedDocsSourceRow } from '@bread/core'
+import { syncReadmeSource } from './readme/readme-service'
 
 const MAX_FILE_BYTES = 96 * 1024
 const MAX_REPOSITORY_FILES = 2_000
@@ -80,6 +82,8 @@ export interface RepositoryPushInfo {
   repoId: number
   repoFullName: string
   ref: string
+  /** Name of the pushed (default) branch. */
+  branch?: string
 }
 
 export interface RepositorySyncResult {
@@ -133,6 +137,7 @@ interface RepositoryPushDeps {
   admin?: SupabaseClient
   syncRepository?: typeof syncGitHubRepository
   syncHostedDocs?: typeof syncGitHubHostedDocs
+  syncReadmeSource?: typeof syncReadmeSource
 }
 
 interface FileSelection {
@@ -290,6 +295,7 @@ export function extractRepositoryPushInfo(
     repoId: repo.id,
     repoFullName: repo.full_name,
     ref: typed.after,
+    branch: repo.default_branch,
   }
 }
 
@@ -329,7 +335,15 @@ export async function handleRepositoryPush(
   // processing any files), but neither case should prevent linked docs from
   // advancing to the verified push commit.
   const hostedTask = hostedResult.data
-    ? Promise.resolve().then(() => {
+    ? Promise.resolve().then(async () => {
+      const row = hostedResult.data as GitHubHostedDocsSourceRow
+      if (row.format === 'readme') {
+        // A link pinned to another branch is synced by its own push handler.
+        if (row.branch && row.branch !== info.branch) return
+        if (row.sync_status === 'disabled') return
+        await (deps.syncReadmeSource ?? syncReadmeSource)(row, { ref: info.ref }, admin)
+        return
+      }
       const source = hostedResult.data as {
         id: string
         workspace_id: string

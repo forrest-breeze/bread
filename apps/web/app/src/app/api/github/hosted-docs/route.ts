@@ -35,6 +35,12 @@ import {
   BREAD_HOSTED_DOC_MAX_BYTES,
 } from '@/lib/github/github-hosted-format'
 import { safeJsonBody } from '@/lib/validation'
+import { linkReadmeRepository } from '@/lib/github/readme/readme-link'
+import {
+  isReadmeFormatSource,
+  reconcileReadmePublishPullRequest,
+  syncReadmeSource,
+} from '@/lib/github/readme/readme-service'
 
 export const runtime = 'nodejs'
 // Hosted-docs syncs run after the response via `after()`, inside this
@@ -44,8 +50,14 @@ export const maxDuration = 300
 
 const putBodySchema = z.object({
   repo_id: z.number().int().positive(),
-  root_path: z.string().trim().min(1).max(1024),
+  // Empty means the repository root, which only the readme format accepts.
+  root_path: z.string().trim().max(1024),
   mode: z.enum(['merge', 'github_wins']),
+  // 'readme' links a repository in the layout ReadMe's GitHub integration
+  // uses. The remaining fields apply to that format only.
+  format: z.enum(['bread', 'readme']).optional(),
+  publish_mode: z.enum(['direct', 'pull_request']).optional(),
+  branch: z.string().trim().max(255).nullish(),
 })
 
 const HOSTED_DOCS_STALE_SYNC_MS = 5 * 60 * 1000
@@ -78,6 +90,7 @@ async function requireAdmin(): Promise<{
 
 function hostedTarget(source: GitHubHostedDocsSourceRow) {
   return {
+    source,
     sourceId: source.id,
     workspaceId: source.workspace_id,
     installationId: source.installation_id,
@@ -91,7 +104,9 @@ function hostedTarget(source: GitHubHostedDocsSourceRow) {
   }
 }
 
-type HostedDocsTarget = Parameters<typeof syncGitHubHostedDocs>[0]
+type HostedDocsTarget = Parameters<typeof syncGitHubHostedDocs>[0] & {
+  source: GitHubHostedDocsSourceRow
+}
 
 async function dispatchHostedDocsSync(
   target: HostedDocsTarget,
@@ -99,7 +114,16 @@ async function dispatchHostedDocsSync(
 ): Promise<void> {
   // Vercel: run inline under `after()` (see maxDuration above). The Netlify
   // background-function dispatch this used to have was removed.
-  await syncGitHubHostedDocs(target)
+  const { source, ...breadTarget } = target
+  if (isReadmeFormatSource(source)) {
+    await syncReadmeSource(source, {
+      ref: target.ref,
+      force: target.force,
+      mode: target.mode,
+    })
+    return
+  }
+  await syncGitHubHostedDocs(breadTarget)
 }
 
 function scheduleHostedDocsSync(
@@ -278,7 +302,7 @@ async function reconcileLatestDefaultBranchCommit(
       getRepositoryCommit(
         token,
         source.repo_full_name,
-        repository.default_branch,
+        source.branch ?? repository.default_branch,
       ),
     )
     if (source.last_sync_commit_sha === commit.sha) return source
@@ -417,6 +441,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     source = await reconcileWaitingPullRequest(admin, source, origin)
     source = await resumeStalledHostedDocsSync(admin, source, origin)
     source = await reconcileWorkspacePublishPullRequest(admin, source)
+    if (isReadmeFormatSource(source)) {
+      source = await reconcileReadmePublishPullRequest(source, admin)
+    }
 
     // Every editor and settings poll only needs the persisted source state.
     // Verify the provider head on this lightweight path so a newer GitHub
@@ -487,8 +514,9 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   }
   const parsed = await safeJsonBody(request, putBodySchema)
   if (!parsed.ok) return parsed.response
-  const paths = normalizeHostedDocsPaths([parsed.data.root_path])
-  if (paths.length !== 1) {
+  const readmeFormat = parsed.data.format === 'readme'
+  const paths = readmeFormat ? [] : normalizeHostedDocsPaths([parsed.data.root_path])
+  if (!readmeFormat && paths.length !== 1) {
     return NextResponse.json({ error: 'Choose one repository root folder.' }, { status: 400 })
   }
 
@@ -566,8 +594,40 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         )
       }
     }
+    if (readmeFormat) {
+      const linked = await linkReadmeRepository(admin, {
+        workspaceId: auth.workspaceId,
+        userId: auth.userId,
+        installationId,
+        repository: { id: availableRepo.id, full_name: availableRepo.full_name },
+        rootPath: parsed.data.root_path,
+        branch: parsed.data.branch ?? null,
+        // Direct commits are what ReadMe's own integration does.
+        publishMode: parsed.data.publish_mode ?? 'direct',
+        mode: parsed.data.mode,
+        existing,
+        leaseOperationId: configurationOperationId,
+      })
+      if (!linked.ok) {
+        return NextResponse.json(
+          { error: linked.error, code: linked.code },
+          { status: linked.status },
+        )
+      }
+      // The link update cleared the lease along with the other publish state.
+      configurationOperationId = null
+      scheduleHostedDocsSync(
+        { ...hostedTarget(linked.source), ref: linked.commitSha, force: true },
+        request.nextUrl.origin,
+        'initial readme-format sync failed',
+      )
+      return NextResponse.json({ source: linked.source })
+    }
+
     const sameRoot =
-      existing?.repo_id === availableRepo.id && existing.paths[0] === paths[0]
+      existing?.format !== 'readme' &&
+      existing?.repo_id === availableRepo.id &&
+      existing.paths[0] === paths[0]
     // A new root links the whole workspace to repository paths. "Use GitHub"
     // does so again even for the same root, so every Bread document is
     // accounted for before the sync makes GitHub the source of truth: matches
@@ -693,6 +753,11 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       paths,
       // The repository root is the workspace root; no container folder.
       root_folder_id: null,
+      // Switching back from the readme format resets its settings.
+      format: 'bread',
+      publish_mode: 'pull_request',
+      branch: null,
+      sync_state: {},
       sync_status: 'pending',
       conflict_count: 0,
       last_sync_error: null,

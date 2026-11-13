@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { isBusinessTierForWorkspace } from '@/lib/db/subscription'
 import { syncGitHubRepository } from './github-repo-ingest'
 import { syncGitHubHostedDocs } from './github-hosted-docs'
+import { syncReadmeSource } from './readme/readme-service'
 import type { GitHubHostedDocsSourceRow } from '@bread/core'
 
 export interface GitHubSweepResult {
@@ -147,6 +148,10 @@ async function syncHostedDocsSources(
   for (const source of sources) {
     if (source.paths.length === 0 || source.sync_status === 'disabled') continue
     try {
+      if (source.format === 'readme') {
+        await syncReadmeSource(source)
+        continue
+      }
       await syncGitHubHostedDocs({
         sourceId: source.id,
         workspaceId: source.workspace_id,

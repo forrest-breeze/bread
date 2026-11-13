@@ -35,7 +35,9 @@ export function GithubHostedDocsSyncGate({
     source?.sync_status === "pending" || source?.sync_status === "syncing"
 
   if (hydrated && !error && syncing) {
-    const root = source?.paths?.[0]
+    // "." is how a ReadMe-format link records the repository root.
+    const storedRoot = source?.paths?.[0]
+    const root = storedRoot === "." ? "" : storedRoot
 
     return (
       <div
@@ -54,9 +56,10 @@ export function GithubHostedDocsSyncGate({
             Knowledge and portal editing are temporarily locked so local edits
             cannot race the repository reconciliation.
           </p>
-          {source && root ? (
+          {source && storedRoot ? (
             <p className="mt-4 truncate rounded-md bg-muted/60 px-3 py-2 font-mono text-xs text-muted-foreground">
-              {source.repo_full_name}/{root}
+              {source.repo_full_name}
+              {root ? `/${root}` : ""}
             </p>
           ) : null}
           <LoadingBar

@@ -25,6 +25,12 @@ import {
   publishHostedWorkspaceToGitHub,
 } from '@/lib/github/github-hosted-workspace-publish'
 import { listInstallationRepos } from '@/lib/github/github'
+import { ReadmePublishError } from '@/lib/github/readme/readme-publish'
+import {
+  inspectReadmeSourcePublish,
+  isReadmeFormatSource,
+  publishReadmeSource,
+} from '@/lib/github/readme/readme-service'
 import { withGitHubRetry } from '@/lib/github/retry'
 
 export const runtime = 'nodejs'
@@ -250,6 +256,22 @@ export async function GET(): Promise<NextResponse> {
       )
     }
 
+    if (isReadmeFormatSource(source)) {
+      const inspected = await inspectReadmeSourcePublish(source, admin)
+      return privateJson({
+        status: inspected.status,
+        changed_file_count: inspected.changedFileCount,
+        written_file_count: inspected.writtenFileCount,
+        deleted_file_count: inspected.deletedFileCount,
+        unchanged_file_count: inspected.unchangedFileCount,
+        compared_commit_sha: inspected.comparedCommitSha,
+        comparison_key: inspected.comparisonKey,
+        pull_request_up_to_date: inspected.pullRequestUpToDate,
+        code: inspected.code,
+        message: inspected.message,
+      })
+    }
+
     const targetPath = source.paths[0]!
     const exported = await buildBreadWorkspaceExport(admin, {
       workspaceId: workspace.workspace_id,
@@ -465,6 +487,78 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           code: 'github_repository_unavailable',
         },
         { status: 409 },
+      )
+    }
+
+    if (isReadmeFormatSource(source)) {
+      leaseOperationId = randomUUID()
+      const { data: leaseRows, error: leaseError } = await admin.rpc(
+        'acquire_github_hosted_docs_publish_lease',
+        {
+          p_source_id: source.id,
+          p_workspace_id: workspace.workspace_id,
+          p_operation_id: leaseOperationId,
+        },
+      )
+      if (leaseError) throw leaseError
+      const leased = (
+        Array.isArray(leaseRows) ? leaseRows[0] : leaseRows
+      ) as GitHubHostedDocsSourceRow | null
+      if (!leased) {
+        leaseOperationId = null
+        return NextResponse.json(
+          {
+            error: 'Another workspace publish is already in progress.',
+            code: 'publish_in_progress',
+          },
+          { status: 409 },
+        )
+      }
+      leaseSourceId = leased.id
+      if (leased.sync_status !== 'synced' || !isReadmeFormatSource(leased)) {
+        return NextResponse.json(
+          {
+            error: 'The GitHub link changed while publishing started. Try again after sync.',
+            code: 'hosted_docs_not_synced',
+          },
+          { status: 409 },
+        )
+      }
+      const published = await publishReadmeSource(
+        leased,
+        {
+          includeConflicts: parsedBody.data.conflict_resolution === 'bread',
+          selectedPaths: parsedBody.data.paths,
+        },
+        admin,
+      )
+      const { data: refreshed } = await admin
+        .from('github_hosted_docs_sources')
+        .select('*')
+        .eq('id', leased.id)
+        .eq('workspace_id', workspace.workspace_id)
+        .maybeSingle()
+      return NextResponse.json(
+        {
+          source: {
+            ...((refreshed as GitHubHostedDocsSourceRow | null) ?? leased),
+            publish_operation_id: null,
+            publish_operation_started_at: null,
+          },
+          publish_mode: published.mode,
+          pull_request_number: published.pullRequestNumber,
+          pull_request_url: published.pullRequestUrl,
+          branch: published.branch,
+          head: published.branch,
+          commit_sha: published.commitSha,
+          commit_url: published.commitUrl,
+          file_count: published.changedFileCount,
+          changed_file_count: published.changedFileCount,
+          written_file_count: published.writtenFileCount,
+          deleted_file_count: published.deletedFileCount,
+          reused: false,
+        },
+        { status: 201 },
       )
     }
 
@@ -727,6 +821,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           console.error('[Bread] no-change publish reservation cleanup failed:', clearError)
         }
       }
+      return NextResponse.json(
+        { error: error.message, code: error.code, ...error.details },
+        { status: error.status },
+      )
+    }
+    if (error instanceof ReadmePublishError) {
       return NextResponse.json(
         { error: error.message, code: error.code, ...error.details },
         { status: error.status },

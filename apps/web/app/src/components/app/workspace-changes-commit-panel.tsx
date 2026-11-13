@@ -9,6 +9,7 @@ import {
   RotateCcw,
 } from "lucide-react"
 import { useWorkspaceChanges } from "@/components/app/workspace-changes-context"
+import { useGithubHostedDocs } from "@/hooks/swr"
 import { WorkspaceGitHubPublish } from "@/components/app/workspace-github-publish"
 import { Button } from "@/components/ui/button"
 import { LoadingBar } from "@/components/ui/loading-bar"
@@ -44,6 +45,10 @@ export function WorkspaceChangesCommitPanel(): React.ReactElement {
   const [confirmation, setConfirmation] = useState<
     "commit" | "revert" | null
   >(null)
+  const { data: hostedDocs } = useGithubHostedDocs()
+  const directCommit =
+    hostedDocs?.source?.format === "readme" &&
+    hostedDocs.source.publish_mode === "direct"
 
   // Preserve setup, sync, and error recovery controls until an exact diff is
   // available. The publish-all button never renders once files can be staged.
@@ -173,7 +178,9 @@ export function WorkspaceChangesCommitPanel(): React.ReactElement {
             <AlertDialogDescription>
               {confirmation === "revert"
                 ? "Modified and removed files will be restored from the GitHub comparison. Newly added Bread documents will move to Trash, where they can still be recovered."
-                : "Bread will create one GitHub commit containing every staged file and add it to the workspace pull request. Unstaged changes will remain in this view."}
+                : directCommit
+                  ? "Bread will create one GitHub commit containing every staged file, directly on the synced branch. Unstaged changes will remain in this view."
+                  : "Bread will create one GitHub commit containing every staged file and add it to the workspace pull request. Unstaged changes will remain in this view."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {conflictCount > 0 && confirmation === "commit" ? (

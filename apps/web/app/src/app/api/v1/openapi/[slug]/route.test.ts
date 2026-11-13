@@ -5,6 +5,14 @@ const mocks = vi.hoisted(() => ({
   authenticateBearer: vi.fn(),
   syncOpenApiSource: vi.fn(),
   deleteOpenApiSource: vi.fn(),
+  writeToRepository: vi.fn(),
+  removeFromRepository: vi.fn(),
+  repositoryPath: vi.fn(),
+}))
+vi.mock("@/lib/github/readme/readme-service", () => ({
+  writeOpenApiSourceToLinkedRepository: mocks.writeToRepository,
+  removeOpenApiSourceFromLinkedRepository: mocks.removeFromRepository,
+  openApiSourceRepositoryPath: mocks.repositoryPath,
 }))
 vi.mock("@/lib/api/authenticate-bearer", () => ({ authenticateBearer: mocks.authenticateBearer }))
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({}) }))
@@ -32,6 +40,10 @@ function apiKey(scopes: string[], role: string) {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // No ReadMe-format repository linked unless a test says otherwise.
+  mocks.writeToRepository.mockResolvedValue(null)
+  mocks.removeFromRepository.mockResolvedValue(null)
+  mocks.repositoryPath.mockResolvedValue(null)
   mocks.syncOpenApiSource.mockResolvedValue({
     ok: true,
     result: { slug: "payments-api", title: "Breeze API", version: "1.0.0", operationCount: 60, created: 60, updated: 0, removed: 0 },
@@ -47,6 +59,29 @@ describe("PUT /api/v1/openapi/[slug]", () => {
       {},
       { workspaceId: "ws", slug: "payments-api", raw: '{"openapi":"3.1.0"}', syncedBy: "api" },
     )
+  })
+
+  it("writes the definition to a linked ReadMe-format repository and reports it", async () => {
+    apiKey(["admin"], "admin")
+    mocks.writeToRepository.mockResolvedValue({
+      committed: true,
+      path: "reference/payments-api.json",
+      commit_sha: "abc123",
+    })
+    const res = await PUT(put('{"openapi":"3.1.0"}'), params("payments-api"))
+    expect(res.status).toBe(200)
+    expect(mocks.writeToRepository).toHaveBeenCalledWith({}, "ws", "payments-api")
+    expect(await res.json()).toMatchObject({
+      slug: "payments-api",
+      github: { committed: true, path: "reference/payments-api.json", commit_sha: "abc123" },
+    })
+  })
+
+  it("does not touch GitHub when the definition is rejected", async () => {
+    apiKey(["admin"], "admin")
+    mocks.syncOpenApiSource.mockResolvedValue({ ok: false, issues: [{ path: "x", message: "bad" }] })
+    expect((await PUT(put("{}"), params("payments-api"))).status).toBe(422)
+    expect(mocks.writeToRepository).not.toHaveBeenCalled()
   })
 
   it("passes through authentication failures", async () => {
@@ -97,5 +132,29 @@ describe("DELETE /api/v1/openapi/[slug]", () => {
     const res = await DELETE(put(), params("payments-api"))
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ removed: 60 })
+  })
+
+  it("deletes the definition's file from a linked ReadMe-format repository", async () => {
+    apiKey(["admin"], "admin")
+    mocks.deleteOpenApiSource.mockResolvedValue({ removed: 3 })
+    mocks.repositoryPath.mockResolvedValue("reference/payments-api.yaml")
+    mocks.removeFromRepository.mockResolvedValue({
+      committed: true,
+      path: "reference/payments-api.yaml",
+      commit_sha: "def456",
+    })
+    const res = await DELETE(put(), params("payments-api"))
+    // The path is read before the source row is gone.
+    expect(mocks.repositoryPath.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.deleteOpenApiSource.mock.invocationCallOrder[0]!,
+    )
+    expect(mocks.removeFromRepository).toHaveBeenCalledWith({}, "ws", {
+      slug: "payments-api",
+      repoPath: "reference/payments-api.yaml",
+    })
+    expect(await res.json()).toEqual({
+      removed: 3,
+      github: { committed: true, path: "reference/payments-api.yaml", commit_sha: "def456" },
+    })
   })
 })

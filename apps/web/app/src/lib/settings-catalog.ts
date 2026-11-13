@@ -105,7 +105,7 @@ export const SETTINGS_CATALOG: readonly SettingsEntry[] = [
     id: "integrations",
     label: "Integrations",
     href: "/settings/integrations",
-    description: "Publish API reference from OpenAPI",
+    description: "OpenAPI publishing and GitHub docs sync",
     keywords: ["integrations", "connect", "connections", "apps", "install"],
   },
   {
@@ -114,6 +114,23 @@ export const SETTINGS_CATALOG: readonly SettingsEntry[] = [
     href: "/settings/integrations/openapi",
     description: "Publish API reference pages from an OpenAPI spec",
     keywords: ["openapi", "swagger", "api reference", "readme", "spec", "endpoints"],
+  },
+  {
+    id: "integrations.github",
+    label: "GitHub",
+    href: "/settings/integrations/github",
+    description: "Two-way docs sync with a GitHub repository",
+    keywords: [
+      "github",
+      "git",
+      "sync",
+      "repository",
+      "bi-directional",
+      "readme",
+      "rdme",
+      "branch",
+      "pull request",
+    ],
   },
   {
     id: "developer",

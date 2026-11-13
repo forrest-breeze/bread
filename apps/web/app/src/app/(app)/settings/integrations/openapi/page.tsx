@@ -42,6 +42,8 @@ function formatWhen(iso: string): string {
 }
 
 function syncedByLabel(value: string): string {
+  // "github:<owner>/<repo>@<sha>" is a spec read from the linked repository.
+  if (value.startsWith("github:")) return `Synced from ${value.slice("github:".length)}`
   return value === "api" ? "GitHub Actions / API" : "Uploaded in Settings"
 }
 
@@ -55,10 +57,16 @@ export default function OpenApiIntegrationPage(): React.JSX.Element {
       <header>
         <h2 className="text-base font-semibold">OpenAPI</h2>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Publish API reference pages from an OpenAPI spec (JSON, 3.0 / 3.1 or
-          Swagger 2.0). Each operation becomes a page, grouped by tag. Every
-          upload replaces the previous one: changed pages update, new
-          operations appear and removed ones are deleted.
+          Publish API reference pages from an OpenAPI spec (JSON or YAML, 3.0 /
+          3.1 or Swagger 2.0). Each operation becomes a page, grouped by tag.
+          Every upload replaces the previous one: changed pages update, new
+          operations appear and removed ones are deleted. When a repository is
+          linked under{" "}
+          <Link href="/settings/integrations/github" className="underline">
+            GitHub
+          </Link>
+          , specs in its <code>reference/</code> folder are listed here too,
+          and uploads are written back to that folder.
         </p>
       </header>
 
@@ -205,14 +213,26 @@ function UploadForm({ onUploaded }: { onUploaded: () => void }): React.JSX.Eleme
         created?: number
         updated?: number
         removed?: number
+        github?: { committed?: boolean; path?: string | null; reason?: string; message?: string }
       }
       if (!res.ok) {
         setError(body.error ?? "Upload failed.")
         setIssues(body.issues ?? [])
         return
       }
+      // With a GitHub repository linked, say what happened to the file there.
+      const github = body.github
+      const githubNote = !github
+        ? ""
+        : github.committed
+          ? ` Committed to ${github.path} on GitHub.`
+          : github.reason === "pull_request_mode"
+            ? " It will be included in the next publish to GitHub."
+            : github.reason === "failed"
+              ? ` ${github.message ?? "It could not be written to GitHub."}`
+              : ""
       setMessage(
-        `Published ${body.title}: ${body.operationCount} operations (${body.created} new, ${body.updated} updated, ${body.removed} removed).`,
+        `Published ${body.title}: ${body.operationCount} operations (${body.created} new, ${body.updated} updated, ${body.removed} removed).${githubNote}`,
       )
       setFile(null)
       if (fileRef.current) fileRef.current.value = ""
@@ -244,12 +264,12 @@ function UploadForm({ onUploaded }: { onUploaded: () => void }): React.JSX.Eleme
             </p>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="openapi-file">openapi.json</Label>
+            <Label htmlFor="openapi-file">Spec file (JSON or YAML)</Label>
             <Input
               id="openapi-file"
               ref={fileRef}
               type="file"
-              accept=".json,application/json"
+              accept=".json,.yaml,.yml,application/json,application/yaml"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
           </div>

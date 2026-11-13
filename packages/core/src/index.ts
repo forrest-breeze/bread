@@ -776,6 +776,18 @@ export interface GitHubHostedDocsSourceRow {
   publish_operation_started_at: string | null;
   /** One-shot reconciliation applied after the activation PR merges. */
   pending_sync_mode: 'merge' | 'replace_bread';
+  /**
+   * Repository layout. 'bread' is the strict Bread frontmatter format;
+   * 'readme' is the layout ReadMe's GitHub integration reads and writes.
+   * Absent on rows read before the column existed; treat as 'bread'.
+   */
+  format?: 'bread' | 'readme';
+  /** How workspace edits reach GitHub. 'direct' commits to the synced branch. */
+  publish_mode?: 'pull_request' | 'direct';
+  /** Synced branch; null means the repository default branch. */
+  branch?: string | null;
+  /** Format-specific state recorded by the last sync. */
+  sync_state?: Record<string, unknown> | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

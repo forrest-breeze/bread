@@ -170,6 +170,7 @@ describe('extractRepositoryPushInfo', () => {
       repoId: 7,
       repoFullName: 'acme/repo',
       ref: 'abc123',
+      branch: 'main',
     })
   })
 
@@ -205,14 +206,14 @@ describe('handleRepositoryPush', () => {
     pending_sync_mode: 'replace_bread' as const,
   }
 
-  function pushAdmin() {
+  function pushAdmin(source: Record<string, unknown> = hostedSource) {
     return {
       from: (table: string) => ({
         select: () => ({
           eq: () => ({
             eq: () => ({
               maybeSingle: async () => ({
-                data: table === 'monitored_repos' ? monitoredRepo : hostedSource,
+                data: table === 'monitored_repos' ? monitoredRepo : source,
                 error: null,
               }),
             }),
@@ -221,6 +222,35 @@ describe('handleRepositoryPush', () => {
       }),
     } as unknown as SupabaseClient
   }
+
+  it('routes a ReadMe-format link to the ReadMe sync at the pushed commit', async () => {
+    const syncHostedDocs = vi.fn()
+    const syncReadmeSource = vi.fn().mockResolvedValue(null)
+    const admin = pushAdmin({ ...hostedSource, format: 'readme', branch: null, sync_status: 'synced' })
+    await handleRepositoryPush({ ...pushInfo, branch: 'main' }, {
+      admin,
+      syncRepository: vi.fn().mockResolvedValue(undefined),
+      syncHostedDocs,
+      syncReadmeSource,
+    })
+    expect(syncHostedDocs).not.toHaveBeenCalled()
+    expect(syncReadmeSource).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'source-1', format: 'readme' }),
+      { ref: 'commit-sha' },
+      admin,
+    )
+  })
+
+  it('leaves a ReadMe-format link pinned to another branch to its own push handler', async () => {
+    const syncReadmeSource = vi.fn()
+    await handleRepositoryPush({ ...pushInfo, branch: 'main' }, {
+      admin: pushAdmin({ ...hostedSource, format: 'readme', branch: 'v2.0', sync_status: 'synced' }),
+      syncRepository: vi.fn().mockResolvedValue(undefined),
+      syncHostedDocs: vi.fn(),
+      syncReadmeSource,
+    })
+    expect(syncReadmeSource).not.toHaveBeenCalled()
+  })
 
   it('completes hosted-doc sync even when repository indexing rejects', async () => {
     const repositoryError = new Error('repository indexing failed')

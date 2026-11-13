@@ -9,6 +9,11 @@ import {
   OPENAPI_SOURCE_SLUG_RE,
   syncOpenApiSource,
 } from "@/lib/openapi/openapi-source"
+import {
+  openApiSourceRepositoryPath,
+  removeOpenApiSourceFromLinkedRepository,
+  writeOpenApiSourceToLinkedRepository,
+} from "@/lib/github/readme/readme-service"
 
 // Settings -> Integrations -> OpenAPI: upload (PUT) or remove (DELETE) a spec
 // as a signed-in member. Editors and above may publish; admins may remove.
@@ -54,7 +59,8 @@ export async function PUT(
     )
   }
   try {
-    const outcome = await syncOpenApiSource(createAdminClient(), {
+    const admin = createAdminClient()
+    const outcome = await syncOpenApiSource(admin, {
       workspaceId: ctx.workspaceId,
       slug: ctx.slug,
       raw: await request.text(),
@@ -63,7 +69,10 @@ export async function PUT(
     if (!outcome.ok) {
       return NextResponse.json({ error: "Invalid OpenAPI spec.", issues: outcome.issues }, { status: 422 })
     }
-    return NextResponse.json(outcome.result)
+    // With a ReadMe-format repository linked, the definition is also written
+    // to reference/ on GitHub so both sides keep one copy.
+    const github = await writeOpenApiSourceToLinkedRepository(admin, ctx.workspaceId, ctx.slug)
+    return NextResponse.json({ ...outcome.result, ...(github ? { github } : {}) })
   } catch (err) {
     console.error("[Breeze] OpenAPI upload (settings) failed:", err)
     return NextResponse.json({ error: "Failed to publish the spec." }, { status: 500 })
@@ -77,7 +86,14 @@ export async function DELETE(
   const ctx = await resolve(params, REMOVE_ROLES)
   if (ctx instanceof NextResponse) return ctx
   try {
-    return NextResponse.json(await deleteOpenApiSource(createAdminClient(), ctx))
+    const admin = createAdminClient()
+    const repoPath = await openApiSourceRepositoryPath(admin, ctx.workspaceId, ctx.slug)
+    const result = await deleteOpenApiSource(admin, ctx)
+    const github = await removeOpenApiSourceFromLinkedRepository(admin, ctx.workspaceId, {
+      slug: ctx.slug,
+      repoPath,
+    })
+    return NextResponse.json({ ...result, ...(github ? { github } : {}) })
   } catch (err) {
     console.error("[Breeze] OpenAPI source delete (settings) failed:", err)
     return NextResponse.json({ error: "Failed to remove the spec." }, { status: 500 })

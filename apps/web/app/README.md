@@ -104,6 +104,11 @@ Required:
 Optional: `BREAD_TOKEN_ENC_KEY` (needed to connect token-based integrations),
 the `GITHUB_APP_*` set (GitHub docs sync), `LOGIN_ACCESS_CODE`.
 
+GitHub docs sync replaces ReadMe's GitHub integration: it reads and writes the
+same repository layout, and ties `reference/` definitions to the OpenAPI
+integration. Setup, behaviour and limits are in
+`docs/development/github-readme-sync.md`.
+
 Leave unset for the demo (each is an extra third party): every AI key (Gemini,
 DeepSeek, Kimi, OpenAI, Anthropic, OpenRouter, Groq), PostHog, Resend,
 Upstash, S3/R2 and the Cloudflare OAuth client. There is no billing: every
