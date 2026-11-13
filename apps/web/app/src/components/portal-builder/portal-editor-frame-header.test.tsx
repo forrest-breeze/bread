@@ -90,4 +90,37 @@ describe("PortalEditorFrameHeader", () => {
     fireEvent.click(brand!)
     expect(handlers.onOpenPage).toHaveBeenCalled()
   })
+
+  it("uses the phone header layout in the mobile preview, whatever the window width", () => {
+    const theme = buildPortalTheme({
+      id: "ws-1",
+      iconUrl: "",
+      websiteUrl: null,
+      branding: { name: "Acme", tagline: "", logoUrl: "", accentColor: "#2563eb" },
+    } as unknown as Parameters<typeof buildPortalTheme>[0])
+    const layout = {
+      theme: {
+        ...theme,
+        navLinks: [{ label: "Home", href: "https://acme.example/" }],
+        cta: { label: "Contact sales", href: "https://acme.example/sales" },
+      },
+      header: buildDefaultHeader(),
+      pages: [],
+    } as unknown as PortalLayout
+    const props = {
+      layout,
+      previewSlug: "acme",
+      appearance: "light" as const,
+      onAppearanceChange: vi.fn(),
+      ...nav(),
+    }
+
+    const { rerender } = render(<PortalEditorFrameHeader {...props} />)
+    expect(screen.queryByText("Contact sales")).not.toBeNull()
+    expect(screen.queryByRole("navigation", { name: "Site" })).not.toBeNull()
+
+    rerender(<PortalEditorFrameHeader {...props} mobile />)
+    expect(screen.queryByText("Contact sales")).toBeNull()
+    expect(screen.queryByRole("navigation", { name: "Site" })).toBeNull()
+  })
 })

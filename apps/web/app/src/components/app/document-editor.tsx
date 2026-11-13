@@ -921,12 +921,29 @@ export function DocumentEditor({ documentId }: DocumentEditorProps): React.React
     void json
   }
 
+  // Auto-size the title to its wrapped height. Re-measure on width changes
+  // too, not just edits: in the portal builder, switching the preview from
+  // phone to desktop widens the field, and a height measured at phone width
+  // would otherwise leave a tall blank gap under the title.
   useEffect(() => {
     const field = titleFieldRef.current
     if (!field) return
 
-    field.style.height = "0px"
-    field.style.height = `${field.scrollHeight}px`
+    const fit = (): void => {
+      field.style.height = "0px"
+      field.style.height = `${field.scrollHeight}px`
+    }
+    fit()
+    if (typeof ResizeObserver === "undefined") return
+    let lastWidth = field.clientWidth
+    const observer = new ResizeObserver(() => {
+      // Only width affects wrapping; ignore the height changes fit() causes.
+      if (field.clientWidth === lastWidth) return
+      lastWidth = field.clientWidth
+      fit()
+    })
+    observer.observe(field)
+    return () => observer.disconnect()
   }, [title])
 
   // Save now as a final version (⌘S, hiding the tab, leaving the document).

@@ -75,11 +75,14 @@ export function PortalEditorFrameHeader({
   onAppearanceChange,
   onOpenDocument,
   onOpenPage,
+  mobile = false,
 }: {
   layout: PortalLayout
   previewSlug: string
   appearance: PreviewAppearance
   onAppearanceChange: (appearance: PreviewAppearance) => void
+  /** Mobile device preview: render the header's phone layout. */
+  mobile?: boolean
 } & FrameNavigation): React.ReactElement {
   const nav = { onOpenDocument, onOpenPage }
   return (
@@ -96,6 +99,7 @@ export function PortalEditorFrameHeader({
         pages={layout.pages ?? []}
         themeControl={{ mode: appearance, onChange: onAppearanceChange }}
         onNavigate={(href) => navigateFromFrame(href, nav)}
+        compact={mobile}
       />
     </div>
   )

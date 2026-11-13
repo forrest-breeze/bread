@@ -48,6 +48,7 @@ export function PortalHeader({
   askAiEnabled = false,
   themeControl,
   onNavigate,
+  compact = false,
 }: {
   slug: string
   hrefBase?: string
@@ -69,6 +70,12 @@ export function PortalHeader({
    * router. Also turns off search's global ⌘K so it can't take over the app's.
    */
   onNavigate?: (href: string) => void
+  /**
+   * Builder frame only: force the phone layout regardless of the browser
+   * viewport. The editor frame renders inline (not in an iframe), so its
+   * `md:`/`xl:` breakpoints would otherwise follow the builder window.
+   */
+  compact?: boolean
 }): React.ReactElement {
   // Chrome hrefs are rendered outside the validated body, so re-apply the href
   // gate here — keeps this safe once nav/cta become configurable (Phase 3).
@@ -116,10 +123,13 @@ export function PortalHeader({
     <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
       <div
         className={cn(
-          "grid h-14 w-full items-center gap-3 px-4 sm:px-8 md:h-16 md:gap-4",
+          "grid h-14 w-full items-center gap-3 px-4",
+          !compact && "sm:px-8 md:h-16 md:gap-4",
           // Mobile: one row — brand, a search bar filling the middle, actions.
           header.search.enabled
-            ? "grid-cols-[auto_minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1fr)_auto_auto] xl:grid-cols-[1fr_minmax(240px,640px)_1fr]"
+            ? compact
+              ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+              : "grid-cols-[auto_minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1fr)_auto_auto] xl:grid-cols-[1fr_minmax(240px,640px)_1fr]"
             : "grid-cols-[minmax(0,1fr)_auto]",
         )}
       >
@@ -128,7 +138,10 @@ export function PortalHeader({
           <HoverPrefetchLink
             href={brandHref}
             disableHoverPrefetch={brandLinkIsExternal}
-            className="flex min-w-0 max-w-[40vw] shrink items-center gap-2.5 rounded-lg outline-none md:max-w-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn(
+              "flex min-w-0 shrink items-center gap-2.5 rounded-lg outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring",
+              compact ? "max-w-[9rem]" : "max-w-[40vw] md:max-w-none",
+            )}
             {...externalLinkProps(brandHref)}
           >
             <KbBrandMark
@@ -173,10 +186,10 @@ export function PortalHeader({
           </div>
         )}
 
-        <div className="flex shrink-0 items-center justify-end gap-4 lg:gap-5">
+        <div className={cn("flex shrink-0 items-center justify-end gap-4", !compact && "lg:gap-5")}>
           {headerItems.map((item) => {
             if (item === "links") {
-              if (navLinks.length === 0) return null
+              if (navLinks.length === 0 || compact) return null
               return (
                 <nav
                   key={item}
@@ -198,7 +211,7 @@ export function PortalHeader({
               )
             }
             if (item === "cta") {
-              if (!cta) return null
+              if (!cta || compact) return null
               return (
                 <a
                   key={item}
@@ -231,7 +244,10 @@ export function PortalHeader({
         <nav
           aria-label="Portal pages"
           data-portal-page-nav
-          className="flex min-h-12 items-end gap-8 overflow-x-auto border-t border-border/70 px-6 text-sm font-medium sm:px-8"
+          className={cn(
+            "flex min-h-12 items-end gap-8 overflow-x-auto border-t border-border/70 text-sm font-medium",
+            compact ? "px-4" : "px-6 sm:px-8",
+          )}
         >
           <HoverPrefetchLink
             href={homeHref}

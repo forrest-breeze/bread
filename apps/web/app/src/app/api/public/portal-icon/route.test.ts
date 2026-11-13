@@ -32,7 +32,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs())
 
 describe("portal favicon", () => {
-  it("uses an external workspace logo instead of a letter placeholder", async () => {
+  it("uses an external workspace logo instead of the Breeze mark fallback", async () => {
     portal.workspace.branding.logoUrl = "https://cdn.example.com/logo.svg"
     const response = await GET(request())
     expect(response.status).toBe(302)
@@ -61,11 +61,13 @@ describe("portal favicon", () => {
     expect(element.props.style.borderRadius).toBe("50%")
   })
 
-  it("uses a letter when no usable logo exists", async () => {
+  it("falls back to the Breeze mark when no usable logo exists", async () => {
     portal.layout.theme.faviconUrl = "javascript:alert(1)"
     portal.workspace.branding.logoUrl = "invalid"
-    await GET(request())
-    expect(mocks.render.mock.calls[0][0].props.children).toBe("A")
+    const response = await GET(request())
+    expect(response.status).toBe(302)
+    expect(response.headers.get("location")).toBe("https://app.example.com/icon.png")
+    expect(mocks.render).not.toHaveBeenCalled()
   })
 
   it("preserves portal access checks", async () => {

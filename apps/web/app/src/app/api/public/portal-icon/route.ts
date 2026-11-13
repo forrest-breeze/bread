@@ -76,9 +76,20 @@ export async function GET(request: NextRequest): Promise<ImageResponse | Respons
   ]
     .map(imageUrl)
     .find((value): value is string => value !== null)
+  // No logo anywhere: fall back to the Breeze mark (the app's own favicon,
+  // src/app/icon.png) rather than drawing the workspace's initial.
+  if (!faviconUrl) {
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: new URL("/icon.png", request.url).toString(),
+        "Cache-Control": CACHE_CONTROL,
+      },
+    })
+  }
   // Imported branding can live on an external CDN. Let the browser load it
   // directly instead of discarding it or fetching arbitrary URLs on the server.
-  if (faviconUrl && !publicStorageImageUrl(faviconUrl)) {
+  if (!publicStorageImageUrl(faviconUrl)) {
     return new Response(null, {
       status: 302,
       headers: { Location: faviconUrl, "Cache-Control": CACHE_CONTROL },
@@ -89,51 +100,28 @@ export async function GET(request: NextRequest): Promise<ImageResponse | Respons
   // Inset the image so its corners sit inside the rounded/circular crop: a
   // square fits a circle at ~71% of its diameter.
   const inset = circle ? 0.15 : 0.06
-  const icon = faviconUrl
-    ? createElement(
-        "div",
-        {
-          style: {
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            borderRadius,
-            background: "transparent",
-          },
+  const icon = createElement(
+      "div",
+      {
+        style: {
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          borderRadius,
+          background: "transparent",
         },
-        createElement("img", {
-          src: faviconUrl,
-          alt: "",
-          width: Math.round(ICON_SIZE.width * (1 - inset * 2)),
-          height: Math.round(ICON_SIZE.height * (1 - inset * 2)),
-          style: { objectFit: "contain" },
-        }),
-      )
-    : createElement(
-        "div",
-        {
-          style: {
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            borderRadius,
-            background: theme?.accentColor || workspace.branding.accentColor,
-            color: "white",
-            fontSize: 20,
-            fontWeight: 700,
-          },
-        },
-        (theme?.logoText || theme?.brandName || workspace.name)
-          .trim()
-          .slice(0, 1)
-          .toUpperCase(),
-      )
+      },
+      createElement("img", {
+        src: faviconUrl,
+        alt: "",
+        width: Math.round(ICON_SIZE.width * (1 - inset * 2)),
+        height: Math.round(ICON_SIZE.height * (1 - inset * 2)),
+        style: { objectFit: "contain" },
+      }),
+    )
 
   return new ImageResponse(icon, {
     ...ICON_SIZE,

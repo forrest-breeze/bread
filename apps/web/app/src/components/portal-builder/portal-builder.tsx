@@ -3867,11 +3867,16 @@ export function PortalBuilder({
                     onAppearanceChange={setAppearance}
                     onOpenDocument={(ref) => void handlePreviewOpenDocument(ref)}
                     onOpenPage={(slug) => void handlePageChange(slug)}
+                    mobile={device === "mobile"}
                   />
                 ) : undefined
               }
+              // The live portal hides its nav rail on phones (it becomes a
+              // drawer), so the mobile editor frame leaves it out too. The
+              // inline editor can't rely on the rail's own `lg:` breakpoint:
+              // that follows the builder window, not the phone frame.
               contentSidebar={
-                hasOpenDocument ? (
+                hasOpenDocument && device !== "mobile" ? (
                   <PortalEditorFrameSidebar
                     layout={layout}
                     appearance={appearance}
